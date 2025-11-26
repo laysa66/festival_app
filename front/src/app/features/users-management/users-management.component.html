@@ -1,0 +1,76 @@
+<div class="toolbar">
+  <button class="back-btn" (click)="goBack()">
+    ← Retour au dashboard
+  </button>
+  <span>Gestion des utilisateurs</span>
+</div>
+
+<div class="container">
+  @if (errorMessage()) {
+    <div class="error-message">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="success-message">{{ successMessage() }}</div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">Chargement des utilisateurs...</div>
+  } @else {
+    <div class="users-grid">
+      @for (user of users(); track user.id) {
+        <div class="user-card">
+          <div class="user-header">
+            <h3>{{ user.prenom }} {{ user.nom }}</h3>
+            <span class="badge" [class.validated]="user.valide" [class.pending]="!user.valide">
+              {{ user.valide ? '✅ Validé' : '⏳ En attente' }}
+            </span>
+          </div>
+
+          <div class="user-info">
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Inscrit le:</strong> {{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+
+          <div class="user-actions">
+            <div class="form-group">
+              <label [for]="'role-' + user.id">Rôle:</label>
+              <select 
+                [id]="'role-' + user.id"
+                [value]="getRoleId(user.role)"
+                #roleSelect
+              >
+                @for (role of roles; track role.id) {
+                  <option [value]="role.id" [selected]="role.type === user.role">
+                    {{ role.type }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label [for]="'valide-' + user.id">Statut:</label>
+              <select [id]="'valide-' + user.id" #valideSelect [value]="user.valide ? 'true' : 'false'">
+                <option value="false">Non validé</option>
+                <option value="true">Validé</option>
+              </select>
+            </div>
+
+            <button 
+              class="update-btn"
+              (click)="updateUser(user.id, valideSelect.value === 'true', +roleSelect.value)"
+            >
+              💾 Mettre à jour
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (users().length === 0) {
+      <div class="empty-state">
+        <p>Aucun utilisateur trouvé</p>
+      </div>
+    }
+  }
+</div>
