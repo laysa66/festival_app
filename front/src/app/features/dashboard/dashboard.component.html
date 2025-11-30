@@ -1,0 +1,89 @@
+<mat-toolbar color="primary">
+  <span>Festival App</span>
+  <span class="spacer"></span>
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Déconnexion
+  </button>
+</mat-toolbar>
+
+<div class="dashboard-container">
+  @if (currentUser) {
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>waving_hand</mat-icon>
+          Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="user-info">
+          <mat-chip-set>
+            <mat-chip highlighted [color]="currentUser.role === 'ADMIN' ? 'warn' : currentUser.role === 'SUPER_ORGANISATEUR' ? 'accent' : 'primary'">
+              <mat-icon matChipAvatar>shield</mat-icon>
+              {{ currentUser.role }}
+            </mat-chip>
+            <mat-chip [highlighted]="currentUser.valide" [color]="currentUser.valide ? 'primary' : 'basic'">
+              <mat-icon matChipAvatar>{{ currentUser.valide ? 'verified' : 'pending' }}</mat-icon>
+              {{ currentUser.valide ? 'Compte validé' : 'En attente de validation' }}
+            </mat-chip>
+          </mat-chip-set>
+          
+          <div class="user-details">
+            <p><mat-icon>email</mat-icon> {{ currentUser.email }}</p>
+            <p><mat-icon>badge</mat-icon> ID: {{ currentUser.id }}</p>
+          </div>
+
+          @if (!currentUser.valide) {
+            <mat-card class="warning-card">
+              <mat-card-content>
+                <mat-icon color="warn">warning</mat-icon>
+                Votre compte est en attente de validation par un administrateur.
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (currentUser.role === 'ADMIN') {
+      <mat-card class="admin-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>admin_panel_settings</mat-icon>
+            Administration
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Vous avez accès aux fonctionnalités d'administration</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="warn" routerLink="/users">
+            <mat-icon>people</mat-icon>
+            Gérer les utilisateurs
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    @if (currentUser.role === 'SUPER_ORGANISATEUR') {
+      <mat-card class="management-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>business</mat-icon>
+            Gestion des Clients
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Accédez à la gestion complète de vos clients</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="accent" routerLink="/clients">
+            <mat-icon>groups</mat-icon>
+            Gérer les clients
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  }
+</div>

@@ -1,0 +1,89 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-toolbar {
+  button {
+    margin-left: 1rem;
+  }
+}
+
+.dashboard-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .welcome-card {
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+      }
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      mat-chip-set {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        p {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          
+          mat-icon {
+            color: #666;
+          }
+        }
+      }
+
+      .warning-card {
+        background: #fff3e0;
+        margin-top: 1rem;
+
+        mat-card-content {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .admin-section,
+  .management-section {
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+
+    mat-card-actions {
+      padding: 1rem;
+      
+      button {
+        mat-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}

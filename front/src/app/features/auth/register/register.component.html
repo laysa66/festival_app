@@ -1,135 +1,155 @@
 <div class="register-container">
-  <div class="register-card">
-    <h1>Inscription</h1>
-    <p class="subtitle">Créez votre compte Festival App</p>
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>person_add</mat-icon>
+        Inscription
+      </mat-card-title>
+      <mat-card-subtitle>Créez votre compte Festival App</mat-card-subtitle>
+    </mat-card-header>
     
-    @if (errorMessage()) {
-      <div class="error-message">{{ errorMessage() }}</div>
-    }
-    
-    @if (successMessage()) {
-      <div class="success-message">{{ successMessage() }}</div>
-    }
-    
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          id="email"
-          type="email" 
-          formControlName="email"
-          placeholder="votre@email.com"
-        />
-        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          <span class="error">{{ getFieldErrorMessage('email') }}</span>
-        }
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="nom">Nom</label>
+    <mat-card-content>
+      @if (errorMessage()) {
+        <div class="error-alert">
+          <mat-icon>error</mat-icon>
+          {{ errorMessage() }}
+        </div>
+      }
+      
+      @if (successMessage()) {
+        <div class="success-alert">
+          <mat-icon>check_circle</mat-icon>
+          {{ successMessage() }}
+        </div>
+      }
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
           <input 
-            id="nom"
-            type="text" 
-            formControlName="nom"
-            placeholder="Dupont"
+            matInput
+            type="email" 
+            formControlName="email"
+            placeholder="votre@email.com"
           />
-          @if (registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched) {
-            <span class="error">{{ getFieldErrorMessage('nom') }}</span>
+          <mat-icon matPrefix>email</mat-icon>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
           }
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nom</mat-label>
+            <input 
+              matInput
+              type="text" 
+              formControlName="nom"
+              placeholder="Dupont"
+            />
+            <mat-icon matPrefix>person</mat-icon>
+            @if (registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched) {
+              <mat-error>{{ getFieldErrorMessage('nom') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom</mat-label>
+            <input 
+              matInput
+              type="text" 
+              formControlName="prenom"
+              placeholder="Jean"
+            />
+            <mat-icon matPrefix>badge</mat-icon>
+            @if (registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched) {
+              <mat-error>{{ getFieldErrorMessage('prenom') }}</mat-error>
+            }
+          </mat-form-field>
         </div>
 
-        <div class="form-group">
-          <label for="prenom">Prénom</label>
+        <mat-form-field appearance="outline">
+          <mat-label>Mot de passe</mat-label>
           <input 
-            id="prenom"
-            type="text" 
-            formControlName="prenom"
-            placeholder="Jean"
-          />
-          @if (registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched) {
-            <span class="error">{{ getFieldErrorMessage('prenom') }}</span>
-          }
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <div class="password-field">
-          <input 
-            id="password"
+            matInput
             [type]="hidePassword() ? 'password' : 'text'" 
             formControlName="password"
-            placeholder="••••••••"
+            placeholder="Entrez votre mot de passe"
           />
+          <mat-icon matPrefix>lock</mat-icon>
           <button 
-            type="button" 
-            class="toggle-password"
+            mat-icon-button 
+            matSuffix 
+            type="button"
             (click)="hidePassword.set(!hidePassword())"
           >
-            {{ hidePassword() ? '👁️' : '🙈' }}
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-        </div>
-        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <span class="error">{{ getFieldErrorMessage('password') }}</span>
-        }
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <mat-error>{{ getFieldErrorMessage('password') }}</mat-error>
+          }
+        </mat-form-field>
         
         @if (registerForm.get('password')?.value) {
           <div class="password-strength">
-            <div class="strength-bar">
-              <div 
-                class="strength-fill" 
-                [style.width.%]="passwordStrength().strength"
-                [class.weak]="passwordStrength().strength < 60"
-                [class.medium]="passwordStrength().strength >= 60 && passwordStrength().strength < 80"
-                [class.strong]="passwordStrength().strength >= 80"
-              ></div>
-            </div>
+            <mat-progress-bar 
+              mode="determinate" 
+              [value]="passwordStrength().strength"
+              [color]="passwordStrength().strength >= 80 ? 'primary' : passwordStrength().strength >= 60 ? 'accent' : 'warn'"
+            ></mat-progress-bar>
             <span class="strength-label">{{ passwordStrength().label }}</span>
           </div>
         }
-      </div>
 
-      <div class="form-group">
-        <label for="confirmPassword">Confirmer le mot de passe</label>
-        <div class="password-field">
+        <mat-form-field appearance="outline">
+          <mat-label>Confirmer le mot de passe</mat-label>
           <input 
-            id="confirmPassword"
+            matInput
             [type]="hideConfirmPassword() ? 'password' : 'text'" 
             formControlName="confirmPassword"
-            placeholder="••••••••"
+            placeholder="Confirmez votre mot de passe"
           />
+          <mat-icon matPrefix>lock_check</mat-icon>
           <button 
-            type="button" 
-            class="toggle-password"
+            mat-icon-button 
+            matSuffix 
+            type="button"
             (click)="hideConfirmPassword.set(!hideConfirmPassword())"
           >
-            {{ hideConfirmPassword() ? '👁️' : '🙈' }}
+            <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-        </div>
-        @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-          <span class="error">{{ getFieldErrorMessage('confirmPassword') }}</span>
-        }
-        @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
-          <span class="error">Les mots de passe ne correspondent pas</span>
-        }
-      </div>
+          @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+            <mat-error>{{ getFieldErrorMessage('confirmPassword') }}</mat-error>
+          }
+          @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
+            <mat-error>Les mots de passe ne correspondent pas</mat-error>
+          }
+        </mat-form-field>
 
-      <button 
-        type="submit" 
-        class="submit-btn"
-        [disabled]="isLoading()"
-      >
-        @if (isLoading()) {
-          <span>Inscription en cours...</span>
-        } @else {
-          <span>S'inscrire</span>
-        }
-      </button>
-    </form>
+        <button 
+          mat-raised-button 
+          color="primary"
+          type="submit" 
+          class="submit-btn"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          }
+          @if (isLoading()) {
+            <span>Inscription en cours...</span>
+          } @else {
+            <span>S'inscrire</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
 
-    <div class="login-link">
-      <p>Déjà un compte ? <a routerLink="/login">Se connecter</a></p>
-    </div>
-  </div>
+    <mat-card-actions>
+      <p class="login-link">
+        Déjà un compte ? 
+        <a routerLink="/login" mat-button color="accent">Se connecter</a>
+      </p>
+    </mat-card-actions>
+  </mat-card>
 </div>

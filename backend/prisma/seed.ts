@@ -35,7 +35,7 @@ async function main() {
     },
   });
   console.log('---- Admin user created TADA ----');
-  console.log('🎉 Database seeded successfully!');
+
 }
 
 main()

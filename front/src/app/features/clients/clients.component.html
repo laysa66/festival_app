@@ -1,0 +1,81 @@
+<mat-toolbar color="accent">
+  <span>Festival App - Gestion Clients</span>
+  <span class="spacer"></span>
+  <button mat-button routerLink="/dashboard">
+    <mat-icon>dashboard</mat-icon>
+    Dashboard
+  </button>
+  <button mat-button (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Déconnexion
+  </button>
+</mat-toolbar>
+
+<div class="clients-container">
+  @if (currentUser()) {
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>groups</mat-icon>
+          Gestion des Clients
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="welcome-text">
+          Bienvenue <strong>{{ currentUser()!.prenom }} {{ currentUser()!.nom }}</strong>
+        </p>
+        <mat-chip-set>
+          <mat-chip highlighted color="accent">
+            <mat-icon matChipAvatar>workspace_premium</mat-icon>
+            {{ currentUser()!.role }}
+          </mat-chip>
+        </mat-chip-set>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="features-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          Fonctionnalités disponibles
+        </mat-card-title>
+        <mat-card-subtitle>
+          Cette page est réservée aux Super Organisateurs
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Ici vous pourrez gérer les clients du festival.</p>
+        
+        <mat-list>
+          <mat-list-item>
+            <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+            <div matListItemTitle>Voir la liste des clients</div>
+            <div matListItemLine>Consultez tous les clients enregistrés</div>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+            <div matListItemTitle>Ajouter de nouveaux clients</div>
+            <div matListItemLine>Créez de nouvelles fiches clients</div>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+            <div matListItemTitle>Modifier les informations clients</div>
+            <div matListItemLine>Mettez à jour les données clients</div>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+            <div matListItemTitle>Supprimer des clients</div>
+            <div matListItemLine>Retirez des clients de la base</div>
+          </mat-list-item>
+        </mat-list>
+
+        <mat-card class="info-note">
+          <mat-card-content>
+            <mat-icon color="primary">lightbulb</mat-icon>
+            Pour accéder au dashboard, cliquez sur le bouton "Dashboard" dans la barre de navigation ci-dessus.
+          </mat-card-content>
+        </mat-card>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

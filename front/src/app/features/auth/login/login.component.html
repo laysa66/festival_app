@@ -1,63 +1,82 @@
 <div class="login-container">
-  <div class="login-card">
-    <h1>Connexion</h1>
-    <p class="subtitle">Festival App</p>
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>login</mat-icon>
+        Connexion
+      </mat-card-title>
+      <mat-card-subtitle>Festival App</mat-card-subtitle>
+    </mat-card-header>
     
-    @if (errorMessage()) {
-      <div class="error-message">{{ errorMessage() }}</div>
-    }
-    
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          id="email"
-          type="email" 
-          formControlName="email"
-          placeholder="votre@email.com"
-        />
-        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-          <span class="error">{{ getEmailErrorMessage() }}</span>
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="password">Mot de passe</label>
-        <div class="password-field">
+    <mat-card-content>
+      @if (errorMessage()) {
+        <div class="error-alert">
+          <mat-icon>error</mat-icon>
+          {{ errorMessage() }}
+        </div>
+      }
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
           <input 
-            id="password"
+            matInput
+            type="email" 
+            formControlName="email"
+            placeholder="votre@email.com"
+          />
+          <mat-icon matPrefix>email</mat-icon>
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <mat-error>{{ getEmailErrorMessage() }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mot de passe</mat-label>
+          <input 
+            matInput
             [type]="hidePassword() ? 'password' : 'text'" 
             formControlName="password"
-            placeholder="••••••••" 
+            placeholder="Entrez votre mot de passe" 
           />
+          <mat-icon matPrefix>lock</mat-icon>
           <button 
-            type="button" 
-            class="toggle-password"
+            mat-icon-button 
+            matSuffix 
+            type="button"
             (click)="hidePassword.set(!hidePassword())"
           >
-            {{ hidePassword() ? '👁️' : '🙈' }}
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-        </div>
-        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <span class="error">{{ getPasswordErrorMessage() }}</span>
-        }
-      </div>
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <mat-error>{{ getPasswordErrorMessage() }}</mat-error>
+          }
+        </mat-form-field>
 
-      <button 
-        type="submit" 
-        class="submit-btn"
-        [disabled]="isLoading()"
-      >
-        @if (isLoading()) {
-          <span>Connexion en cours...</span>
-        } @else {
-          <span>Se connecter</span>
-        }
-      </button>
-    </form>
+        <button 
+          mat-raised-button 
+          color="primary"
+          type="submit" 
+          class="submit-btn"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          }
+          @if (isLoading()) {
+            <span>Connexion en cours...</span>
+          } @else {
+            <span>Se connecter</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
 
-    <div class="register-link">
-      <p>Pas encore de compte ? <a routerLink="/register">S'inscrire</a></p>
-    </div>
-  </div>
+    <mat-card-actions>
+      <p class="register-link">
+        Pas encore de compte ? 
+        <a routerLink="/register" mat-button color="accent">S'inscrire</a>
+      </p>
+    </mat-card-actions>
+  </mat-card>
 </div>
