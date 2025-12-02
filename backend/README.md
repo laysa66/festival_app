@@ -21,16 +21,9 @@ npm install
 cp .env.example .env
 ```
 
-3. Éditer le fichier `.env` avec vos configurations :
-```
-demande moi
-```
+3. Éditer le fichier `.env` avec les configurations
 
-4. Créer la base de données PostgreSQL :
-```bash
-psql -U postgres
-CREATE DATABASE festival_app;
-```
+4. Créer la base de données PostgreSQL => on utilise prisma 
 
 ### Lancement du serveur
 
