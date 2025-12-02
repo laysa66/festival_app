@@ -25,12 +25,42 @@ model User {
   valide       Boolean  @default(false)
   roleId       Int      @map("role_id")
   role         Role     @relation(fields: [roleId], references: [id])
-  games        Game[]
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("users")
+}
+
+model Festival {
+  id              Int             @id @default(autoincrement())
+  nom             String          @db.VarChar(100)
+  lieu            String          @db.VarChar(100)
+  dateDebut       DateTime        @db.Date
+  dateFin         DateTime        @db.Date
+  nbTotalTable    Int
+  nbTotalChaise   Int
+  zoneTarifaires  ZoneTarifaire[]
+  zonePlans       ZonePlan[]
+}
+
+model ZoneTarifaire {
+  id            Int         @id @default(autoincrement())
+  festivalId    Int         @map("festival_id")
+  festival      Festival    @relation(fields: [festivalId], references: [id])
+  nom           String      @db.VarChar(100)
+  prixTable     Float       @db.Real
+  prixM2        Float       @db.Real
+  zonePlans     ZonePlan[]
+}
+
+model ZonePlan {
+  id              Int           @id @default(autoincrement())
+  festivalId      Int           @map("festival_id")
+  festival        Festival      @relation(fields: [festivalId], references: [id])
+  nom             String        @db.VarChar(100)
+  zoneTarifaireId Int           @map("zone_tarifaire_id")
+  zoneTarifaire   ZoneTarifaire @relation(fields: [zoneTarifaireId], references: [id], onDelete: Cascade)
 }
 
 
