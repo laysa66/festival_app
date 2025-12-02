@@ -16,7 +16,7 @@ async function start() {
     console.log(`Swagger documentation: http://localhost:${env.PORT}/documentation`);
     console.log(`Environment: ${env.NODE_ENV}`);
   } catch (error) {
-    console.error('❌ Error starting server:', error);
+    console.error('Error starting server:', error);
     process.exit(1);
   }
 }

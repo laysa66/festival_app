@@ -25,6 +25,22 @@ cp .env.example .env
 
 4. Créer la base de données PostgreSQL => on utilise prisma 
 
+** sans oublier d'integrer les dependances **
+```
+cd backend
+npm install csv-parse
+npm install --save-dev @types/node
+```
+
+5. pour les donnees dans .csv, integration a l'aide de prisma
+
+```
+npx prisma migrate dev
+npm run import:csv
+npm run prisma:seed
+```
+
+
 ### Lancement du serveur
 
 ```bash

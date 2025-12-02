@@ -15,6 +15,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     logger: {
       level: env.NODE_ENV === 'development' ? 'info' : 'warn',
     },
+    
   });
 
   // Register CORS

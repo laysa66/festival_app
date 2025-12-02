@@ -25,7 +25,6 @@ model User {
   valide       Boolean  @default(false)
   roleId       Int      @map("role_id")
   role         Role     @relation(fields: [roleId], references: [id])
-  games        Game[]
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -33,4 +32,67 @@ model User {
   @@map("users")
 }
 
+model Editeur {
+  id           Int     @id @default(autoincrement())
+  libelle      String
+  exposant     Boolean @default(false)
+  distributeur Boolean @default(false)
+  logo         String?
+  jeux         Jeu[]
+  
+  @@map("editeurs")
+}
 
+model TypeJeu {
+  id      Int    @id @default(autoincrement())
+  libelle String
+  idZone  String?
+  jeux    Jeu[]
+  
+  @@map("types_jeu")
+}
+
+model Mecanism {
+  id          Int           @id @default(autoincrement())
+  nom         String
+  description String?
+  jeux        JeuMecanism[]
+  
+  @@map("mecanismes")
+}
+
+model Jeu {
+  id              Int           @id @default(autoincrement())
+  libelle         String
+  auteur          String?
+  nbMinJoueur     Int?
+  nbMaxJoueur     Int?
+  notice          String?
+  idEditeur       Int?
+  idTypeJeu       Int?
+  ageMin          Int?
+  prototype       Boolean       @default(false)
+  duree           Int?
+  theme           String?
+  description     String?
+  image           String?
+  videoRegle      String?
+  editeur         Editeur?      @relation(fields: [idEditeur], references: [id])
+  typeJeu         TypeJeu?      @relation(fields: [idTypeJeu], references: [id])
+  mecanismes      JeuMecanism[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("jeux")
+}
+
+model JeuMecanism {
+  id          Int       @id @default(autoincrement())
+  idJeu       Int
+  idMecanism  Int
+  jeu         Jeu       @relation(fields: [idJeu], references: [id], onDelete: Cascade)
+  mecanism    Mecanism  @relation(fields: [idMecanism], references: [id], onDelete: Cascade)
+  
+  @@unique([idJeu, idMecanism])
+  @@map("jeux_mecanismes")
+}

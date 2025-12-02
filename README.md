@@ -19,8 +19,16 @@ cd backend
 npm install
 npm run dev
 ```
+avec prisma 
+```
+npx prisma migrate dev
+npm run import:csv
+npm run prisma:seed
+```
+
+
 ** remarque :faut ajouter et modifier le .env en s'inspirant de .env.example **
-Le backend démarre sur http://localhost:3001
+Le backend démarre sur http://localhost:3000
 
 ###  Lancer le frontend
 
@@ -83,7 +91,7 @@ npm run watch
 
 
 ## to check if the server is running 
-Navigate to http://localhost:3001/health 
+Navigate to http://localhost:3000/health 
 
-## to check if the api is working properly to begin with 
-http://localhost:3001/api/
+## the url to the SWAGGER API 
+navigate to http://localhost:3000/documentation
