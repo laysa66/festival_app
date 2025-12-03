@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +14,6 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [
     CommonModule, 
     RouterLink,
-    MatToolbarModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -27,11 +25,6 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class ClientsComponent {
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   currentUser = signal(this.authService.getCurrentUser());
-
-  logout(): void {
-    this.authService.logout();
-  }
 }

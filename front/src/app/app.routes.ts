@@ -1,5 +1,15 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
+import { LoginComponent } from './features/auth/login/login.component';
+import { RegisterComponent} from './features/auth/register/register.component';
+import {  DashboardComponent } from './features/dashboard/dashboard.component';
+import { UsersManagementComponent} from './features/users-management/users-management.component';
+import { ClientsComponent} from './features/clients/clients.component';
+import { UserRole } from './core/models/user.interface';
+
+// on met [authGuard] pour protéger les routes nécessitant une authentification
+// on met roleGuard avec les rôles autorisés pour les routes restreintes par rôle
 
 export const routes: Routes = [
   {
@@ -8,27 +18,32 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+    path: 'login', component: LoginComponent 
   },
   {
     path: 'register',
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+    component: RegisterComponent
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [authGuard]
+    component: DashboardComponent,
+    canActivate: [authGuard] 
   },
   {
     path: 'users',
-    loadComponent: () => import('./features/users-management/users-management.component').then(m => m.UsersManagementComponent),
-    canActivate: [authGuard]
+    component: UsersManagementComponent,
+    canActivate: [
+      authGuard,
+      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN])
+    ]
   },
   {
     path: 'clients',
-    loadComponent: () => import('./features/clients/clients.component').then(m => m.ClientsComponent),
-    canActivate: [authGuard]
+    component: ClientsComponent,
+    canActivate: [
+      authGuard,
+      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN])
+    ]
   },
   {
     path: 'festivals',

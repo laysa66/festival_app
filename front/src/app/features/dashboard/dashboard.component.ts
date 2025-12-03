@@ -15,7 +15,6 @@ import { User } from '../../core/models/user.interface';
   imports: [
     CommonModule, 
     RouterModule,
-    MatToolbarModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -32,9 +31,5 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

@@ -62,8 +62,4 @@ export class UsersManagementComponent implements OnInit {
   getRoleId(roleType: string): number {
     return this.roles.find(r => r.type === roleType)?.id || 2;
   }
-
-  goBack(): void {
-    this.router.navigate(['/dashboard']);
-  }
 }

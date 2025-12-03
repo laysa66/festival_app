@@ -1,16 +1,3 @@
-<mat-toolbar color="accent">
-  <span>Festival App - Gestion Clients</span>
-  <span class="spacer"></span>
-  <button mat-button routerLink="/dashboard">
-    <mat-icon>dashboard</mat-icon>
-    Dashboard
-  </button>
-  <button mat-button (click)="logout()">
-    <mat-icon>logout</mat-icon>
-    Déconnexion
-  </button>
-</mat-toolbar>
-
 <div class="clients-container">
   @if (currentUser()) {
     <mat-card class="welcome-card">
