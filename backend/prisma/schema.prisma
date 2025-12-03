@@ -42,6 +42,37 @@ model Editeur {
   
   @@map("editeurs")
 }
+model Festival {
+  id              Int             @id @default(autoincrement())
+  nom             String          @db.VarChar(100)
+  lieu            String          @db.VarChar(100)
+  dateDebut       DateTime        @db.Date
+  dateFin         DateTime        @db.Date
+  nbTotalTable    Int
+  nbTotalChaise   Int
+  zoneTarifaires  ZoneTarifaire[]
+  zonePlans       ZonePlan[]
+}
+
+model ZoneTarifaire {
+  id            Int         @id @default(autoincrement())
+  festivalId    Int         @map("festival_id")
+  festival      Festival    @relation(fields: [festivalId], references: [id])
+  nom           String      @db.VarChar(100)
+  prixTable     Float       @db.Real
+  prixM2        Float       @db.Real
+  zonePlans     ZonePlan[]
+}
+
+model ZonePlan {
+  id              Int           @id @default(autoincrement())
+  festivalId      Int           @map("festival_id")
+  festival        Festival      @relation(fields: [festivalId], references: [id])
+  nom             String        @db.VarChar(100)
+  zoneTarifaireId Int           @map("zone_tarifaire_id")
+  zoneTarifaire   ZoneTarifaire @relation(fields: [zoneTarifaireId], references: [id], onDelete: Cascade)
+}
+
 
 model TypeJeu {
   id      Int    @id @default(autoincrement())
