@@ -1,0 +1,49 @@
+
+@if(festival()){
+    @let fest = festival()!;
+    <div class="festival-card-container">
+        <mat-card class="festival-card" appearance="raised">
+            <div class="card-header-container">
+                <h2 class="festival-header">{{ fest.festivalName }}</h2>
+            </div>
+            <div class="divider"></div>
+            <div class="card-content-container">
+                <div class="info-row">
+                    <span class="label">Date:</span>
+                    <span class="value">{{ fest.year }}</span>
+                </div>
+
+                <!-- <div class="status-badge-row">
+                    @if (fest.year > 2025) {
+                        <span class="status-badge planned">PLANNED</span>
+                    }
+                    @else if (fest.year === 2025) {
+                        <span class="status-badge open">OPEN FOR REGISTRATION</span>
+                    }
+                    @else {
+                        <span class="status-badge completed">COMPLETED</span>
+                    }
+                </div>
+
+                <div class="flag-badge-row">
+                    @switch (fest.region) {
+                        @case ("Belgium") {
+                            <span class="flag-badge" title="Belgium">🇧🇪 Belgium</span>
+                        }
+                        @case ("Spain") {
+                            <span class="flag-badge" title="Spain">🇪🇸 Spain</span>
+                        }
+                        @case ("Croatia") {
+                            <span class="flag-badge" title="Croatia">🇭🇷 Croatia</span>
+                        }
+                        @default {
+                            <span class="flag-badge" title="Unknown"> ❓ Unknown </span>
+                        }
+                    }
+                </div> -->
+                <button class="pastel-btn" (click)="onDelete(fest.id)">Delete</button>
+            </div>
+        </mat-card>
+
+    </div>
+}
