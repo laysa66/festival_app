@@ -1,0 +1,33 @@
+<nav class="navbar">
+    @if(currentUser) {
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a routerLink="/dashboard">Festival App</a>
+    </div>
+
+    
+    <div class="navbar-links">
+        @for (link of visibleLinks ; track link.path) {
+            <a
+              [routerLink]="link.path"
+              routerLinkActive="active"
+              class="nav-link"
+            >
+              <span class="icon">{{ link.icon }}</span>
+              <span class="label">{{ link.label }}</span>
+            </a>
+        }
+    </div>
+
+    <div class="navbar-user">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser.prenom }} {{ currentUser.nom }}</span>
+        <span class="user-role">{{ userRoleLabel }}</span>
+      </div>
+      <button (click)="logout()" class="btn-logout">
+         Déconnexion
+      </button>
+    </div>
+  </div>
+}
+</nav>
