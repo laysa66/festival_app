@@ -46,10 +46,6 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'festivals',
-    loadComponent: () => import('./features/festival/festival-card/festival-card.component').then(m=>m.FestivalCardComponent)
-  },
-  {
     path: '**',
     redirectTo: '/login'
   }
