@@ -1,87 +1,112 @@
 <div class="register-container">
+  <!-- Animated Background Particles -->
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Register Card -->
   <mat-card class="register-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>person_add</mat-icon>
-        Inscription
-      </mat-card-title>
-      <mat-card-subtitle>Créez votre compte Festival App</mat-card-subtitle>
-    </mat-card-header>
+    <!-- Logo & Title Section -->
+    <div class="card-header">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">celebration</mat-icon>
+        <div class="glow-circle"></div>
+      </div>
+      <h1 class="title">Rejoignez l'Aventure</h1>
+      <p class="subtitle">Créez votre compte et organisez vos festivals de jeux</p>
+    </div>
     
     <mat-card-content>
+      <!-- Error Alert -->
       @if (errorMessage()) {
         <div class="error-alert">
-          <mat-icon>error</mat-icon>
-          {{ errorMessage() }}
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
         </div>
       }
       
+      <!-- Success Alert -->
       @if (successMessage()) {
         <div class="success-alert">
-          <mat-icon>check_circle</mat-icon>
-          {{ successMessage() }}
+          <mat-icon class="success-icon">check_circle_outline</mat-icon>
+          <span>{{ successMessage() }}</span>
         </div>
       }
       
+      <!-- Register Form -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="custom-field">
+          <mat-label>Adresse Email</mat-label>
           <input 
             matInput
             type="email" 
             formControlName="email"
             placeholder="votre@email.com"
+            autocomplete="email"
           />
-          <mat-icon matPrefix>email</mat-icon>
+          <mat-icon matPrefix class="field-icon">alternate_email</mat-icon>
           @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
             <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
           }
         </mat-form-field>
 
+        <!-- Name Row -->
         <div class="form-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="custom-field">
             <mat-label>Nom</mat-label>
             <input 
               matInput
               type="text" 
               formControlName="nom"
               placeholder="Dupont"
+              autocomplete="family-name"
             />
-            <mat-icon matPrefix>person</mat-icon>
+            <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
             @if (registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched) {
               <mat-error>{{ getFieldErrorMessage('nom') }}</mat-error>
             }
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="custom-field">
             <mat-label>Prénom</mat-label>
             <input 
               matInput
               type="text" 
               formControlName="prenom"
               placeholder="Jean"
+              autocomplete="given-name"
             />
-            <mat-icon matPrefix>badge</mat-icon>
+            <mat-icon matPrefix class="field-icon">badge</mat-icon>
             @if (registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched) {
               <mat-error>{{ getFieldErrorMessage('prenom') }}</mat-error>
             }
           </mat-form-field>
         </div>
 
-        <mat-form-field appearance="outline">
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="custom-field">
           <mat-label>Mot de passe</mat-label>
           <input 
             matInput
             [type]="hidePassword() ? 'password' : 'text'" 
             formControlName="password"
-            placeholder="Entrez votre mot de passe"
+            placeholder="••••••••"
+            autocomplete="new-password"
           />
-          <mat-icon matPrefix>lock</mat-icon>
+          <mat-icon matPrefix class="field-icon">lock</mat-icon>
           <button 
             mat-icon-button 
             matSuffix 
             type="button"
             (click)="hidePassword.set(!hidePassword())"
+            class="toggle-password"
+            tabindex="-1"
           >
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
@@ -90,31 +115,49 @@
           }
         </mat-form-field>
         
+        <!-- Password Strength Indicator -->
         @if (registerForm.get('password')?.value) {
           <div class="password-strength">
-            <mat-progress-bar 
-              mode="determinate" 
-              [value]="passwordStrength().strength"
-              [color]="passwordStrength().strength >= 80 ? 'primary' : passwordStrength().strength >= 60 ? 'accent' : 'warn'"
-            ></mat-progress-bar>
-            <span class="strength-label">{{ passwordStrength().label }}</span>
+            <div class="strength-bar-container">
+              <div 
+                class="strength-bar" 
+                [style.width.%]="passwordStrength().strength"
+                [ngClass]="'strength-' + passwordStrength().color"
+              ></div>
+            </div>
+            <div class="strength-info">
+              <span class="strength-label" [ngClass]="'label-' + passwordStrength().color">
+                {{ passwordStrength().label }}
+              </span>
+              <mat-icon 
+                class="info-icon" 
+                matTooltip="Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial"
+                matTooltipPosition="right"
+              >
+                info_outline
+              </mat-icon>
+            </div>
           </div>
         }
 
-        <mat-form-field appearance="outline">
+        <!-- Confirm Password Field -->
+        <mat-form-field appearance="outline" class="custom-field">
           <mat-label>Confirmer le mot de passe</mat-label>
           <input 
             matInput
             [type]="hideConfirmPassword() ? 'password' : 'text'" 
             formControlName="confirmPassword"
-            placeholder="Confirmez votre mot de passe"
+            placeholder="••••••••"
+            autocomplete="new-password"
           />
-          <mat-icon matPrefix>lock_check</mat-icon>
+          <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
           <button 
             mat-icon-button 
             matSuffix 
             type="button"
             (click)="hideConfirmPassword.set(!hideConfirmPassword())"
+            class="toggle-password"
+            tabindex="-1"
           >
             <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
@@ -126,6 +169,23 @@
           }
         </mat-form-field>
 
+        <!-- Terms and Conditions -->
+        <div class="terms-container">
+          <mat-checkbox formControlName="acceptTerms" color="primary" class="accept-terms">
+            J'accepte les 
+            <a href="#" class="terms-link">conditions d'utilisation</a> 
+            et la 
+            <a href="#" class="terms-link">politique de confidentialité</a>
+          </mat-checkbox>
+          @if (registerForm.get('acceptTerms')?.invalid && registerForm.get('acceptTerms')?.touched) {
+            <div class="terms-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>Vous devez accepter les conditions pour continuer</span>
+            </div>
+          }
+        </div>
+
+        <!-- Register Button -->
         <button 
           mat-raised-button 
           color="primary"
@@ -134,21 +194,24 @@
           [disabled]="isLoading()"
         >
           @if (isLoading()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          }
-          @if (isLoading()) {
-            <span>Inscription en cours...</span>
+            <mat-spinner diameter="20" class="spinner"></mat-spinner>
+            <span>Création en cours...</span>
           } @else {
-            <span>S'inscrire</span>
+            <mat-icon>person_add</mat-icon>
+            <span>Créer mon compte</span>
           }
         </button>
       </form>
     </mat-card-content>
 
-    <mat-card-actions>
+    <!-- Login Link -->
+    <mat-card-actions class="card-footer">
       <p class="login-link">
-        Déjà un compte ? 
-        <a routerLink="/login" mat-button color="accent">Se connecter</a>
+        Vous avez déjà un compte ? 
+        <a routerLink="/login" class="login-link-btn">
+          Se connecter
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
       </p>
     </mat-card-actions>
   </mat-card>

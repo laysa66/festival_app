@@ -1,50 +1,71 @@
 <div class="login-container">
+  <!-- Animated Background Particles -->
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Login Card -->
   <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>login</mat-icon>
-        Connexion
-      </mat-card-title>
-      <mat-card-subtitle>Festival App</mat-card-subtitle>
-    </mat-card-header>
+    <!-- Logo & Title Section -->
+    <div class="card-header">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">casino</mat-icon>
+        <div class="glow-circle"></div>
+      </div>
+      <h1 class="title">Festival de Jeux</h1>
+      <p class="subtitle">Gérez vos festivals de jeux de société</p>
+    </div>
     
     <mat-card-content>
+      <!-- Error Alert -->
       @if (errorMessage()) {
         <div class="error-alert">
-          <mat-icon>error</mat-icon>
-          {{ errorMessage() }}
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
         </div>
       }
       
+      <!-- Login Form -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="custom-field">
+          <mat-label>Adresse Email</mat-label>
           <input 
             matInput
             type="email" 
             formControlName="email"
             placeholder="votre@email.com"
+            autocomplete="email"
           />
-          <mat-icon matPrefix>email</mat-icon>
+          <mat-icon matPrefix class="field-icon">alternate_email</mat-icon>
           @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
             <mat-error>{{ getEmailErrorMessage() }}</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="custom-field">
           <mat-label>Mot de passe</mat-label>
           <input 
             matInput
             [type]="hidePassword() ? 'password' : 'text'" 
             formControlName="password"
-            placeholder="Entrez votre mot de passe" 
+            placeholder="••••••••"
+            autocomplete="current-password"
           />
-          <mat-icon matPrefix>lock</mat-icon>
+          <mat-icon matPrefix class="field-icon">lock</mat-icon>
           <button 
             mat-icon-button 
             matSuffix 
             type="button"
-            (click)="hidePassword.set(!hidePassword())"
+            (click)="togglePasswordVisibility()"
+            class="toggle-password"
+            tabindex="-1"
           >
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
@@ -53,6 +74,15 @@
           }
         </mat-form-field>
 
+        <!-- Remember Me & Forgot Password -->
+        <div class="form-options">
+          <mat-checkbox formControlName="rememberMe" color="primary" class="remember-me">
+            Se souvenir de moi
+          </mat-checkbox>
+          <a href="#" class="forgot-password">Mot de passe oublié?</a>
+        </div>
+
+        <!-- Login Button -->
         <button 
           mat-raised-button 
           color="primary"
@@ -61,21 +91,25 @@
           [disabled]="isLoading()"
         >
           @if (isLoading()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          }
-          @if (isLoading()) {
-            <span>Connexion en cours...</span>
+            <mat-spinner diameter="20" class="spinner"></mat-spinner>
+            <span>Connexion...</span>
           } @else {
+            <mat-icon>login</mat-icon>
             <span>Se connecter</span>
           }
         </button>
       </form>
+
     </mat-card-content>
 
-    <mat-card-actions>
+    <!-- Register Link -->
+    <mat-card-actions class="card-footer">
       <p class="register-link">
         Pas encore de compte ? 
-        <a routerLink="/register" mat-button color="accent">S'inscrire</a>
+        <a routerLink="/register" class="register-link-btn">
+          Créer un compte
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
       </p>
     </mat-card-actions>
   </mat-card>
