@@ -50,6 +50,12 @@ model Festival {
   dateFin         DateTime        @db.Date
   nbTotalTable    Int
   nbTotalChaise   Int
+  bigTables       Int             @default(0)
+  bigChairs       Int             @default(0)
+  smallTables     Int             @default(0)
+  smallChairs     Int             @default(0)
+  mairieTables    Int             @default(0)
+  mairieChairs    Int             @default(0)
   zoneTarifaires  ZoneTarifaire[]
   zonePlans       ZonePlan[]
 }

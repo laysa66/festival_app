@@ -1,3 +1,21 @@
+export interface Festival {
+    id: number;
+    nom: string;
+    lieu: string;
+    dateDebut: string;
+    dateFin: string;
+    nbTotalTable: number;
+    nbTotalChaise: number;
+    bigTables?: number;
+    bigChairs?: number;
+    smallTables?: number;
+    smallChairs?: number;
+    mairieTables?: number;
+    mairieChairs?: number;
+    zoneTarifaires?: any[];
+    zonePlans?: any[];
+}
+
 export interface TarifZone {
     id: number;
     //name of the tariff zone
@@ -10,39 +28,4 @@ export interface TarifZone {
     tablePrice: number;
     //price per m2 in this tariff zone (default: tablePrice / 4)
     pricePerM2?: number;
-}
-
-export class Festival {
-    constructor(
-        //festival id
-        public readonly id: number,
-        //festival name (unique)
-        public festivalName: string,
-        //year of the festival
-        public year: number,
-        //total number of available tables (unit of measurement is table, m2 are converted to number of tables)
-        public totalTables: number,
-        //list of tariff zones
-        public tarifZones: TarifZone[]
-    ){
-        if (tarifZones.length === 0) {
-            throw new Error('Festival must have at least one tariff zone');
-        }
-        //initialize pricePerM2 if not provided
-        this.tarifZones.forEach(zone => {
-            if (!zone.pricePerM2) {
-                zone.pricePerM2 = zone.tablePrice / 4;
-            }
-        });
-    }
-
-    //get the number of tariff zones
-    public getNumberOfTarifZones(): number {
-        return this.tarifZones.length;
-    }
-
-    //check if festival has at least one tariff zone
-    public hasAtLeastOneZone(): boolean {
-        return this.tarifZones.length > 0;
-    }
 }

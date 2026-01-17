@@ -1,0 +1,103 @@
+.festival-list-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  color: #333;
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.header button {
+  background: linear-gradient(135deg, #7500A8 0%, #8916BC 100%);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background-color: #c62828;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error-message button:hover {
+  background-color: #b71c1c;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.loading p {
+  margin-top: 16px;
+  color: #666;
+  font-size: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.empty-state p {
+  color: #999;
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.empty-state button {
+  background: linear-gradient(135deg, #7500A8 0%, #8916BC 100%);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.festivals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .festivals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}

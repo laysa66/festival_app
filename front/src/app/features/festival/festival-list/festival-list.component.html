@@ -1,0 +1,39 @@
+<div class="festival-list-container">
+  <div class="header">
+    <h1>Festivals</h1>
+    <button mat-raised-button color="primary" (click)="openCreateForm()">
+      <mat-icon>add</mat-icon> New Festival
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      {{ error() }}
+      <button (click)="loadFestivals()">Retry</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Loading festivals...</p>
+    </div>
+  } @else if (festivals().length === 0) {
+    <div class="empty-state">
+      <p>No festivals found</p>
+      <button mat-raised-button color="primary" (click)="openCreateForm()">
+        Create First Festival
+      </button>
+    </div>
+  } @else {
+    <div class="festivals-grid">
+      @for (festival of festivals(); track festival.id) {
+        <app-festival-card 
+          [festival]="festival" 
+          (remove)="onFestivalDelete($event)"
+          (edit)="openEditForm($event)">
+        </app-festival-card>
+      }
+    </div>
+  }
+</div>

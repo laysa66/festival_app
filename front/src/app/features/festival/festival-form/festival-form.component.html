@@ -1,0 +1,124 @@
+<h2 mat-dialog-title>{{ data ? 'Edit Festival' : 'Create New Festival' }}</h2>
+
+<form [formGroup]="festivalForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <!-- Festival Name -->
+    <mat-form-field appearance="outline">
+      <mat-label>Festival Name</mat-label>
+      <input matInput formControlName="nom" placeholder="Enter festival name" />
+      @if (festivalForm.get('nom')?.hasError('required') || festivalForm.get('nom')?.hasError('minlength')) {
+        <mat-error>{{ getErrorMessage('nom') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Festival Location -->
+    <mat-form-field appearance="outline">
+      <mat-label>Location</mat-label>
+      <input matInput formControlName="lieu" placeholder="Enter festival location" />
+      @if (festivalForm.get('lieu')?.hasError('required') || festivalForm.get('lieu')?.hasError('minlength')) {
+        <mat-error>{{ getErrorMessage('lieu') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Start Date -->
+    <mat-form-field appearance="outline">
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="dateDebut" />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      @if (festivalForm.get('dateDebut')?.hasError('required')) {
+        <mat-error>Start date is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- End Date -->
+    <mat-form-field appearance="outline">
+      <mat-label>End Date</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="dateFin" />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+      @if (festivalForm.get('dateFin')?.hasError('required')) {
+        <mat-error>End date is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Total Tables -->
+    <mat-form-field appearance="outline">
+      <mat-label>Total Tables</mat-label>
+      <input matInput type="number" formControlName="nbTotalTable" placeholder="0" />
+      @if (festivalForm.get('nbTotalTable')?.hasError('required') || festivalForm.get('nbTotalTable')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('nbTotalTable') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Total Chairs -->
+    <mat-form-field appearance="outline">
+      <mat-label>Total Chairs</mat-label>
+      <input matInput type="number" formControlName="nbTotalChaise" placeholder="0" />
+      @if (festivalForm.get('nbTotalChaise')?.hasError('required') || festivalForm.get('nbTotalChaise')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('nbTotalChaise') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="section-title">Distribution by Type</div>
+
+    <!-- Big Tables -->
+    <mat-form-field appearance="outline">
+      <mat-label>Big Tables</mat-label>
+      <input matInput type="number" formControlName="bigTables" placeholder="0" />
+      @if (festivalForm.get('bigTables')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('bigTables') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Big Chairs -->
+    <mat-form-field appearance="outline">
+      <mat-label>Big Chairs</mat-label>
+      <input matInput type="number" formControlName="bigChairs" placeholder="0" />
+      @if (festivalForm.get('bigChairs')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('bigChairs') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Small Tables -->
+    <mat-form-field appearance="outline">
+      <mat-label>Small Tables</mat-label>
+      <input matInput type="number" formControlName="smallTables" placeholder="0" />
+      @if (festivalForm.get('smallTables')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('smallTables') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Mairie Tables -->
+    <mat-form-field appearance="outline">
+      <mat-label>Mairie Tables</mat-label>
+      <input matInput type="number" formControlName="mairieTables" placeholder="0" />
+      @if (festivalForm.get('mairieTables')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('mairieTables') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Mairie Chairs -->
+    <mat-form-field appearance="outline">
+      <mat-label>Mairie Chairs</mat-label>
+      <input matInput type="number" formControlName="mairieChairs" placeholder="0" />
+      @if (festivalForm.get('mairieChairs')?.hasError('min')) {
+        <mat-error>{{ getErrorMessage('mairieChairs') }}</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="!festivalForm.valid || isLoading"
+    >
+      {{ isLoading ? 'Saving...' : data ? 'Update' : 'Create' }}
+    </button>
+  </mat-dialog-actions>
+</form>

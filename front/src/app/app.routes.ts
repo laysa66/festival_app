@@ -7,6 +7,7 @@ import {  DashboardComponent } from './features/dashboard/dashboard.component';
 import { UsersManagementComponent} from './features/users-management/users-management.component';
 import { ClientsComponent} from './features/clients/clients.component';
 import { UserRole } from './core/models/user.interface';
+import { FestivalListComponent } from './features/festival/festival-list/festival-list.component';
 
 // on met [authGuard] pour protéger les routes nécessitant une authentification
 // on met roleGuard avec les rôles autorisés pour les routes restreintes par rôle
@@ -43,6 +44,14 @@ export const routes: Routes = [
     canActivate: [
       authGuard,
       roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN])
+    ]
+  },
+  {
+    path: 'festivals',
+    component: FestivalListComponent,
+    canActivate: [
+      authGuard,
+      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR])
     ]
   },
   {
