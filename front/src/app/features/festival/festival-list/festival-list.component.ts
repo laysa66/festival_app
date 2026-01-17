@@ -104,15 +104,7 @@ export class FestivalListComponent {
   }
 
   selectFestival(festival: Festival): void {
-    console.log('selectFestival called with:', festival);
-    console.log('Setting festival in service...');
     this.festivalSelectionService.setSelectedFestival(festival);
-    console.log('Festival set in service:', this.festivalSelectionService.getSelectedFestival());
-    console.log('Navigating to dashboard...');
-    this.router.navigate(['/dashboard']).then(success => {
-      console.log('Navigation success:', success);
-    }).catch(error => {
-      console.error('Navigation error:', error);
-    });
+    this.router.navigate(['/dashboard']);
   }
 }

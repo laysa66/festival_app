@@ -11,6 +11,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { FestivalSelectionService } from '../../core/services/festival-selection.service';
 import { User } from '../../core/models/user.interface';
 import { Festival } from '../../core/models/festival';
+import { ZoneManagementComponent } from '../festival/zone-management/zone-management.component';
+import { ZonePlanManagementComponent } from '../festival/zone-plan-management/zone-plan-management.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +25,9 @@ import { Festival } from '../../core/models/festival';
     MatIconModule,
     MatChipsModule,
     MatTabsModule,
-    DatePipe
+    DatePipe,
+    ZoneManagementComponent,
+    ZonePlanManagementComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -37,12 +41,7 @@ export class DashboardComponent implements OnInit {
   selectedFestival = signal<Festival | null>(null);
 
   ngOnInit(): void {
-    console.log('Dashboard init...');
     this.currentUser = this.authService.getCurrentUser();
-    console.log('Current user:', this.currentUser);
-    const selectedFest = this.festivalSelectionService.getSelectedFestival();
-    console.log('Selected festival from service:', selectedFest);
-    this.selectedFestival.set(selectedFest);
-    console.log('Selected festival signal set to:', this.selectedFestival());
+    this.selectedFestival.set(this.festivalSelectionService.getSelectedFestival());
   }
 }

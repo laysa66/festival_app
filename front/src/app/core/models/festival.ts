@@ -1,3 +1,19 @@
+export interface ZoneTarifaire {
+    id: number;
+    festivalId: number;
+    nom: string;
+    prixTable: number;
+    prixM2: number;
+}
+
+export interface ZonePlan {
+    id: number;
+    festivalId: number;
+    nom: string;
+    zoneTarifaireId: number;
+    zoneTarifaire?: ZoneTarifaire;
+}
+
 export interface Festival {
     id: number;
     nom: string;
@@ -12,8 +28,9 @@ export interface Festival {
     smallChairs?: number;
     mairieTables?: number;
     mairieChairs?: number;
-    zoneTarifaires?: any[];
-    zonePlans?: any[];
+    zoneTarifaires?: ZoneTarifaire[];
+    zonesT?: ZoneTarifaire[];
+    zonePlans?: ZonePlan[];
 }
 
 export interface TarifZone {

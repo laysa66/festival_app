@@ -103,52 +103,14 @@
             <!-- Tariff Zones Tab -->
             <mat-tab label="Tariff Zones">
               <div class="tab-content">
-                @if (fest.zoneTarifaires && fest.zoneTarifaires.length > 0) {
-                  <div class="zones-grid">
-                    @for (zone of fest.zoneTarifaires; track zone.id) {
-                      <mat-card class="zone-card">
-                        <mat-card-header>
-                          <mat-card-title>{{ zone.nom }}</mat-card-title>
-                        </mat-card-header>
-                        <mat-card-content>
-                          <p><strong>Price per Table:</strong> {{ zone.prixTable }} €</p>
-                          <p><strong>Price per M²:</strong> {{ zone.prixM2 }} €</p>
-                        </mat-card-content>
-                      </mat-card>
-                    }
-                  </div>
-                } @else {
-                  <p class="no-data">No tariff zones configured</p>
-                }
+                <app-zone-management [festival]="fest"></app-zone-management>
               </div>
             </mat-tab>
 
             <!-- Zone Plans Tab -->
             <mat-tab label="Zone Plans">
               <div class="tab-content">
-                @if (fest.zonePlans && fest.zonePlans.length > 0) {
-                  <div class="zones-grid">
-                    @for (zonePlan of fest.zonePlans; track zonePlan.id) {
-                      <mat-card class="zone-plan-card">
-                        <mat-card-header>
-                          <mat-card-title>{{ zonePlan.nom }}</mat-card-title>
-                        </mat-card-header>
-                        <mat-card-content>
-                          <p><strong>Linked Zone:</strong>
-                            @if (zonePlan.zoneTarifaire) {
-                              {{ zonePlan.zoneTarifaire.nom }}
-                            } @else {
-                              Not assigned
-                            }
-                          </p>
-                          <p><strong>Created:</strong> {{ zonePlan.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
-                        </mat-card-content>
-                      </mat-card>
-                    }
-                  </div>
-                } @else {
-                  <p class="no-data">No zone plans configured</p>
-                }
+                <app-zone-plan-management [festival]="fest"></app-zone-plan-management>
               </div>
             </mat-tab>
           </mat-tab-group>

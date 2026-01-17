@@ -80,3 +80,99 @@ export const deleteFestival = async (req: FastifyRequest, reply: FastifyReply) =
     }
   }
 };
+
+// Zone Tarifaire Controllers
+export const addZoneTarifaire = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { festivalId } = req.params as { festivalId: string };
+    const body = req.body as any;
+    const service = createFestivalService(req);
+    const zone = await service.addZoneTarifaire(parseInt(festivalId, 10), body);
+    reply.code(201).send(zone);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
+
+export const updateZoneTarifaire = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { zoneId } = req.params as { zoneId: string };
+    const body = req.body as any;
+    const service = createFestivalService(req);
+    const zone = await service.updateZoneTarifaire(parseInt(zoneId, 10), body);
+    reply.code(200).send(zone);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
+
+export const deleteZoneTarifaire = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { zoneId } = req.params as { zoneId: string };
+    const service = createFestivalService(req);
+    const zone = await service.deleteZoneTarifaire(parseInt(zoneId, 10));
+    reply.code(200).send(zone);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
+
+// Zone Plan Controllers
+export const addZonePlan = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { festivalId } = req.params as { festivalId: string };
+    const body = req.body as any;
+    const service = createFestivalService(req);
+    const zonePlan = await service.addZonePlan(parseInt(festivalId, 10), body);
+    reply.code(201).send(zonePlan);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
+
+export const updateZonePlan = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { zonePlanId } = req.params as { zonePlanId: string };
+    const body = req.body as any;
+    const service = createFestivalService(req);
+    const zonePlan = await service.updateZonePlan(parseInt(zonePlanId, 10), body);
+    reply.code(200).send(zonePlan);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
+
+export const deleteZonePlan = async (req: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { zonePlanId } = req.params as { zonePlanId: string };
+    const service = createFestivalService(req);
+    const zonePlan = await service.deleteZonePlan(parseInt(zonePlanId, 10));
+    reply.code(200).send(zonePlan);
+  } catch (error) {
+    if (error instanceof AppError) {
+      reply.code(error.statusCode).send({ message: error.message });
+    } else {
+      reply.code(500).send({ message: 'Internal server error' });
+    }
+  }
+};
