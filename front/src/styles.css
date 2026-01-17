@@ -17,3 +17,31 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Ensure datepicker and other overlays appear above dialogs */
+.cdk-overlay-pane {
+  z-index: 1100 !important;
+}
+
+.mat-datepicker-content {
+  z-index: 1100 !important;
+}
+
+.mat-menu-panel {
+  z-index: 1100 !important;
+}
+
+/* Festival form dialog styling */
+.festival-form-dialog {
+  position: relative;
+}
+
+/* Ensure overlay container doesn't clip */
+.cdk-overlay-container {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}

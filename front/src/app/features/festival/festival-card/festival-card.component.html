@@ -38,10 +38,10 @@
                     </table>
                 </div>
                 <div class="button-group">
-                    <button class="edit-button" (click)="editFestival(fest)">
+                    <button class="edit-button" (click)="editFestival(fest); $event.stopPropagation()">
                         <mat-icon>edit</mat-icon> Edit
                     </button>
-                    <button class="dlt-button" (click)="deleteFestival(fest.id)">
+                    <button class="dlt-button" (click)="deleteFestival(fest.id); $event.stopPropagation()">
                         <mat-icon>delete</mat-icon> Delete
                     </button>
                 </div>

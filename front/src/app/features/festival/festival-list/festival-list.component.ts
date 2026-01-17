@@ -1,8 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FestivalService } from '../../../core/services/festival.service';
+import { FestivalSelectionService } from '../../../core/services/festival-selection.service';
 import { Festival } from '../../../core/models/festival';
 import { FestivalCardComponent } from '../festival-card/festival-card.component';
 import { FestivalFormComponent } from '../festival-form/festival-form.component';
@@ -28,6 +30,8 @@ export class FestivalListComponent {
 
   constructor(
     private festivalService: FestivalService,
+    private festivalSelectionService: FestivalSelectionService,
+    private router: Router,
     private dialog: MatDialog
   ) {
     this.loadFestivals();
@@ -67,6 +71,8 @@ export class FestivalListComponent {
     const dialogRef = this.dialog.open(FestivalFormComponent, {
       width: '500px',
       data: null,
+      autoFocus: false,
+      panelClass: 'festival-form-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -81,6 +87,8 @@ export class FestivalListComponent {
     const dialogRef = this.dialog.open(FestivalFormComponent, {
       width: '500px',
       data: festival,
+      autoFocus: false,
+      panelClass: 'festival-form-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -90,7 +98,21 @@ export class FestivalListComponent {
         );
         this.festivals.set(updatedFestivals);
         this.error.set(null);
+        this.selectFestival(result);
       }
+    });
+  }
+
+  selectFestival(festival: Festival): void {
+    console.log('selectFestival called with:', festival);
+    console.log('Setting festival in service...');
+    this.festivalSelectionService.setSelectedFestival(festival);
+    console.log('Festival set in service:', this.festivalSelectionService.getSelectedFestival());
+    console.log('Navigating to dashboard...');
+    this.router.navigate(['/dashboard']).then(success => {
+      console.log('Navigation success:', success);
+    }).catch(error => {
+      console.error('Navigation error:', error);
     });
   }
 }

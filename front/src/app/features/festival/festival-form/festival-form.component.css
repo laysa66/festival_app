@@ -4,6 +4,8 @@ mat-dialog-content {
   gap: 16px;
   padding: 24px !important;
   min-width: 400px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 form {
@@ -47,3 +49,11 @@ button[color='primary'] {
 mat-error {
   font-size: 12px;
 }
+
+/* Ensure datepicker appears above dialog */
+::ng-deep .mat-datepicker-content {
+  z-index: 1100 !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: 1100 !important;
