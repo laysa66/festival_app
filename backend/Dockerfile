@@ -21,7 +21,7 @@ COPY src ./src
 COPY data ./data
 
 # run seeds and migrations
-RUN npx prisma migrate dev
+
 RUN npm run import:csv
 RUN npm run prisma:seed
 
