@@ -132,6 +132,9 @@ jobs:
     environment:
       name: production
       url: http://${{ secrets.SSH_HOST }}
+    
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
 
     steps:
       - name:  Checkout repository
@@ -241,7 +244,7 @@ jobs:
       - name: ✅ Verify VPN Connection
         run: |
           echo "Testing VPN connectivity to Polytech network..."
-          ping -c 3 ${{ secrets.SSH_HOST }} || echo "⚠️  Ping failed but continuing..."
+          ping -c 3 $SSH_HOST || echo "⚠️  Ping failed but continuing..."
           echo "✓ VPN connection established"
 
       # ================================
@@ -252,7 +255,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts 
+          ssh-keyscan -t rsa $SSH_HOST >> ~/.ssh/known_hosts 
 
       - name:  Copy files to server
         run: |
@@ -261,11 +264,11 @@ jobs:
             --exclude '.git' \
             --exclude '.env' \
             -e "ssh -i ~/.ssh/id_rsa" \
-            ./ lysa.matmar@${{ secrets.SSH_HOST }}:~/festival_app/
+            ./ lysa.matmar@$SSH_HOST:~/festival_app/
 
       - name: Deploy application
         run: |
-          ssh -i ~/.ssh/id_rsa lysa.matmar@${{ secrets.SSH_HOST }} << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa lysa.matmar@$SSH_HOST << 'ENDSSH'
             cd ~/festival_app
             
             # Create .env file if not exists
@@ -298,10 +301,10 @@ jobs:
           sleep 30
           
           # Check frontend
-          curl -f http://${{ secrets.SSH_HOST }}/ || echo "Frontend health check failed"
+          curl -f http://$SSH_HOST/ || echo "Frontend health check failed"
           
           # Check backend
-          curl -f http://${{ secrets.SSH_HOST }}:3000/health || echo "Backend health check failed"
+          curl -f http://$SSH_HOST:3000/health || echo "Backend health check failed"
           
           echo " Health checks completed!"
 
