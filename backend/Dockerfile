@@ -19,8 +19,9 @@ RUN npx prisma generate
 # Copy source files
 COPY src ./src
 COPY data ./data
+COPY scripts ./scripts
 
-# run seeds and migrations
+# run seeds
 
 RUN npm run import:csv
 RUN npm run prisma:seed
