@@ -131,7 +131,6 @@ jobs:
     
     environment:
       name: production
-      url: http://${{ secrets.SSH_HOST }}
     
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
