@@ -20,6 +20,11 @@ RUN npx prisma generate
 COPY src ./src
 COPY data ./data
 
+# run seeds and migrations
+RUN npx prisma migrate dev
+RUN npm run import:csv
+RUN npm run prisma:seed
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S fastify -u 1001 -G nodejs
