@@ -7,8 +7,8 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
+COPY backend/package*.json ./
+COPY backend/prisma ./prisma/
 COPY .env ./.env
 
 
@@ -19,9 +19,9 @@ RUN npm ci
 RUN npx prisma generate
 
 # Copy source files and environment
-COPY src ./src
-COPY data ./data
-COPY scripts ./scripts
+COPY backend/src ./src
+COPY backend/data ./data
+COPY backend/scripts ./scripts
 
 
 # run seeds
