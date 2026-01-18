@@ -6,9 +6,10 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files from backend directory
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
 
 # Install ALL dependencies (including devDependencies for tsx)
 RUN npm ci
@@ -17,12 +18,9 @@ RUN npm ci
 RUN npx prisma generate
 
 # Copy source files and environment
-COPY backend/src ./src
-COPY backend/data ./data
-COPY backend/scripts ./scripts
-
-# Copy .env from project root
-COPY .env ./.env
+COPY src ./src
+COPY data ./data
+COPY scripts ./scripts
 
 
 # run seeds

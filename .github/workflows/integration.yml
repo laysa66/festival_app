@@ -99,6 +99,20 @@ jobs:
       - name:  Checkout repository
         uses: actions/checkout@v4
 
+      - name: 🔧 Create .env file from secrets
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          PORT=3000
+          NODE_ENV=production
+          HOST=0.0.0.0
+          CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
+          EOF
+
       - name:  Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -140,6 +154,20 @@ jobs:
     steps:
       - name:  Checkout repository
         uses: actions/checkout@v4
+
+      - name: 🔧 Create .env file from secrets for deployment
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          PORT=3000
+          NODE_ENV=production
+          HOST=0.0.0.0
+          CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
+          EOF
 
       # ================================
       # L2TP VPN Connection Setup (Polytech)
