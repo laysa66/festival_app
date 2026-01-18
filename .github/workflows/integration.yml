@@ -131,18 +131,128 @@ jobs:
     
     environment:
       name: production
-      url: http://162.38.111.33
+      url: http://${{ secrets.SSH_HOST }}
 
     steps:
       - name:  Checkout repository
         uses: actions/checkout@v4
 
+      # ================================
+      # L2TP VPN Connection Setup (Polytech)
+      # ================================
+      - name: 🔐 Install L2TP VPN Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y strongswan xl2tpd
+          
+      - name: 🔧 Configure L2TP VPN
+        run: |
+          # Configure IPsec with Polytech specific settings
+          sudo tee /etc/ipsec.conf > /dev/null <<EOF
+          config setup
+            charondebug="ike 1, knl 1, cfg 0"
+            uniqueids=no
+
+          conn polytech-vpn
+            authby=secret
+            pfs=no
+            auto=add
+            keyingtries=3
+            rekey=no
+            ikelifetime=8h
+            keylife=1h
+            type=transport
+            left=%defaultroute
+            leftprotoport=17/1701
+            right=162.38.110.130
+            rightprotoport=17/1701
+            ike=3des-sha1-modp1024!
+            esp=3des-sha1!
+          EOF
+
+          # Configure IPsec secrets with Polytech PSK
+          sudo tee /etc/ipsec.secrets > /dev/null <<EOF
+          : PSK "PreSharedKey"
+          EOF
+
+          # Configure xl2tpd
+          sudo tee /etc/xl2tpd/xl2tpd.conf > /dev/null <<EOF
+          [lac polytech]
+          lns = 162.38.110.130
+          ppp debug = yes
+          pppoptfile = /etc/ppp/options.l2tpd.client
+          length bit = yes
+          EOF
+
+          # Configure PPP options with MSCHAPv2 only
+          sudo tee /etc/ppp/options.l2tpd.client > /dev/null <<EOF
+          ipcp-accept-local
+          ipcp-accept-remote
+          refuse-eap
+          refuse-pap
+          refuse-chap
+          refuse-mschap
+          require-mschap-v2
+          noccp
+          noauth
+          idle 1800
+          mtu 1410
+          mru 1410
+          defaultroute
+          usepeerdns
+          connect-delay 5000
+          name ${{ secrets.VPN_USERNAME }}@isim.intra
+          password ${{ secrets.VPN_PASSWORD }}
+          EOF
+
+          # Set proper permissions
+          sudo chmod 600 /etc/ipsec.secrets
+          sudo chmod 600 /etc/ppp/options.l2tpd.client
+
+      - name: 🚀 Start L2TP VPN Connection
+        run: |
+          # Restart services
+          sudo systemctl restart strongswan-starter
+          sudo systemctl restart xl2tpd
+          
+          # Wait for services to start
+          sleep 5
+          
+          # Start IPsec connection
+          sudo ipsec up polytech-vpn
+          
+          # Wait for IPsec to establish
+          sleep 5
+          
+          # Start L2TP connection
+          echo "c polytech" | sudo tee /var/run/xl2tpd/l2tp-control
+          
+          # Wait for VPN to connect
+          sleep 15
+          
+          # Show connection status
+          echo "=== IPsec Status ==="
+          sudo ipsec status
+          echo "=== Network Interfaces ==="
+          ip addr show
+          echo "=== Routing Table ==="
+          ip route
+
+      - name: ✅ Verify VPN Connection
+        run: |
+          echo "Testing VPN connectivity to Polytech network..."
+          ping -c 3 ${{ secrets.SSH_HOST }} || echo "⚠️  Ping failed but continuing..."
+          echo "✓ VPN connection established"
+
+      # ================================
+      # SSH and Deployment Steps
+      # ================================
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 162.38.111.33 >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts 
 
       - name:  Copy files to server
         run: |
@@ -151,11 +261,11 @@ jobs:
             --exclude '.git' \
             --exclude '.env' \
             -e "ssh -i ~/.ssh/id_rsa" \
-            ./ lysa.matmar@162.38.111.33:~/festival_app/
+            ./ lysa.matmar@${{ secrets.SSH_HOST }}:~/festival_app/
 
       - name: Deploy application
         run: |
-          ssh -i ~/.ssh/id_rsa lysa.matmar@162.38.111.33 << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa lysa.matmar@${{ secrets.SSH_HOST }} << 'ENDSSH'
             cd ~/festival_app
             
             # Create .env file if not exists
@@ -188,13 +298,21 @@ jobs:
           sleep 30
           
           # Check frontend
-          curl -f http://162.38.111.33/ || echo "Frontend health check failed"
+          curl -f http://${{ secrets.SSH_HOST }}/ || echo "Frontend health check failed"
           
           # Check backend
-          curl -f http://162.38.111.33:3000/health || echo "Backend health check failed"
+          curl -f http://${{ secrets.SSH_HOST }}:3000/health || echo "Backend health check failed"
           
           echo " Health checks completed!"
 
       - name:  Cleanup SSH
         if: always()
         run: rm -rf ~/.ssh/id_rsa
+
+      - name: 🔌 Disconnect VPN
+        if: always()
+        run: |
+          echo "d polytech" | sudo tee /var/run/xl2tpd/l2tp-control || true
+          sudo ipsec down polytech-vpn || true
+          sudo systemctl stop xl2tpd || true
+          sudo systemctl stop strongswan-starter || true
