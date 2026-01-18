@@ -255,12 +255,28 @@ jobs:
           echo "=== Routing Table ==="
           ip route
 
-      - name: ✅ Verify VPN Connection
+      - name: ✅ Verify VPN Connection and Add Route
         run: |
           echo "Testing VPN connectivity to Polytech network..."
           
-          # Add route to server through VPN tunnel
-          sudo ip route add $SSH_HOST via 162.38.110.60 dev ppp0 || true
+          # Wait for ppp0 interface to be fully up
+          echo "Waiting for ppp0 interface..."
+          for i in {1..30}; do
+            if ip addr show ppp0 &> /dev/null; then
+              echo "✓ ppp0 interface is up"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          
+          # Show ppp0 details
+          echo "=== PPP0 Interface ==="
+          ip addr show ppp0 || echo "⚠️ ppp0 not found"
+          
+          # Add route to server via VPN (no need for explicit gateway with ppp)
+          echo "Adding route to $SSH_HOST via ppp0"
+          sudo ip route add $SSH_HOST dev ppp0 || echo "Route already exists or failed"
           
           # Wait a bit for route to be active
           sleep 3
@@ -270,6 +286,7 @@ jobs:
           ip route
           
           # Test connectivity
+          echo "Testing connection to $SSH_HOST..."
           ping -c 3 $SSH_HOST || echo "⚠️  Ping failed but continuing..."
           echo "✓ VPN connection established"
 
