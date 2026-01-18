@@ -28,7 +28,7 @@ export class Navbar implements OnInit {
   private allLinks: NavLink[] = [
     {
       path: '/dashboard',
-      label: 'Dashboard',
+      label: 'Tableau de bord',
       roles: [
         UserRole.USER,
         UserRole.BENEVOLE,
@@ -39,7 +39,7 @@ export class Navbar implements OnInit {
     },
     {
       path: '/clients',
-      label: 'Clients',
+      label: 'Éditeur',
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN]
     },
     {

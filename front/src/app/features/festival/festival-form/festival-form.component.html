@@ -1,11 +1,11 @@
-<h2 mat-dialog-title>{{ data ? 'Edit Festival' : 'Create New Festival' }}</h2>
+<h2 mat-dialog-title>{{ data ? 'Modifier le Festival' : 'Créer un Nouveau Festival' }}</h2>
 
 <form [formGroup]="festivalForm" (ngSubmit)="onSubmit()">
   <mat-dialog-content>
     <!-- Festival Name -->
     <mat-form-field appearance="outline">
-      <mat-label>Festival Name</mat-label>
-      <input matInput formControlName="nom" placeholder="Enter festival name" />
+      <mat-label>Nom du Festival</mat-label>
+      <input matInput formControlName="nom" placeholder="Entrez le nom du festival" />
       @if (festivalForm.get('nom')?.hasError('required') || festivalForm.get('nom')?.hasError('minlength')) {
         <mat-error>{{ getErrorMessage('nom') }}</mat-error>
       }
@@ -13,8 +13,8 @@
 
     <!-- Festival Location -->
     <mat-form-field appearance="outline">
-      <mat-label>Location</mat-label>
-      <input matInput formControlName="lieu" placeholder="Enter festival location" />
+      <mat-label>Lieu</mat-label>
+      <input matInput formControlName="lieu" placeholder="Entrez le lieu du festival" />
       @if (festivalForm.get('lieu')?.hasError('required') || festivalForm.get('lieu')?.hasError('minlength')) {
         <mat-error>{{ getErrorMessage('lieu') }}</mat-error>
       }
@@ -22,31 +22,31 @@
 
     <!-- Start Date -->
     <mat-form-field appearance="outline">
-      <mat-label>Start Date</mat-label>
+      <mat-label>Date de Début</mat-label>
       <input matInput [matDatepicker]="startPicker" formControlName="dateDebut" />
       <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
       <mat-datepicker #startPicker></mat-datepicker>
       @if (festivalForm.get('dateDebut')?.hasError('required')) {
-        <mat-error>Start date is required</mat-error>
+        <mat-error>La date de début est obligatoire</mat-error>
       }
     </mat-form-field>
 
     <!-- End Date -->
     <mat-form-field appearance="outline">
-      <mat-label>End Date</mat-label>
+      <mat-label>Date de Fin</mat-label>
       <input matInput [matDatepicker]="endPicker" formControlName="dateFin" />
       <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
       <mat-datepicker #endPicker></mat-datepicker>
       @if (festivalForm.get('dateFin')?.hasError('required')) {
-        <mat-error>End date is required</mat-error>
+        <mat-error>La date de fin est obligatoire</mat-error>
       }
     </mat-form-field>
 
     <!-- Total Tables -->
     <mat-form-field appearance="outline">
-      <mat-label>Total Tables</mat-label>
+      <mat-label>Total des Tables</mat-label>
       <input matInput type="number" formControlName="nbTotalTable" placeholder="0" />
       @if (festivalForm.get('nbTotalTable')?.hasError('required') || festivalForm.get('nbTotalTable')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('nbTotalTable') }}</mat-error>
@@ -55,18 +55,18 @@
 
     <!-- Total Chairs -->
     <mat-form-field appearance="outline">
-      <mat-label>Total Chairs</mat-label>
+      <mat-label>Total des Chaises</mat-label>
       <input matInput type="number" formControlName="nbTotalChaise" placeholder="0" />
       @if (festivalForm.get('nbTotalChaise')?.hasError('required') || festivalForm.get('nbTotalChaise')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('nbTotalChaise') }}</mat-error>
       }
     </mat-form-field>
 
-    <div class="section-title">Distribution by Type</div>
+    <div class="section-title">Distribution par Type</div>
 
     <!-- Big Tables -->
     <mat-form-field appearance="outline">
-      <mat-label>Big Tables</mat-label>
+      <mat-label>Grandes Tables</mat-label>
       <input matInput type="number" formControlName="bigTables" placeholder="0" />
       @if (festivalForm.get('bigTables')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('bigTables') }}</mat-error>
@@ -75,7 +75,7 @@
 
     <!-- Big Chairs -->
     <mat-form-field appearance="outline">
-      <mat-label>Big Chairs</mat-label>
+      <mat-label>Grandes Chaises</mat-label>
       <input matInput type="number" formControlName="bigChairs" placeholder="0" />
       @if (festivalForm.get('bigChairs')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('bigChairs') }}</mat-error>
@@ -84,7 +84,7 @@
 
     <!-- Small Tables -->
     <mat-form-field appearance="outline">
-      <mat-label>Small Tables</mat-label>
+      <mat-label>Petites Tables</mat-label>
       <input matInput type="number" formControlName="smallTables" placeholder="0" />
       @if (festivalForm.get('smallTables')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('smallTables') }}</mat-error>
@@ -93,7 +93,7 @@
 
     <!-- Mairie Tables -->
     <mat-form-field appearance="outline">
-      <mat-label>Mairie Tables</mat-label>
+      <mat-label>Tables de la Mairie</mat-label>
       <input matInput type="number" formControlName="mairieTables" placeholder="0" />
       @if (festivalForm.get('mairieTables')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('mairieTables') }}</mat-error>
@@ -102,7 +102,7 @@
 
     <!-- Mairie Chairs -->
     <mat-form-field appearance="outline">
-      <mat-label>Mairie Chairs</mat-label>
+      <mat-label>Chaises de la Mairie</mat-label>
       <input matInput type="number" formControlName="mairieChairs" placeholder="0" />
       @if (festivalForm.get('mairieChairs')?.hasError('min')) {
         <mat-error>{{ getErrorMessage('mairieChairs') }}</mat-error>
@@ -111,14 +111,14 @@
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button (click)="onCancel()">Annuler</button>
     <button
       mat-raised-button
       color="primary"
       type="submit"
       [disabled]="!festivalForm.valid || isLoading"
     >
-      {{ isLoading ? 'Saving...' : data ? 'Update' : 'Create' }}
+      {{ isLoading ? 'Enregistrement...' : data ? 'Modifier' : 'Créer' }}
     </button>
   </mat-dialog-actions>
 </form>

@@ -55,7 +55,7 @@ export class LoginComponent {
           
           // Redirection basée sur le rôle
           if (response.user?.role === 'SUPER_ORGANISATEUR') {
-            this.router.navigate(['/clients']);
+            this.router.navigate(['/editeurs']);
           } else {
             this.router.navigate(['/dashboard']);
           }

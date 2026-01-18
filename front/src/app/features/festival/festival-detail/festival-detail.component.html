@@ -9,31 +9,31 @@
     <div class="detail-content">
       <!-- Basic Information Tab -->
       <mat-tab-group>
-        <mat-tab label="General Information">
+        <mat-tab label="Informations Générales">
           <div class="tab-content">
             <div class="info-grid">
               <div class="info-card">
-                <h3>Festival Dates</h3>
-                <p><strong>Start:</strong> {{ fest.dateDebut | date: 'dd/MM/yyyy' }}</p>
-                <p><strong>End:</strong> {{ fest.dateFin | date: 'dd/MM/yyyy' }}</p>
+                <h3>Dates du Festival</h3>
+                <p><strong>Début:</strong> {{ fest.dateDebut | date: 'dd/MM/yyyy' }}</p>
+                <p><strong>Fin:</strong> {{ fest.dateFin | date: 'dd/MM/yyyy' }}</p>
               </div>
 
               <div class="info-card">
-                <h3>Total Resources</h3>
+                <h3>Ressources Totales</h3>
                 <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
-                <p><strong>Total Chairs:</strong> {{ fest.nbTotalChaise }}</p>
+                <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
               </div>
             </div>
 
             <!-- Distribution Table -->
             <div class="distribution-section">
-              <h3>Resource Distribution</h3>
+              <h3>Distribution des Ressources</h3>
               <table class="distribution-table">
                 <thead>
                   <tr>
                     <th>Type</th>
-                    <th>Big</th>
-                    <th>Small</th>
+                    <th>Grand</th>
+                    <th>Petit</th>
                     <th>Mairie</th>
                   </tr>
                 </thead>
@@ -45,9 +45,9 @@
                     <td>{{ fest.mairieTables || 0 }}</td>
                   </tr>
                   <tr>
-                    <td><strong>Chairs</strong></td>
+                    <td><strong>Chaises</strong></td>
                     <td>{{ fest.bigChairs || 0 }}</td>
-                    <td>Unavailable</td>
+                    <td>Non disponible</td>
                     <td>{{ fest.mairieChairs || 0 }}</td>
                   </tr>
                 </tbody>
@@ -57,7 +57,7 @@
         </mat-tab>
 
         <!-- Tariff Zones Tab -->
-        <mat-tab label="Tariff Zones">
+        <mat-tab label="Zones Tarifaires">
           <div class="tab-content">
             @if (fest.zoneTarifaires && fest.zoneTarifaires.length > 0) {
               <div class="zones-grid">
@@ -68,8 +68,8 @@
                     </mat-card-header>
                     <mat-card-content>
                       <div class="zone-info">
-                        <p><strong>Price per Table:</strong> {{ zone.prixTable }} €</p>
-                        <p><strong>Price per M²:</strong> {{ zone.prixM2 }} €</p>
+                    <p><strong>Prix par Table:</strong> {{ zone.prixTable }} €</p>
+                    <p><strong>Prix par M²:</strong> {{ zone.prixM2 }} €</p>
                       </div>
                     </mat-card-content>
                   </mat-card>
@@ -82,7 +82,7 @@
         </mat-tab>
 
         <!-- Zone Plans Tab -->
-        <mat-tab label="Zone Plans">
+        <mat-tab label="Zones du Plan">
           <div class="tab-content">
             @if (fest.zonePlans && fest.zonePlans.length > 0) {
               <div class="zones-grid">
@@ -93,11 +93,11 @@
                     </mat-card-header>
                     <mat-card-content>
                       <div class="zone-info">
-                        <p><strong>Linked Zone:</strong>
+                        <p><strong>Zone Liée:</strong>
                           @if (zonePlan.zoneTarifaire) {
                             {{ zonePlan.zoneTarifaire.nom }}
                           } @else {
-                            Not assigned
+                            Non assignée
                           }
                         </p>
                       </div>
@@ -106,7 +106,7 @@
                 }
               </div>
             } @else {
-              <p class="no-data">No zone plans configured</p>
+              <p class="no-data">Aucune zone du plan configurée</p>
             }
           </div>
         </mat-tab>

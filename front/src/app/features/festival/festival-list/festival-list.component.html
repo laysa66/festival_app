@@ -2,7 +2,7 @@
   <div class="header">
     <h1>Festivals</h1>
     <button mat-raised-button color="primary" (click)="openCreateForm()">
-      <mat-icon>add</mat-icon> New Festival
+      <mat-icon>add</mat-icon> Nouveau Festival
     </button>
   </div>
 
@@ -16,13 +16,13 @@
   @if (isLoading()) {
     <div class="loading">
       <mat-spinner></mat-spinner>
-      <p>Loading festivals...</p>
+      <p>Chargement des festivals...</p>
     </div>
   } @else if (festivals().length === 0) {
     <div class="empty-state">
-      <p>No festivals found</p>
+      <p>Aucun festival trouvé</p>
       <button mat-raised-button color="primary" (click)="openCreateForm()">
-        Create First Festival
+        Créer le Premier Festival
       </button>
     </div>
   } @else {

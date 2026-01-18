@@ -9,7 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
-  selector: 'app-clients',
+  selector: 'app-editeurs',
   standalone: true,
   imports: [
     CommonModule, 
@@ -20,10 +20,10 @@ import { AuthService } from '../../core/services/auth.service';
     MatChipsModule,
     MatListModule
   ],
-  templateUrl: './clients.component.html',
-  styleUrls: ['./clients.component.scss']
+  templateUrl: './editeurs.component.html',
+  styleUrls: ['./editeurs.component.scss']
 })
-export class ClientsComponent {
+export class EditeursComponent {
   private authService = inject(AuthService);
 
   currentUser = signal(this.authService.getCurrentUser());

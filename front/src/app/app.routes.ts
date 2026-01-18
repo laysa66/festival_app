@@ -5,7 +5,7 @@ import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent} from './features/auth/register/register.component';
 import {  DashboardComponent } from './features/dashboard/dashboard.component';
 import { UsersManagementComponent} from './features/users-management/users-management.component';
-import { ClientsComponent} from './features/clients/clients.component';
+import { EditeursComponent} from './features/editeurs/editeurs.component';
 import { UserRole } from './core/models/user.interface';
 import { FestivalListComponent } from './features/festival/festival-list/festival-list.component';
 
@@ -39,8 +39,8 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'clients',
-    component: ClientsComponent,
+    path: 'editeurs',
+    component: EditeursComponent,
     canActivate: [
       authGuard,
       roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN])
