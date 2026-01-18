@@ -9,6 +9,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY .env ./.env
 
 
 # Install ALL dependencies (including devDependencies for tsx)
@@ -24,6 +25,7 @@ COPY scripts ./scripts
 
 
 # run seeds
+RUN npx prisma migrate dev
 RUN npm run import:csv
 RUN npm run prisma:seed
 
