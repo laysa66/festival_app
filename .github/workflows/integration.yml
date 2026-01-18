@@ -287,7 +287,7 @@ jobs:
           
           # Test SSH connection
           echo "Testing SSH connection..."
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 $SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed, will retry with rsync" 
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 $SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed" 
 
       - name: 📦 Prepare server directory
         run: |
