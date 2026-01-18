@@ -10,21 +10,26 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
+# Copy Docker .env file (from project root)
+COPY ../.env ./.env
+
+
 # Install ALL dependencies (including devDependencies for tsx)
 RUN npm ci
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Copy source files
+# Copy source files and environment
 COPY src ./src
 COPY data ./data
 COPY scripts ./scripts
 
-# run seeds
 
+# run seeds
 RUN npm run import:csv
 RUN npm run prisma:seed
+
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
