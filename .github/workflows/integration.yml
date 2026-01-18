@@ -134,6 +134,7 @@ jobs:
     
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USERNAME: ${{ secrets.VPN_USERNAME }}
 
     steps:
       - name:  Checkout repository
@@ -289,11 +290,11 @@ jobs:
             --exclude '.git' \
             --exclude '.env' \
             -e "ssh -i ~/.ssh/id_rsa" \
-            ./ lysa.matmar@$SSH_HOST:~/festival_app/
+            ./ $SSH_USERNAME@$SSH_HOST:~/festival_app/
 
       - name: Deploy application
         run: |
-          ssh -i ~/.ssh/id_rsa lysa.matmar@$SSH_HOST << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
             cd ~/festival_app
             
             # Create .env file if not exists
