@@ -256,6 +256,18 @@ jobs:
       - name: ✅ Verify VPN Connection
         run: |
           echo "Testing VPN connectivity to Polytech network..."
+          
+          # Add route to server through VPN tunnel
+          sudo ip route add $SSH_HOST via 162.38.110.60 dev ppp0 || true
+          
+          # Wait a bit for route to be active
+          sleep 3
+          
+          # Show updated routing table
+          echo "=== Updated Routing Table ==="
+          ip route
+          
+          # Test connectivity
           ping -c 3 $SSH_HOST || echo "⚠️  Ping failed but continuing..."
           echo "✓ VPN connection established"
 
