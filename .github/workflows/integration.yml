@@ -52,7 +52,7 @@ jobs:
         run: npx prisma generate
 
       - name:  Backend ready
-        run: echo "✅ Backend dependencies installed and Prisma client generated"
+        run: echo " Backend dependencies installed and Prisma client generated"
 
       - name: Lint check (optional)
         run: echo "Linting passed"
