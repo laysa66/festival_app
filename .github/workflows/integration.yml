@@ -287,12 +287,12 @@ jobs:
           
           # Test SSH connection
           echo "Testing SSH connection..."
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed, will retry with rsync" 
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 $SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed, will retry with rsync" 
 
       - name: 📦 Prepare server directory
         run: |
           echo "Creating directory on remote server..."
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
             mkdir -p ~/festival_app
           ENDSSH
 
@@ -307,10 +307,10 @@ jobs:
             .
           
           echo "Copying to server..."
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.tar.gz SSH_USERNAME@$SSH_HOST:~/festival_app/
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.tar.gz $SSH_USERNAME@$SSH_HOST:~/festival_app/
           
           echo "Extracting on server..."
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
             cd ~/festival_app
             tar xzf deploy.tar.gz
             rm deploy.tar.gz
