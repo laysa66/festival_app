@@ -2,14 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserListItem, UpdateUserRequest, Role } from '../models/user-management.interface';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserManagementService {
   private http = inject(HttpClient);
-  private API_URL = environment.apiUrl;
+  private API_URL = 'http://localhost:3000/api';
 
   getRoles(): Role[] {
     return [
