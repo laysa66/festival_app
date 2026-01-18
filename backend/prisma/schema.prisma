@@ -38,6 +38,9 @@ model Editeur {
   exposant     Boolean @default(false)
   distributeur Boolean @default(false)
   logo         String?
+  phone        String?
+  email        String?
+  notes        String?
   jeux         Jeu[]
   
   @@map("editeurs")
