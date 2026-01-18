@@ -281,16 +281,44 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa $SSH_HOST >> ~/.ssh/known_hosts 
+          
+          # Add server to known hosts
+          ssh-keyscan -t rsa $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Test SSH connection
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed, will retry with rsync" 
+
+      - name: 📦 Prepare server directory
+        run: |
+          echo "Creating directory on remote server..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+            mkdir -p ~/festival_app
+          ENDSSH
 
       - name:  Copy files to server
         run: |
-          rsync -avz --delete \
-            --exclude 'node_modules' \
-            --exclude '.git' \
-            --exclude '.env' \
-            -e "ssh -i ~/.ssh/id_rsa" \
-            ./ $SSH_USERNAME@$SSH_HOST:~/festival_app/
+          echo "Creating tarball..."
+          tar czf deploy.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='deploy.tar.gz' \
+            .
+          
+          echo "Copying to server..."
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.tar.gz SSH_USERNAME@$SSH_HOST:~/festival_app/
+          
+          echo "Extracting on server..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+            cd ~/festival_app
+            tar xzf deploy.tar.gz
+            rm deploy.tar.gz
+          ENDSSH
+          
+          rm deploy.tar.gz
+          echo "✓ Files copied successfully"
+
 
       - name: Deploy application
         run: |
