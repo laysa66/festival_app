@@ -119,8 +119,7 @@ jobs:
       - name:  Build Backend Image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./backend/Dockerfile
+          context: ./backend
           push: false
           tags: festival-app-backend:latest
           cache-from: type=gha
