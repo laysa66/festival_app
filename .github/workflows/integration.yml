@@ -302,9 +302,13 @@ jobs:
           tar czf deploy.tar.gz \
             --exclude='node_modules' \
             --exclude='.git' \
+            --exclude='.github' \
             --exclude='.env' \
-            --exclude='deploy.tar.gz' \
-            .
+            --exclude='*.tar.gz' \
+            --exclude='.npm' \
+            --exclude='.cache' \
+            --warning=no-file-changed \
+            . || [ $? -eq 1 ]
           
           echo "Copying to server..."
           scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.tar.gz $SSH_USERNAME@$SSH_HOST:~/festival_app/
