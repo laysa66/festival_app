@@ -284,14 +284,15 @@ jobs:
           echo "Testing VPN connectivity to Polytech network..."
           
           # Wait for ppp0 interface to be UP with an IP address
-          echo "Waiting for ppp0 interface to be UP..."
+          echo "Waiting for ppp0 interface to be ready..."
           for i in {1..60}; do
-            if ip addr show ppp0 2>/dev/null | grep -q "inet " && ip addr show ppp0 | grep -q "state UP"; then
-              echo "✓ ppp0 interface is UP with IP address"
+            # Check if ppp0 has UP flag and an IP address (state can be UNKNOWN for ppp)
+            if ip addr show ppp0 2>/dev/null | grep -q "inet " && ip addr show ppp0 2>/dev/null | grep -q "UP"; then
+              echo "✓ ppp0 interface is ready with IP address"
               break
             fi
             if [ $i -eq 60 ]; then
-              echo "⚠️ Timeout waiting for ppp0 to be UP"
+              echo "⚠️ Timeout waiting for ppp0 to be ready"
             fi
             echo "Waiting... ($i/60)"
             sleep 2
@@ -301,12 +302,12 @@ jobs:
           echo "=== PPP0 Interface ==="
           ip addr show ppp0 || echo "⚠️ ppp0 not found"
           
-          # Verify ppp0 is really UP before adding route
-          if ip addr show ppp0 2>/dev/null | grep -q "state UP"; then
+          # Verify ppp0 has UP flag and IP before adding route
+          if ip addr show ppp0 2>/dev/null | grep -q "UP" && ip addr show ppp0 2>/dev/null | grep -q "inet "; then
             echo "Adding route to $SSH_HOST via ppp0"
-            sudo ip route add $SSH_HOST dev ppp0 || echo "Route already exists or failed"
+            sudo ip route add $SSH_HOST dev ppp0 || echo "⚠️ Route already exists or failed"
           else
-            echo "⚠️ ppp0 is not UP, skipping route addition"
+            echo "⚠️ ppp0 is not ready, skipping route addition"
           fi
           
           # Wait a bit for route to be active
