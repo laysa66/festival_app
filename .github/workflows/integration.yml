@@ -395,10 +395,9 @@ jobs:
             # Wait for services to be ready
             sleep 30
             
-            # Run database migrations and seeds
-            docker compose exec -T backend npx prisma migrate deploy || true
-            docker compose exec -T backend npm run import:csv || true
-            docker compose exec -T backend npm run prisma:seed || true
+            # Run database seeds
+            docker compose exec -T backend npx tsx scripts/import-csv.ts || true
+            docker compose exec -T backend npx tsx prisma/seed.ts || true
             
             # Show running containers
             docker compose ps
