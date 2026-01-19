@@ -43,7 +43,7 @@ export const routes: Routes = [
     component: EditeursComponent,
     canActivate: [
       authGuard,
-      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN])
+      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR])
     ]
   },
   {

@@ -28,17 +28,28 @@
   } @else {
     <div class="festivals-grid">
       @for (festival of festivals(); track festival.id) {
-        <div 
-          class="festival-card-wrapper"
-          (click)="selectFestival(festival)"
-          style="cursor: pointer; position: relative; z-index: 1;">
-          <app-festival-card 
-            [festival]="festival" 
-            (remove)="onFestivalDelete($event)"
-            (edit)="openEditForm($event)"
-            style="position: relative; z-index: 2;">
-          </app-festival-card>
-        </div>
+        @if (canSelectFestival()) {
+          <div 
+            class="festival-card-wrapper"
+            (click)="selectFestival(festival)"
+            style="cursor: pointer; position: relative; z-index: 1;">
+            <app-festival-card 
+              [festival]="festival" 
+              (remove)="onFestivalDelete($event)"
+              (edit)="openEditForm($event)"
+              style="position: relative; z-index: 2;">
+            </app-festival-card>
+          </div>
+        } @else {
+          <div class="festival-card-wrapper" style="position: relative; z-index: 1;">
+            <app-festival-card 
+              [festival]="festival" 
+              (remove)="onFestivalDelete($event)"
+              (edit)="openEditForm($event)"
+              style="position: relative; z-index: 2;">
+            </app-festival-card>
+          </div>
+        }
       }
     </div>
   }

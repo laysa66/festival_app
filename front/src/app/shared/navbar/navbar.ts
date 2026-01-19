@@ -38,9 +38,9 @@ export class Navbar implements OnInit {
       ]
     },
     {
-      path: '/clients',
-      label: 'Éditeur',
-      roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN]
+      path: '/editeurs',
+      label: 'Éditeurs',
+      roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
       path: '/users',
