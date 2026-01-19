@@ -1,0 +1,60 @@
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px !important;
+  min-width: 400px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.section-title {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+button {
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+button[color='primary'] {
+  background: linear-gradient(135deg, #7500A8 0%, #8916BC 100%);
+}
+
+mat-error {
+  font-size: 12px;
+}
+
+/* Ensure datepicker appears above dialog */
+::ng-deep .mat-datepicker-content {
+  z-index: 1100 !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: 1100 !important;
+}

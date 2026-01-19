@@ -1,0 +1,121 @@
+@if (festival()) {
+  @let fest = festival()!;
+  <div class="detail-container">
+    <div class="detail-header">
+      <h1>{{ fest.nom }}</h1>
+      <p class="location">{{ fest.lieu }}</p>
+    </div>
+
+    <div class="detail-content">
+      <!-- Basic Information Tab -->
+      <mat-tab-group>
+        <mat-tab label="Informations Générales">
+          <div class="tab-content">
+            <div class="info-grid">
+              <div class="info-card">
+                <h3>Dates du Festival</h3>
+                <p><strong>Début:</strong> {{ fest.dateDebut | date: 'dd/MM/yyyy' }}</p>
+                <p><strong>Fin:</strong> {{ fest.dateFin | date: 'dd/MM/yyyy' }}</p>
+              </div>
+
+              <div class="info-card">
+                <h3>Ressources Totales</h3>
+                <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
+                <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
+              </div>
+            </div>
+
+            <!-- Distribution Table -->
+            <div class="distribution-section">
+              <h3>Distribution des Ressources</h3>
+              <table class="distribution-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Grand</th>
+                    <th>Petit</th>
+                    <th>Mairie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Tables</strong></td>
+                    <td>{{ fest.bigTables || 0 }}</td>
+                    <td>{{ fest.smallTables || 0 }}</td>
+                    <td>{{ fest.mairieTables || 0 }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Chaises</strong></td>
+                    <td>{{ fest.bigChairs || 0 }}</td>
+                    <td>Non disponible</td>
+                    <td>{{ fest.mairieChairs || 0 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Tariff Zones Tab -->
+        <mat-tab label="Zones Tarifaires">
+          <div class="tab-content">
+            @if (fest.zoneTarifaires && fest.zoneTarifaires.length > 0) {
+              <div class="zones-grid">
+                @for (zone of fest.zoneTarifaires; track zone.id) {
+                  <mat-card class="zone-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ zone.nom }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="zone-info">
+                    <p><strong>Prix par Table:</strong> {{ zone.prixTable }} €</p>
+                    <p><strong>Prix par M²:</strong> {{ zone.prixM2 }} €</p>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            } @else {
+              <p class="no-data">No tariff zones configured</p>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Zone Plans Tab -->
+        <mat-tab label="Zones du Plan">
+          <div class="tab-content">
+            @if (fest.zonePlans && fest.zonePlans.length > 0) {
+              <div class="zones-grid">
+                @for (zonePlan of fest.zonePlans; track zonePlan.id) {
+                  <mat-card class="zone-plan-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ zonePlan.nom }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="zone-info">
+                        <p><strong>Zone Liée:</strong>
+                          @if (zonePlan.zoneTarifaire) {
+                            {{ zonePlan.zoneTarifaire.nom }}
+                          } @else {
+                            Non assignée
+                          }
+                        </p>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            } @else {
+              <p class="no-data">Aucune zone du plan configurée</p>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+} @else {
+  <div class="empty-state">
+    <mat-icon>info</mat-icon>
+    <p>Select a festival to view details</p>
+  </div>
+}

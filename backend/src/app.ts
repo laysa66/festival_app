@@ -7,6 +7,8 @@ import prismaPlugin from './plugins/prisma.plugin';
 import swaggerPlugin from './plugins/swagger.plugin';
 import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
+import festivalRoutes from './routes/festival.routes';
+import editeursRoutes from './routes/editeurs.routes';
 import { AppError } from './utils/errors/custom-errors';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -55,6 +57,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   // enregistrer les routes
   server.register(authRoutes, { prefix: '/api/auth' });
   server.register(usersRoutes, { prefix: '/api/users' });
+  server.register(festivalRoutes, { prefix: '/api' });
+  server.register(editeursRoutes, { prefix: '/api' });
 
   // Error handler
   server.setErrorHandler((error: FastifyError | AppError, request: FastifyRequest, reply: FastifyReply) => {

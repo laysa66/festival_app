@@ -37,6 +37,102 @@
       </mat-card-content>
     </mat-card>
 
+    @if (selectedFestival()) {
+      @let fest = selectedFestival()!;
+      <mat-card class="festival-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>event</mat-icon>
+            Festival Sélectionné
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="festival-header">
+            <h2>{{ fest.nom }}</h2>
+            <p class="location">{{ fest.lieu }}</p>
+          </div>
+
+          <mat-tab-group>
+            <!-- General Information Tab -->
+            <mat-tab label="Informations Générales">
+              <div class="tab-content">
+                <div class="info-grid">
+                  <div class="info-card">
+                    <h3>Dates du Festival</h3>
+                    <p><strong>Début:</strong> {{ fest.dateDebut | date:'dd/MM/yyyy' }}</p>
+                    <p><strong>Fin:</strong> {{ fest.dateFin | date:'dd/MM/yyyy' }}</p>
+                  </div>
+
+                  <div class="info-card">
+                    <h3>Ressources Totales</h3>
+                    <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
+                    <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
+                  </div>
+                </div>
+
+                <div class="distribution-section">
+                  <h3>Distribution des Ressources</h3>
+                  <table class="distribution-table">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Grand</th>
+                        <th>Petit</th>
+                        <th>Mairie</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Tables</strong></td>
+                        <td>{{ fest.bigTables || 0 }}</td>
+                        <td>{{ fest.smallTables || 0 }}</td>
+                        <td>{{ fest.mairieTables || 0 }}</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Chaises</strong></td>
+                        <td>{{ fest.bigChairs || 0 }}</td>
+                        <td>Non disponible</td>
+                        <td>{{ fest.mairieChairs || 0 }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Tariff Zones Tab -->
+            <mat-tab label="Zones Tarifaires">
+              <div class="tab-content">
+                <app-zone-management [festival]="fest"></app-zone-management>
+              </div>
+            </mat-tab>
+
+            <!-- Zone Plans Tab -->
+            <mat-tab label="Zones du Plan">
+              <div class="tab-content">
+                <app-zone-plan-management [festival]="fest"></app-zone-plan-management>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card class="info-card-empty">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Aucun Festival Sélectionné
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Allez à <strong>Festivals</strong> et sélectionnez un festival pour voir ses détails ici.</p>
+          <button mat-raised-button color="primary" routerLink="/festivals">
+            <mat-icon>event</mat-icon> Aller aux Festivals
+          </button>
+        </mat-card-content>
+      </mat-card>
+    }
+
     @if (currentUser.role === 'ADMIN') {
       <mat-card class="admin-section">
         <mat-card-header>
@@ -47,7 +143,7 @@
         </mat-card-header>
         <mat-card-content>
           <p>Vous avez accès aux fonctionnalités d'administration</p>
-        </mat-card-content>
+        </mat-card-content>>
         <mat-card-actions>
           <button mat-raised-button color="warn" routerLink="/users">
             <mat-icon>people</mat-icon>
@@ -57,21 +153,21 @@
       </mat-card>
     }
 
-    @if (currentUser.role === 'SUPER_ORGANISATEUR') {
+    @if (currentUser.role === 'SUPER_ORGANISATEUR' || currentUser.role === 'ADMIN' || currentUser.role === 'ORGANISATEUR') {
       <mat-card class="management-section">
         <mat-card-header>
           <mat-card-title>
             <mat-icon>business</mat-icon>
-            Gestion des Clients
+            Gestion des Éditeurs
           </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p>Accédez à la gestion complète de vos clients</p>
+          <p>Accédez à la gestion des éditeurs</p>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="accent" routerLink="/clients">
+          <button mat-raised-button color="accent" routerLink="/editeurs">
             <mat-icon>groups</mat-icon>
-            Gérer les clients
+            Gérer les éditeurs
           </button>
         </mat-card-actions>
       </mat-card>

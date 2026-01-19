@@ -1,0 +1,130 @@
+<div class="zone-plan-management-container">
+  <div class="zone-plans-section">
+    <div class="zone-plans-header">
+      <h3>Zones du Plan</h3>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="toggleEdit()"
+        [disabled]="isLoading()"
+        class="add-zone-plan-button">
+        <mat-icon>{{ isEditing() ? 'close' : 'add' }}</mat-icon>
+        {{ isEditing() ? 'Annuler' : 'Ajouter une Zone du Plan' }}
+      </button>
+    </div>
+
+    <!-- Add New Zone Plan Form -->
+    @if (isEditing()) {
+      <div class="add-zone-plan-form">
+        <form [formGroup]="newZonePlanForm" (ngSubmit)="addZonePlan()">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Nom de la Zone du Plan</mat-label>
+            <input matInput formControlName="nom" placeholder="ex: Plan A">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Lier à une Zone Tarifaire</mat-label>
+            <mat-select formControlName="zoneTarifaireId">
+              <mat-option value="">Sélectionner une zone...</mat-option>
+              @for (zone of availableZones(); track zone.id) {
+                <mat-option [value]="zone.id">{{ zone.nom }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="!newZonePlanForm.valid || isLoading()">
+            Ajouter une Zone du Plan
+          </button>
+        </form>
+      </div>
+    }
+
+    <!-- Edit Zone Plan Form -->
+    @if (editingZonePlanId()) {
+      <div class="edit-zone-plan-form">
+        <form [formGroup]="editZonePlanForm" (ngSubmit)="updateZonePlan()">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Nom de la Zone du Plan</mat-label>
+            <input matInput formControlName="nom" placeholder="ex: Plan A">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Lier à une Zone Tarifaire</mat-label>
+            <mat-select formControlName="zoneTarifaireId">
+              <mat-option value="">Sélectionner une zone...</mat-option>
+              @for (zone of availableZones(); track zone.id) {
+                <mat-option [value]="zone.id">{{ zone.nom }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="!editZonePlanForm.valid || isLoading()">
+            Mettre à jour la Zone du Plan
+          </button>
+          <button 
+            mat-raised-button 
+            type="button"
+            (click)="cancelEdit()"
+            [disabled]="isLoading()">
+            Annuler
+          </button>
+        </form>
+      </div>
+    }
+
+    <!-- Zone Plans Table -->
+    <div class="zone-plans-table-wrapper">
+      <table mat-table [dataSource]="zonePlans()" class="zone-plans-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="nom">
+          <th mat-header-cell *matHeaderCellDef>Nom</th>
+          <td mat-cell *matCellDef="let zonePlan">{{ zonePlan.nom }}</td>
+        </ng-container>
+
+        <!-- Linked Zone Column -->
+        <ng-container matColumnDef="linkedZone">
+          <th mat-header-cell *matHeaderCellDef>Zone Liée</th>
+          <td mat-cell *matCellDef="let zonePlan">{{ getZoneNameById(zonePlan.zoneTarifaireId) }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let zonePlan">
+            <button 
+              mat-icon-button 
+              matTooltip="Modifier"
+              (click)="editZonePlan(zonePlan)"
+              [disabled]="isLoading()">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button 
+              mat-icon-button 
+              matTooltip="Supprimer"
+              color="warn"
+              (click)="deleteZonePlan(zonePlan.id)"
+              [disabled]="isLoading()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="zonePlans().length === 0" class="empty-state">
+        <p>Aucune zone du plan trouvée</p>
+      </div>
+    </div>
+  </div>
+</div>

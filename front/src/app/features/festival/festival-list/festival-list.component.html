@@ -1,0 +1,56 @@
+<div class="festival-list-container">
+  <div class="header">
+    <h1>Festivals</h1>
+    <button mat-raised-button color="primary" (click)="openCreateForm()">
+      <mat-icon>add</mat-icon> Nouveau Festival
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">
+      {{ error() }}
+      <button (click)="loadFestivals()">Retry</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des festivals...</p>
+    </div>
+  } @else if (festivals().length === 0) {
+    <div class="empty-state">
+      <p>Aucun festival trouvé</p>
+      <button mat-raised-button color="primary" (click)="openCreateForm()">
+        Créer le Premier Festival
+      </button>
+    </div>
+  } @else {
+    <div class="festivals-grid">
+      @for (festival of festivals(); track festival.id) {
+        @if (canSelectFestival()) {
+          <div 
+            class="festival-card-wrapper"
+            (click)="selectFestival(festival)"
+            style="cursor: pointer; position: relative; z-index: 1;">
+            <app-festival-card 
+              [festival]="festival" 
+              (remove)="onFestivalDelete($event)"
+              (edit)="openEditForm($event)"
+              style="position: relative; z-index: 2;">
+            </app-festival-card>
+          </div>
+        } @else {
+          <div class="festival-card-wrapper" style="position: relative; z-index: 1;">
+            <app-festival-card 
+              [festival]="festival" 
+              (remove)="onFestivalDelete($event)"
+              (edit)="openEditForm($event)"
+              style="position: relative; z-index: 2;">
+            </app-festival-card>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>
