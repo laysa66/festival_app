@@ -99,20 +99,6 @@ jobs:
       - name:  Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔧 Create .env file from secrets
-        run: |
-          cat > .env << EOF
-          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          PORT=3000
-          NODE_ENV=production
-          HOST=0.0.0.0
-          CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
-          EOF
-
       - name:  Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -125,6 +111,16 @@ jobs:
           tags: festival-app-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            PORT=3000
+            NODE_ENV=production
+            HOST=0.0.0.0
+            CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
 
       - name: Build Frontend Image
         uses: docker/build-push-action@v5
@@ -389,8 +385,13 @@ jobs:
             # Start all services
             docker compose up -d
             
-            # Run database migrations
+            # Wait for services to be ready
+            sleep 30
+            
+            # Run database migrations and seeds
             docker compose exec -T backend npx prisma migrate deploy || true
+            docker compose exec -T backend npm run import:csv || true
+            docker compose exec -T backend npm run prisma:seed || true
             
             # Show running containers
             docker compose ps

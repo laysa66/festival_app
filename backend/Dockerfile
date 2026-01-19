@@ -4,13 +4,33 @@
 
 FROM node:22-alpine
 
+# Accept build arguments
+ARG DATABASE_URL
+ARG JWT_SECRET
+ARG POSTGRES_USER
+ARG POSTGRES_PASSWORD
+ARG POSTGRES_DB
+ARG PORT=3000
+ARG NODE_ENV=production
+ARG HOST=0.0.0.0
+ARG CORS_ORIGIN
+
+# Set environment variables
+ENV DATABASE_URL=$DATABASE_URL
+ENV JWT_SECRET=$JWT_SECRET
+ENV POSTGRES_USER=$POSTGRES_USER
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV POSTGRES_DB=$POSTGRES_DB
+ENV PORT=$PORT
+ENV NODE_ENV=$NODE_ENV
+ENV HOST=$HOST
+ENV CORS_ORIGIN=$CORS_ORIGIN
+
 WORKDIR /app
 
-# Copy package files
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
-COPY .env ./.env
-
+# Copy package files from backend directory
+COPY package*.json ./
+COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for tsx)
 RUN npm ci
@@ -18,16 +38,11 @@ RUN npm ci
 # Generate Prisma client
 RUN npx prisma generate
 
-# Copy source files and environment
-COPY backend/src ./src
-COPY backend/data ./data
-COPY backend/scripts ./scripts
+# Copy source files
+COPY src ./src
+COPY data ./data
+COPY scripts ./scripts
 
-
-# run seeds
-RUN npx prisma migrate dev
-RUN npm run import:csv
-RUN npm run prisma:seed
 
 
 # Create non-root user for security
