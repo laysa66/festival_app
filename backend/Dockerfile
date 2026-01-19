@@ -43,6 +43,9 @@ COPY src ./src
 COPY data ./data
 COPY scripts ./scripts
 
+RUN npx prisma migrate dev
+RUN npm run import:csv
+RUN npm run prisma:seed
 
 
 # Create non-root user for security
