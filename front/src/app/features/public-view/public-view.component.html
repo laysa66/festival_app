@@ -1,0 +1,232 @@
+<div class="public-view-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des festivals...</p>
+    </div>
+  } @else {
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <button mat-button (click)="loadPublicData()">Réessayer</button>
+      </div>
+    }
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <h1>Bienvenue</h1>
+        <p>Découvrez nos festivals et les jeux disponibles</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/login" mat-raised-button color="primary">
+          <mat-icon>login</mat-icon>
+          Connexion
+        </a>
+        <a routerLink="/register" mat-raised-button color="accent">
+          <mat-icon>person_add</mat-icon>
+          Inscription
+        </a>
+      </div>
+    </div>
+
+    <!-- All Festivals Section -->
+    <section class="festivals-section">
+      <div class="section-title">
+        <h2><mat-icon>event</mat-icon> Tous les Festivals</h2>
+        <p>{{ festivals().length }} festival(s) disponible(s)</p>
+      </div>
+
+      @if (festivals().length === 0) {
+        <div class="empty-state">
+          <mat-icon>event_busy</mat-icon>
+          <p>Aucun festival trouvé pour le moment</p>
+        </div>
+      } @else {
+        <div class="festivals-grid">
+          @for (festival of festivals(); track festival.id) {
+            <mat-card 
+              class="festival-card"
+              [class.selected]="isFestivalSelected(festival)"
+              [class.disabled]="!isLatestFestival(festival)"
+              (click)="selectFestival(festival)">
+              @if (isFestivalSelected(festival)) {
+                <div class="selected-badge">
+                  <mat-icon>check_circle</mat-icon>
+                  Sélectionné
+                </div>
+              }
+              @if (!isLatestFestival(festival)) {
+                <div class="disabled-badge">
+                  <mat-icon>lock</mat-icon>
+                  Archivé
+                </div>
+              }
+              <mat-card-header>
+                <mat-card-title>{{ festival.nom }}</mat-card-title>
+                <mat-card-subtitle>{{ festival.lieu }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-row">
+                  <mat-icon>calendar_today</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Dates</span>
+                    <span class="value">{{ festival.dateDebut | date: 'dd/MM/yyyy' }} - {{ festival.dateFin | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                </div>
+                <div class="info-row">
+                  <mat-icon>location_on</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Lieu</span>
+                    <span class="value">{{ festival.lieu }}</span>
+                  </div>
+                </div>
+                <div class="info-row">
+                  <mat-icon>table_chart</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Ressources</span>
+                    <span class="value">{{ festival.nbTotalTable }} tables • {{ festival.nbTotalChaise }} chaises</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Last Festival Details -->
+    @if (lastFestival()) {
+      <section class="festival-details-section">
+        <div class="section-title">
+          <h2><mat-icon>star</mat-icon> {{ lastFestival()!.nom }} - Détails</h2>
+          <p>Festival du {{ lastFestival()!.dateDebut | date: 'dd/MM/yyyy' }} au {{ lastFestival()!.dateFin | date: 'dd/MM/yyyy' }}</p>
+        </div>
+
+        <!-- Games List for Last Festival -->
+        <div class="games-section">
+          <h3>Jeux Disponibles</h3>
+          @if (allGames().length === 0) {
+            <p class="no-content">Aucun jeu disponible</p>
+          } @else {
+            <div class="games-grid">
+              @for (game of allGames(); track game.id) {
+                <mat-card class="game-card">
+                  <mat-card-header>
+                    <mat-card-title>{{ game.libelle }}</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    @if (game.auteur) {
+                      <p><strong>Auteur:</strong> {{ game.auteur }}</p>
+                    }
+                    @if (game.theme) {
+                      <p><strong>Thème:</strong> {{ game.theme }}</p>
+                    }
+                    @if (game.ageMin) {
+                      <p><strong>Âge minimum:</strong> {{ game.ageMin }}+</p>
+                    }
+                    @if (game.description) {
+                      <p>{{ game.description }}</p>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Tabs for Zones -->
+        <mat-tab-group class="zones-tabs">
+          <!-- Tariff Zones Tab -->
+          <mat-tab label="Zones Tarifaires">
+            <div class="tab-content">
+              @if (zoneTarifaires().length === 0) {
+                <p class="no-content">Aucune zone tarifaire définie</p>
+              } @else {
+                <div class="zones-container">
+                  @for (zone of zoneTarifaires(); track zone.id) {
+                    <mat-card class="zone-card">
+                      <mat-card-header>
+                        <mat-card-title>{{ zone.nom }}</mat-card-title>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="zone-prices">
+                          <div class="price-item">
+                            <span class="price-label">Prix Table:</span>
+                            <span class="price-value">{{ zone.prixTable }} €</span>
+                          </div>
+                          <div class="price-item">
+                            <span class="price-label">Prix m²:</span>
+                            <span class="price-value">{{ zone.prixM2 }} €</span>
+                          </div>
+                        </div>
+
+                        <div class="zone-games">
+                          <h4>Jeux dans cette zone</h4>
+                          @if (getGamesForZoneTarifaire(zone.id).length === 0) {
+                            <p class="no-games">Aucun jeu pour cette zone</p>
+                          } @else {
+                            <div class="game-chips">
+                              @for (game of getGamesForZoneTarifaire(zone.id); track game.id) {
+                                <mat-chip>
+                                  <mat-icon matChipAvatar>games</mat-icon>
+                                  {{ game.libelle }}
+                                </mat-chip>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              }
+            </div>
+          </mat-tab>
+
+          <!-- Plan Zones Tab -->
+          <mat-tab label="Zones du Plan">
+            <div class="tab-content">
+              @if (zonePlans().length === 0) {
+                <p class="no-content">Aucune zone du plan définie</p>
+              } @else {
+                <div class="zones-container">
+                  @for (zone of zonePlans(); track zone.id) {
+                    <mat-card class="zone-card">
+                      <mat-card-header>
+                        <mat-card-title>{{ zone.nom }}</mat-card-title>
+                        @if (zone.zoneTarifaire) {
+                          <mat-card-subtitle>Zone Tarifaire: {{ zone.zoneTarifaire.nom }}</mat-card-subtitle>
+                        }
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="zone-games">
+                          <h4>Jeux dans cette zone</h4>
+                          @if (getGamesForZonePlan(zone.id).length === 0) {
+                            <p class="no-games">Aucun jeu pour cette zone</p>
+                          } @else {
+                            <div class="game-chips">
+                              @for (game of getGamesForZonePlan(zone.id); track game.id) {
+                                <mat-chip>
+                                  <mat-icon matChipAvatar>games</mat-icon>
+                                  {{ game.libelle }}
+                                </mat-chip>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              }
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </section>
+    }
+  }
+</div>

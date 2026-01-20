@@ -54,13 +54,13 @@ export class AuthService {
       next: () => {
         localStorage.removeItem(this.USER_KEY);
         this.currentUserSubject.next(null);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/']);
       },
       error: () => {
         // Même en cas d'erreur, on nettoie localement
         localStorage.removeItem(this.USER_KEY);
         this.currentUserSubject.next(null);
-        this.router.navigate(['/login']);
+        this.router.navigate(['/']);
       }
     });
   }

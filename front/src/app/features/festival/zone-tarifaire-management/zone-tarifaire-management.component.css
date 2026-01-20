@@ -40,11 +40,45 @@
   border: 1px solid #e0e0e0;
 }
 
+.add-zone-form.editing {
+  background: #f0f4ff;
+  border: 2px solid #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form-title mat-icon {
+  color: #667eea;
+}
+
+.form-title h4 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .add-zone-form form {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
   gap: 1rem;
   align-items: flex-end;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.form-actions button {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .form-field {

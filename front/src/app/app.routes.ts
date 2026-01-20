@@ -6,6 +6,7 @@ import { RegisterComponent} from './features/auth/register/register.component';
 import {  DashboardComponent } from './features/dashboard/dashboard.component';
 import { UsersManagementComponent} from './features/users-management/users-management.component';
 import { EditeursComponent} from './features/editeurs/editeurs.component';
+import { PublicViewComponent } from './features/public-view/public-view.component';
 import { UserRole } from './core/models/user.interface';
 import { FestivalListComponent } from './features/festival/festival-list/festival-list.component';
 
@@ -15,8 +16,7 @@ import { FestivalListComponent } from './features/festival/festival-list/festiva
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/login',
-    pathMatch: 'full'
+    component: PublicViewComponent
   },
   {
     path: 'login', component: LoginComponent 
@@ -56,6 +56,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/login'
+    redirectTo: '/'
   }
 ];

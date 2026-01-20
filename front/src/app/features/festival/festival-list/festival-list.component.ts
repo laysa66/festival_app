@@ -56,7 +56,13 @@ export class FestivalListComponent {
     this.error.set(null);
     this.festivalService.getAllFestivals().subscribe({
       next: (data) => {
-        this.festivals.set(data);
+        // Sort by end date descending to get the most recent first
+        const sorted = [...data].sort((a, b) => {
+          const dateA = new Date(a.dateFin).getTime();
+          const dateB = new Date(b.dateFin).getTime();
+          return dateB - dateA;
+        });
+        this.festivals.set(sorted);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -91,7 +97,14 @@ export class FestivalListComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.festivals.set([...this.festivals(), result]);
+        const updated = [...this.festivals(), result];
+        // Sort to maintain order
+        const sorted = updated.sort((a, b) => {
+          const dateA = new Date(a.dateFin).getTime();
+          const dateB = new Date(b.dateFin).getTime();
+          return dateB - dateA;
+        });
+        this.festivals.set(sorted);
         this.error.set(null);
       }
     });
@@ -110,7 +123,13 @@ export class FestivalListComponent {
         const updatedFestivals = this.festivals().map((f) =>
           f.id === result.id ? result : f
         );
-        this.festivals.set(updatedFestivals);
+        // Sort to maintain order
+        const sorted = updatedFestivals.sort((a, b) => {
+          const dateA = new Date(a.dateFin).getTime();
+          const dateB = new Date(b.dateFin).getTime();
+          return dateB - dateA;
+        });
+        this.festivals.set(sorted);
         this.error.set(null);
         this.selectFestival(result);
       }

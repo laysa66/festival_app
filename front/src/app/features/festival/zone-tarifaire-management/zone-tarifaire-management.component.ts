@@ -26,12 +26,13 @@ import { FestivalService, ZoneTarifaire } from '../../../core/services/festival.
     MatTableModule,
     MatTooltipModule,
   ],
-  templateUrl: './zone-management.component.html',
-  styleUrl: './zone-management.component.css',
+  templateUrl: './zone-tarifaire-management.component.html',
+  styleUrl: './zone-tarifaire-management.component.css',
 })
-export class ZoneManagementComponent {
+export class ZoneTarifaireManagementComponent {
   festival = input<Festival | null>(null);
   isEditing = signal(false);
+  isEditingZoneId = signal<number | null>(null);
   isLoading = signal(false);
   newZoneForm!: FormGroup;
   zones = signal<ZoneTarifaire[]>([]);
@@ -48,8 +49,10 @@ export class ZoneManagementComponent {
     // Watch for festival changes
     effect(() => {
       const festival = this.festival();
-      if (festival?.zonesT) {
-        this.zones.set(festival.zonesT);
+      if (festival) {
+        // Prioritize zoneTarifaires over zonesT
+        const zones = festival.zoneTarifaires || festival.zonesT || [];
+        this.zones.set(zones);
       }
     });
   }
@@ -73,6 +76,7 @@ export class ZoneManagementComponent {
 
   toggleEdit(): void {
     this.isEditing.set(!this.isEditing());
+    this.isEditingZoneId.set(null);
     if (!this.isEditing()) {
       this.newZoneForm.reset();
     }
@@ -80,23 +84,75 @@ export class ZoneManagementComponent {
 
   addZone(): void {
     if (this.newZoneForm.valid && this.festival()) {
-      this.isLoading.set(true);
-      const formValue = this.newZoneForm.value;
+      const isEditing = this.isEditingZoneId() !== null;
       
-      this.festivalService.addZoneTarifaire(this.festival()!.id, formValue).subscribe({
-        next: (newZone) => {
-          // Update zones list
-          this.zones.set([...this.zones(), newZone]);
-          this.newZoneForm.reset();
-          this.isEditing.set(false);
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          console.error('Error adding zone:', err);
-          this.isLoading.set(false);
-        },
-      });
+      if (isEditing) {
+        this.updateZone();
+      } else {
+        this.createZone();
+      }
     }
+  }
+
+  createZone(): void {
+    if (!this.festival()) return;
+    
+    this.isLoading.set(true);
+    const formValue = this.newZoneForm.value;
+    
+    this.festivalService.addZoneTarifaire(this.festival()!.id, formValue).subscribe({
+      next: (newZone) => {
+        // Update zones list
+        this.zones.set([...this.zones(), newZone]);
+        this.newZoneForm.reset();
+        this.isEditing.set(false);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error adding zone:', err);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  updateZone(): void {
+    const zoneId = this.isEditingZoneId();
+    if (!zoneId) return;
+
+    this.isLoading.set(true);
+    const formValue = this.newZoneForm.value;
+    
+    this.festivalService.updateZoneTarifaire(zoneId, formValue).subscribe({
+      next: (updatedZone) => {
+        // Update zones list
+        const updatedZones = this.zones().map(z => z.id === zoneId ? updatedZone : z);
+        this.zones.set(updatedZones);
+        this.newZoneForm.reset();
+        this.isEditing.set(false);
+        this.isEditingZoneId.set(null);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error updating zone:', err);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  editZone(zone: ZoneTarifaire): void {
+    this.isEditingZoneId.set(zone.id);
+    this.isEditing.set(true);
+    this.newZoneForm.patchValue({
+      nom: zone.nom,
+      prixTable: zone.prixTable,
+      prixM2: zone.prixM2,
+    });
+  }
+
+  cancelEdit(): void {
+    this.isEditingZoneId.set(null);
+    this.isEditing.set(false);
+    this.newZoneForm.reset();
   }
 
   deleteZone(zoneId: number): void {
@@ -115,10 +171,5 @@ export class ZoneManagementComponent {
         },
       });
     }
-  }
-
-  editZone(zone: ZoneTarifaire): void {
-    console.log('Editing zone:', zone);
-    // TODO: Open edit dialog in future implementation
   }
 }
