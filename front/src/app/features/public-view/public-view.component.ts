@@ -6,6 +6,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { FestivalService } from '../../core/services/festival.service';
 import { FestivalSelectionService } from '../../core/services/festival-selection.service';
@@ -18,6 +21,11 @@ interface GameDisplay {
   theme?: string;
   ageMin?: number;
   description?: string;
+  image?: string;
+  duree?: number;
+  nbMinJoueur?: number;
+  nbMaxJoueur?: number;
+  typeJeu?: { id: number; libelle: string };
 }
 
 @Component({
@@ -31,6 +39,9 @@ interface GameDisplay {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
     DatePipe,
     RouterModule
   ],
@@ -50,6 +61,12 @@ export class PublicViewComponent implements OnInit {
   zoneTarifaires = signal<ZoneTarifaire[]>([]);
   zonePlans = signal<ZonePlan[]>([]);
   allGames = signal<GameDisplay[]>([]);
+  filteredGames = signal<GameDisplay[]>([]);
+  gameTypes = signal<any[]>([]);
+  
+  // Search and filter
+  searchTerm = signal<string>('');
+  selectedGameType = signal<number | null>(null);
   
   // Maps to store games by zone
   gamesByZoneTarifaire = signal<Map<number, GameDisplay[]>>(new Map());
@@ -127,6 +144,8 @@ export class PublicViewComponent implements OnInit {
     this.festivalService.getAllGames().subscribe({
       next: (games) => {
         this.allGames.set(games);
+        this.extractGameTypes(games);
+        this.applyFilters();
         this.loadGamesForZones();
       },
       error: (err) => {
@@ -184,5 +203,53 @@ export class PublicViewComponent implements OnInit {
 
   isLatestFestival(festival: Festival): boolean {
     return this.lastFestival()?.id === festival.id;
+  }
+
+  extractGameTypes(games: GameDisplay[]): void {
+    const types = new Map<number, string>();
+    games.forEach(game => {
+      if (game.typeJeu?.id && game.typeJeu?.libelle) {
+        types.set(game.typeJeu.id, game.typeJeu.libelle);
+      }
+    });
+    this.gameTypes.set(Array.from(types, ([id, libelle]) => ({ id, libelle })));
+  }
+
+  applyFilters(): void {
+    let filtered = this.allGames();
+
+    // Filter by search term (name, author, theme)
+    if (this.searchTerm()) {
+      const term = this.searchTerm().toLowerCase();
+      filtered = filtered.filter(game => 
+        game.libelle.toLowerCase().includes(term) ||
+        game.auteur?.toLowerCase().includes(term) ||
+        game.theme?.toLowerCase().includes(term) ||
+        game.description?.toLowerCase().includes(term)
+      );
+    }
+
+    // Filter by game type
+    if (this.selectedGameType()) {
+      filtered = filtered.filter(game => game.typeJeu?.id === this.selectedGameType());
+    }
+
+    this.filteredGames.set(filtered);
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.applyFilters();
+  }
+
+  onTypeChange(typeId: number | null): void {
+    this.selectedGameType.set(typeId);
+    this.applyFilters();
+  }
+
+  resetFilters(): void {
+    this.searchTerm.set('');
+    this.selectedGameType.set(null);
+    this.applyFilters();
   }
 }

@@ -108,31 +108,133 @@
 
         <!-- Games List for Last Festival -->
         <div class="games-section">
-          <h3>Jeux Disponibles</h3>
+          <div class="games-header">
+            <h3>Jeux Disponibles</h3>
+            <p class="games-count">{{ filteredGames().length }} jeu(x) disponible(s)</p>
+          </div>
+
+          <!-- Games Filters -->
+          <div class="games-filters">
+            <mat-form-field class="filter-field">
+              <mat-label>Rechercher</mat-label>
+              <input matInput 
+                     placeholder="Par nom, auteur, thème..."
+                     (input)="onSearchChange($event.target.value)"
+                     [value]="searchTerm()">
+              <mat-icon matPrefix>search</mat-icon>
+              @if (searchTerm()) {
+                <button mat-icon-button matSuffix (click)="resetFilters()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="filter-field">
+              <mat-label>Type de jeu</mat-label>
+              <mat-select [value]="selectedGameType()" (selectionChange)="onTypeChange($event.value)">
+                <mat-option [value]="null">Tous les types</mat-option>
+                @for (type of gameTypes(); track type.id) {
+                  <mat-option [value]="type.id">{{ type.libelle }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
+
+            @if (searchTerm() || selectedGameType()) {
+              <button mat-stroked-button (click)="resetFilters()" class="reset-button">
+                <mat-icon>clear</mat-icon>
+                Réinitialiser filtres
+              </button>
+            }
+          </div>
+
           @if (allGames().length === 0) {
-            <p class="no-content">Aucun jeu disponible</p>
+            <div class="empty-games">
+              <mat-icon>games</mat-icon>
+              <p>Aucun jeu disponible</p>
+            </div>
+          } @else if (filteredGames().length === 0) {
+            <div class="empty-games">
+              <mat-icon>search_off</mat-icon>
+              <p>Aucun jeu ne correspond à vos critères</p>
+            </div>
           } @else {
-            <div class="games-grid">
-              @for (game of allGames(); track game.id) {
-                <mat-card class="game-card">
-                  <mat-card-header>
-                    <mat-card-title>{{ game.libelle }}</mat-card-title>
-                  </mat-card-header>
-                  <mat-card-content>
-                    @if (game.auteur) {
-                      <p><strong>Auteur:</strong> {{ game.auteur }}</p>
-                    }
-                    @if (game.theme) {
-                      <p><strong>Thème:</strong> {{ game.theme }}</p>
+            <div class="games-grid-enhanced">
+              @for (game of filteredGames(); track game.id) {
+                <div class="game-card-enhanced">
+                  <!-- Game Image -->
+                  <div class="game-image-container">
+                    @if (game.image) {
+                      <img [src]="game.image" [alt]="game.libelle" class="game-image">
+                    } @else {
+                      <div class="game-image-placeholder">
+                        <mat-icon>games</mat-icon>
+                      </div>
                     }
                     @if (game.ageMin) {
-                      <p><strong>Âge minimum:</strong> {{ game.ageMin }}+</p>
+                      <span class="age-badge">{{ game.ageMin }}+</span>
                     }
+                  </div>
+
+                  <!-- Game Info -->
+                  <div class="game-info">
+                    <h4 class="game-title">{{ game.libelle }}</h4>
+
+                    @if (game.auteur) {
+                      <div class="game-author">
+                        <mat-icon>person</mat-icon>
+                        <span>{{ game.auteur }}</span>
+                      </div>
+                    }
+
+                    @if (game.typeJeu?.libelle) {
+                      <div class="game-type">
+                        <mat-chip-set>
+                          <mat-chip [highlighted]="true">
+                            <mat-icon matChipAvatar>category</mat-icon>
+                            {{ game.typeJeu?.libelle }}
+                          </mat-chip>
+                        </mat-chip-set>
+                      </div>
+                    }
+
+                    <!-- Game Attributes -->
+                    <div class="game-attributes">
+                      @if (game.nbMinJoueur || game.nbMaxJoueur) {
+                        <div class="attribute">
+                          <mat-icon>people</mat-icon>
+                          <span>
+                            @if (game.nbMinJoueur && game.nbMaxJoueur) {
+                              {{ game.nbMinJoueur }}-{{ game.nbMaxJoueur }} joueurs
+                            } @else if (game.nbMinJoueur) {
+                              À partir de {{ game.nbMinJoueur }} joueur(s)
+                            } @else if (game.nbMaxJoueur) {
+                              Jusqu'à {{ game.nbMaxJoueur }} joueur(s)
+                            }
+                          </span>
+                        </div>
+                      }
+
+                      @if (game.duree) {
+                        <div class="attribute">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{ game.duree }} min</span>
+                        </div>
+                      }
+
+                      @if (game.theme) {
+                        <div class="attribute">
+                          <mat-icon>sell</mat-icon>
+                          <span>{{ game.theme }}</span>
+                        </div>
+                      }
+                    </div>
+
                     @if (game.description) {
-                      <p>{{ game.description }}</p>
+                      <p class="game-description">{{ game.description }}</p>
                     }
-                  </mat-card-content>
-                </mat-card>
+                  </div>
+                </div>
               }
             </div>
           }

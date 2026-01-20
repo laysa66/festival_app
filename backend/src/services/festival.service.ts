@@ -335,6 +335,166 @@ class FestivalService {
       throw new AppError(500, 'Failed to delete zone plan');
     }
   }
+
+  async getAllGames() {
+    try {
+      const games = await this.prisma.jeu.findMany({
+        include: {
+          editeur: true,
+          typeJeu: true,
+        },
+      });
+      return games;
+    } catch (error) {
+      throw new AppError(500, 'Failed to fetch games');
+    }
+  }
+
+  async getGamesByEditeur(editeurId: number) {
+    try {
+      const games = await this.prisma.jeu.findMany({
+        where: { idEditeur: editeurId },
+        include: {
+          editeur: true,
+          typeJeu: true,
+        },
+      });
+      return games;
+    } catch (error) {
+      throw new AppError(500, 'Failed to fetch games by editeur');
+    }
+  }
+
+  async getFilteredGames(filters: {
+    typeJeuId?: number;
+    minDuration?: number;
+    maxDuration?: number;
+    minPlayers?: number;
+    maxPlayers?: number;
+  }) {
+    try {
+      const where: any = {};
+
+      if (filters.typeJeuId) {
+        where.idTypeJeu = filters.typeJeuId;
+      }
+
+      if (filters.minDuration !== undefined || filters.maxDuration !== undefined) {
+        where.duree = {};
+        if (filters.minDuration !== undefined) {
+          where.duree.gte = filters.minDuration;
+        }
+        if (filters.maxDuration !== undefined) {
+          where.duree.lte = filters.maxDuration;
+        }
+      }
+
+      if (filters.minPlayers !== undefined) {
+        where.nbMinJoueur = { gte: filters.minPlayers };
+      }
+
+      if (filters.maxPlayers !== undefined) {
+        if (!where.nbMaxJoueur) {
+          where.nbMaxJoueur = {};
+        }
+        where.nbMaxJoueur = filters.maxPlayers;
+      }
+
+      const games = await this.prisma.jeu.findMany({
+        where,
+        include: {
+          editeur: true,
+          typeJeu: true,
+        },
+      });
+      return games;
+    } catch (error) {
+      throw new AppError(500, 'Failed to fetch filtered games');
+    }
+  }
+
+  async createGame(data: {
+    libelle: string;
+    auteur?: string;
+    nbMinJoueur?: number;
+    nbMaxJoueur?: number;
+    duree?: number;
+    image?: string;
+    idEditeur?: number;
+    idTypeJeu?: number;
+    ageMin?: number;
+    theme?: string;
+    description?: string;
+  }) {
+    try {
+      const game = await this.prisma.jeu.create({
+        data: {
+          libelle: data.libelle,
+          auteur: data.auteur || null,
+          nbMinJoueur: data.nbMinJoueur || null,
+          nbMaxJoueur: data.nbMaxJoueur || null,
+          duree: data.duree || null,
+          image: data.image || null,
+          idEditeur: data.idEditeur || null,
+          idTypeJeu: data.idTypeJeu || null,
+          ageMin: data.ageMin || null,
+          theme: data.theme || null,
+          description: data.description || null,
+        },
+        include: {
+          editeur: true,
+          typeJeu: true,
+        },
+      });
+      return game;
+    } catch (error) {
+      throw new AppError(500, 'Failed to create game');
+    }
+  }
+
+  async updateGame(id: number, data: {
+    libelle?: string;
+    auteur?: string;
+    nbMinJoueur?: number;
+    nbMaxJoueur?: number;
+    duree?: number;
+    image?: string;
+    idEditeur?: number;
+    idTypeJeu?: number;
+    ageMin?: number;
+    theme?: string;
+    description?: string;
+  }) {
+    try {
+      const game = await this.prisma.jeu.update({
+        where: { id },
+        data,
+        include: {
+          editeur: true,
+          typeJeu: true,
+        },
+      });
+      return game;
+    } catch (error) {
+      if ((error as any).code === 'P2025') {
+        throw new AppError(404, 'Game not found');
+      }
+      throw new AppError(500, 'Failed to update game');
+    }
+  }
+
+  async deleteGame(id: number) {
+    try {
+      await this.prisma.jeu.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if ((error as any).code === 'P2025') {
+        throw new AppError(404, 'Game not found');
+      }
+      throw new AppError(500, 'Failed to delete game');
+    }
+  }
 }
 
 export default FestivalService;

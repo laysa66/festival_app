@@ -1,0 +1,228 @@
+<div class="games-management-container">
+  <mat-card class="header-card">
+    <mat-card-header class="header-card-header">
+      <mat-card-title>
+        <mat-icon>games</mat-icon>
+        Gestion des Jeux
+      </mat-card-title>
+      <button mat-raised-button color="primary" (click)="openAddGameDialog()" class="add-button">
+        <mat-icon>add</mat-icon>
+        Ajouter un jeu
+      </button>
+    </mat-card-header>
+  </mat-card>
+
+  @if (error()) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <button mat-button (click)="loadGames()">Réessayer</button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card class="search-card">
+    <mat-card-content>
+      <mat-form-field class="search-field">
+        <mat-label>Rechercher un jeu</mat-label>
+        <input matInput 
+               (input)="onSearch($event.target.value)" 
+               [value]="searchTerm()"
+               placeholder="Par nom, auteur, éditeur...">
+        <mat-icon matPrefix>search</mat-icon>
+        @if (searchTerm()) {
+          <button mat-icon-button matSuffix (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-card-title>Filtrer les jeux</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Type Filter -->
+        <mat-form-field class="filter-field">
+          <mat-label>Type de jeu</mat-label>
+          <mat-select [value]="selectedType()" (selectionChange)="selectedType.set($event.value); onTypeChange()">
+            <mat-option [value]="null">Tous les types</mat-option>
+            @for (type of gameTypes(); track type.id) {
+              <mat-option [value]="type.id">{{ type.libelle }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Duration Filter -->
+        <div class="filter-group">
+          <label>Durée (min): {{ minDuration() }} - {{ maxDuration() }} min</label>
+          <div class="slider-container">
+            <input type="range" 
+                   min="0" 
+                   max="120" 
+                   [value]="minDuration()"
+                   (change)="minDuration.set($event.target.valueAsNumber); onDurationChange()"
+                   class="slider">
+            <input type="range" 
+                   min="0" 
+                   max="120" 
+                   [value]="maxDuration()"
+                   (change)="maxDuration.set($event.target.valueAsNumber); onDurationChange()"
+                   class="slider">
+          </div>
+        </div>
+
+        <!-- Players Filter -->
+        <div class="filter-group">
+          <label>Nombre de joueurs: {{ minPlayers() }} - {{ maxPlayers() }}</label>
+          <div class="slider-container">
+            <input type="range" 
+                   min="1" 
+                   max="10" 
+                   [value]="minPlayers()"
+                   (change)="minPlayers.set($event.target.valueAsNumber); onPlayersChange()"
+                   class="slider">
+            <input type="range" 
+                   min="1" 
+                   max="10" 
+                   [value]="maxPlayers()"
+                   (change)="maxPlayers.set($event.target.valueAsNumber); onPlayersChange()"
+                   class="slider">
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <button mat-stroked-button (click)="resetFilters()" class="reset-button">
+          <mat-icon>refresh</mat-icon>
+          Réinitialiser les filtres
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des jeux...</p>
+    </div>
+  } @else {
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>
+          Jeux dans la base de données ({{ filteredGames().length }})
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (filteredGames().length === 0) {
+          <div class="empty-state">
+            <mat-icon>videogame_asset_off</mat-icon>
+            <p>Aucun jeu trouvé</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table mat-table [dataSource]="dataSource()" class="games-table">
+              <!-- Libelle Column -->
+              <ng-container matColumnDef="libelle">
+                <th mat-header-cell *matHeaderCellDef>Nom du Jeu</th>
+                <td mat-cell *matCellDef="let element" class="game-name">
+                  {{ element.libelle }}
+                </td>
+              </ng-container>
+
+              <!-- Image Column -->
+              <ng-container matColumnDef="image">
+                <th mat-header-cell *matHeaderCellDef>Image</th>
+                <td mat-cell *matCellDef="let element" class="image-cell">
+                  @if (element.image) {
+                    <img [src]="getImageUrl(element.image)" 
+                         [alt]="element.libelle" 
+                         class="game-image">
+                  } @else {
+                    <div class="no-image">
+                      <mat-icon>image</mat-icon>
+                    </div>
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Auteur Column -->
+              <ng-container matColumnDef="auteur">
+                <th mat-header-cell *matHeaderCellDef>Auteur</th>
+                <td mat-cell *matCellDef="let element" class="author-cell">
+                  {{ element.auteur || '-' }}
+                </td>
+              </ng-container>
+
+              <!-- Editeur Column -->
+              <ng-container matColumnDef="editeur">
+                <th mat-header-cell *matHeaderCellDef>Éditeur</th>
+                <td mat-cell *matCellDef="let element" class="editor-cell">
+                  {{ element.editeur?.libelle || '-' }}
+                </td>
+              </ng-container>
+
+              <!-- Joueurs Column -->
+              <ng-container matColumnDef="joueurs">
+                <th mat-header-cell *matHeaderCellDef>Joueurs</th>
+                <td mat-cell *matCellDef="let element" class="players-cell">
+                  {{ getPlayersRange(element.nbMinJoueur, element.nbMaxJoueur) }}
+                </td>
+              </ng-container>
+
+              <!-- Durée Column -->
+              <ng-container matColumnDef="duree">
+                <th mat-header-cell *matHeaderCellDef>Durée</th>
+                <td mat-cell *matCellDef="let element" class="duration-cell">
+                  @if (element.duree) {
+                    <span class="duration-badge">{{ element.duree }} min</span>
+                  } @else {
+                    <span>-</span>
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Type Jeu Column -->
+              <ng-container matColumnDef="typeJeu">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let element" class="type-cell">
+                  @if (element.typeJeu?.libelle) {
+                    <span class="type-badge">{{ element.typeJeu.libelle }}</span>
+                  } @else {
+                    <span>-</span>
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let element" class="actions-cell">
+                  <button mat-icon-button (click)="openEditGameDialog(element)" title="Éditer">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="openDeleteConfirmation(element)" title="Supprimer">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+
+          <!-- Paginator -->
+          <mat-paginator
+            [pageSizeOptions]="pageSizeOptions"
+            [pageSize]="pageSize"
+            showFirstLastButtons>
+          </mat-paginator>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

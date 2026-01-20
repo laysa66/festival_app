@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>{{ getTitle() }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="gameForm" class="game-form">
+    <mat-form-field class="full-width">
+      <mat-label>Nom du jeu *</mat-label>
+      <input matInput formControlName="libelle" placeholder="Ex: Catan" />
+      @if (gameForm.get('libelle')?.hasError('required') && gameForm.get('libelle')?.touched) {
+        <mat-error>Le nom du jeu est obligatoire</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Auteur</mat-label>
+      <input matInput formControlName="auteur" placeholder="Ex: Klaus Teuber" />
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field>
+        <mat-label>Min joueurs</mat-label>
+        <input matInput type="number" formControlName="nbMinJoueur" placeholder="2" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Max joueurs</mat-label>
+        <input matInput type="number" formControlName="nbMaxJoueur" placeholder="4" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Durée (min)</mat-label>
+        <input matInput type="number" formControlName="duree" placeholder="30" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field>
+        <mat-label>Type de jeu</mat-label>
+        <mat-select formControlName="idTypeJeu">
+          <mat-option [value]="null">Aucun</mat-option>
+          @for (type of gameTypes; track type.id) {
+            <mat-option [value]="type.id">{{ type.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Éditeur</mat-label>
+        <mat-select formControlName="idEditeur">
+          <mat-option [value]="null">Aucun</mat-option>
+          @for (editeur of editeurs; track editeur.id) {
+            <mat-option [value]="editeur.id">{{ editeur.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Âge minimum</mat-label>
+        <input matInput type="number" formControlName="ageMin" placeholder="8" />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field class="full-width">
+      <mat-label>URL de l'image</mat-label>
+      <input matInput formControlName="image" placeholder="https://..." />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Thème</mat-label>
+      <input matInput formControlName="theme" placeholder="Ex: Stratégie, Fantaisie" />
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="4" placeholder="Description du jeu..."></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Annuler</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!gameForm.valid">
+    {{ getSubmitButtonText() }}
+  </button>
+</mat-dialog-actions>

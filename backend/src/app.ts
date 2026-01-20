@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
 import festivalRoutes from './routes/festival.routes';
 import editeursRoutes from './routes/editeurs.routes';
+import gamesRoutes from './routes/games.routes';
 import { AppError } from './utils/errors/custom-errors';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -55,10 +56,11 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // enregistrer les routes
-  server.register(authRoutes, { prefix: '/api/auth' });
-  server.register(usersRoutes, { prefix: '/api/users' });
-  server.register(festivalRoutes, { prefix: '/api' });
-  server.register(editeursRoutes, { prefix: '/api' });
+  await server.register(authRoutes, { prefix: '/api/auth' });
+  await server.register(usersRoutes, { prefix: '/api/users' });
+  await server.register(festivalRoutes, { prefix: '/api' });
+  await server.register(editeursRoutes, { prefix: '/api' });
+  await server.register(gamesRoutes, { prefix: '/api' });
 
   // Error handler
   server.setErrorHandler((error: FastifyError | AppError, request: FastifyRequest, reply: FastifyReply) => {

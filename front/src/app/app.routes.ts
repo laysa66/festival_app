@@ -6,9 +6,12 @@ import { RegisterComponent} from './features/auth/register/register.component';
 import {  DashboardComponent } from './features/dashboard/dashboard.component';
 import { UsersManagementComponent} from './features/users-management/users-management.component';
 import { EditeursComponent} from './features/editeurs/editeurs.component';
-import { PublicViewComponent } from './features/public-view/public-view.component';
+import { PublicViewDashboardComponent } from './features/public-view/public-view-dash/public-view-dashboard.component';
+import { PublicViewGamesComponent } from './features/public-view/public-view-games/public-view-games.component';
+import { PublicViewZonesComponent } from './features/public-view/public-view-zones/public-view-zones.component';
 import { UserRole } from './core/models/user.interface';
 import { FestivalListComponent } from './features/festival/festival-list/festival-list.component';
+import { GamesManagementComponent } from './features/festival/games-management/games-management.component';
 
 // on met [authGuard] pour protéger les routes nécessitant une authentification
 // on met roleGuard avec les rôles autorisés pour les routes restreintes par rôle
@@ -16,7 +19,24 @@ import { FestivalListComponent } from './features/festival/festival-list/festiva
 export const routes: Routes = [
   {
     path: '',
-    component: PublicViewComponent
+    component: PublicViewDashboardComponent
+  },
+  {
+    path: 'public',
+    children: [
+      {
+        path: 'games',
+        component: PublicViewGamesComponent
+      },
+      {
+        path: 'zones-tarifaires',
+        component: PublicViewZonesComponent
+      },
+      {
+        path: 'zones-plan',
+        component: PublicViewZonesComponent
+      }
+    ]
   },
   {
     path: 'login', component: LoginComponent 
@@ -49,6 +69,14 @@ export const routes: Routes = [
   {
     path: 'festivals',
     component: FestivalListComponent,
+    canActivate: [
+      authGuard,
+      roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR])
+    ]
+  },
+  {
+    path: 'games',
+    component: GamesManagementComponent,
     canActivate: [
       authGuard,
       roleGuard([UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR])

@@ -94,6 +94,41 @@ export class FestivalService {
     return this.http.get<any[]>(`${this.baseUrl}/jeux`);
   }
 
+  // Get filtered games
+  getFilteredGames(filters: {
+    typeJeu?: number;
+    minDuration?: number;
+    maxDuration?: number;
+    minPlayers?: number;
+    maxPlayers?: number;
+  }): Observable<any[]> {
+    let params = new URLSearchParams();
+    if (filters.typeJeu) params.append('typeJeu', filters.typeJeu.toString());
+    if (filters.minDuration !== undefined) params.append('minDuration', filters.minDuration.toString());
+    if (filters.maxDuration !== undefined) params.append('maxDuration', filters.maxDuration.toString());
+    if (filters.minPlayers !== undefined) params.append('minPlayers', filters.minPlayers.toString());
+    if (filters.maxPlayers !== undefined) params.append('maxPlayers', filters.maxPlayers.toString());
+    
+    const queryString = params.toString();
+    const url = queryString ? `${this.baseUrl}/jeux/filter?${queryString}` : `${this.baseUrl}/jeux/filter`;
+    return this.http.get<any[]>(url);
+  }
+
+  // Create game
+  createGame(gameData: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/jeux`, gameData);
+  }
+
+  // Update game
+  updateGame(id: number, gameData: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/jeux/${id}`, gameData);
+  }
+
+  // Delete game
+  deleteGame(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/jeux/${id}`);
+  }
+
   // Get games by zone tarifaire
   getGamesByZoneTarifaire(zoneTarifaireId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/jeux/zone-tarifaire/${zoneTarifaireId}`);

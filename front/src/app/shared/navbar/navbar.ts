@@ -43,6 +43,11 @@ export class Navbar implements OnInit {
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
+      path: '/games',
+      label: 'Jeux',
+      roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
+    },
+    {
       path: '/users',
       label: 'Gestion Utilisateurs',
       roles: [UserRole.ADMIN]
