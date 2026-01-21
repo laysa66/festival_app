@@ -12,6 +12,7 @@ import { FestivalSelectionService } from '../../core/services/festival-selection
 import { FestivalService } from '../../core/services/festival.service';
 import { User } from '../../core/models/user.interface';
 import { Festival } from '../../core/models/festival';
+import { ZoneTarifaire } from '../../core/models/festival';
 import { ZoneTarifaireManagementComponent } from '../festival/zone-tarifaire-management/zone-tarifaire-management.component';
 import { ZonePlanManagementComponent } from '../festival/zone-plan-management/zone-plan-management.component';
 
@@ -76,13 +77,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onZonesChanged(zones: ZoneTarifaireManagementComponent[]): void {
+  onZonesChanged(zones: ZoneTarifaire[]): void {
     const currentFestival = this.selectedFestival();
     if (currentFestival) {
-      // Extract ZoneTarifaire data from components
-      const zoneTarifaires = zones.map(zone => zone.zones()).flat();
       // Update the festival with the new zones
-      const updatedFestival = { ...currentFestival, zoneTarifaires };
+      const updatedFestival = { ...currentFestival, zoneTarifaires: zones };
       this.selectedFestival.set(updatedFestival);
       // Also update in the selection service for persistence
       this.festivalSelectionService.setSelectedFestival(updatedFestival);

@@ -11,7 +11,6 @@ import festivalRoutes from './routes/festival.routes';
 import editeursRoutes from './routes/editeurs.routes';
 import gamesRoutes from './routes/games.routes';
 import reservationRoutes from './routes/reservation.routes';
-import jeuRoutes from './routes/jeu.routes';
 import { AppError } from './utils/errors/custom-errors';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -64,7 +63,6 @@ export async function buildApp(): Promise<FastifyInstance> {
   await server.register(editeursRoutes, { prefix: '/api' });
   await server.register(gamesRoutes, { prefix: '/api' });
   server.register(reservationRoutes, { prefix: '/api' });
-  server.register(jeuRoutes, { prefix: '/api' });
 
   // Error handler
   server.setErrorHandler((error: FastifyError | AppError, request: FastifyRequest, reply: FastifyReply) => {
