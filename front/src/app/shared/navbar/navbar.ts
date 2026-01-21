@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { User, UserRole } from '../../core/models/user.interface';
 
@@ -11,10 +12,16 @@ interface NavLink {
   roles: UserRole[];
 }
 
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -24,6 +31,7 @@ export class Navbar implements OnInit {
   
   currentUser: User | null = null;
   visibleLinks: NavLink[] = [];
+  isHomePage = false;
 
   private allLinks: NavLink[] = [
     {
@@ -79,10 +87,24 @@ export class Navbar implements OnInit {
   ];
 
   ngOnInit(): void {
+    // Check initial route
+    this.checkIfHomePage(this.router.url);
+
+    // Subscribe to route changes
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.checkIfHomePage(event.urlAfterRedirects || event.url);
+    });
+
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateVisibleLinks();
     });
+  }
+
+  private checkIfHomePage(url: string): void {
+    this.isHomePage = url === '/' || url === '/home';
   }
 
   private updateVisibleLinks(): void {

@@ -1,36 +1,10 @@
 <div class="dashboard-container">
   @if (currentUser) {
   <p-card styleClass="welcome-card">
-    <ng-template pTemplate="header">
       <div class="card-header">
         <i class="pi pi-briefcase header-icon"></i>
         <span>Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!</span>
       </div>
-    </ng-template>
-    <div class="user-info">
-      <div class="tags-container">
-        <p-tag
-          [severity]="currentUser.role === 'ADMIN' ? 'danger' : currentUser.role === 'SUPER_ORGANISATEUR' ? 'warn' : 'info'"
-          [value]="currentUser.role" icon="pi pi-shield"></p-tag>
-        <p-tag [severity]="currentUser.valide ? 'success' : 'secondary'"
-          [value]="currentUser.valide ? 'Compte validé' : 'En attente de validation'"
-          [icon]="currentUser.valide ? 'pi pi-verified' : 'pi pi-clock'"></p-tag>
-      </div>
-
-      <div class="user-details">
-        <p><i class="pi pi-envelope"></i> {{ currentUser.email }}</p>
-        <p><i class="pi pi-id-card"></i> ID: {{ currentUser.id }}</p>
-      </div>
-
-      @if (!currentUser.valide) {
-      <p-panel header="Attention" [toggleable]="false" styleClass="warning-panel">
-        <div class="warning-content">
-          <i class="pi pi-exclamation-triangle warning-icon"></i>
-          <span>Votre compte est en attente de validation par un administrateur.</span>
-        </div>
-      </p-panel>
-      }
-    </div>
   </p-card>
 
   @if (selectedFestival()) {
@@ -39,7 +13,7 @@
     <ng-template pTemplate="header">
       <div class="card-header">
         <i class="pi pi-calendar header-icon"></i>
-        <span>Festival Sélectionné</span>
+        <span>Festival </span>
       </div>
     </ng-template>
 
@@ -112,7 +86,8 @@
       </p-tabpanels>
     </p-tabs>
   </p-card>
-  } @else {
+  } 
+  @else {
   <p-card styleClass="info-card-empty">
     <ng-template pTemplate="header">
       <div class="card-header">
@@ -135,25 +110,8 @@
         <span>Administration</span>
       </div>
     </ng-template>
-    <p>Vous avez accès aux fonctionnalités d'administration</p>
     <ng-template pTemplate="footer">
       <p-button label="Gérer les utilisateurs" icon="pi pi-users" severity="danger" routerLink="/users"></p-button>
-    </ng-template>
-  </p-card>
-  }
-
-  @if (currentUser.role === 'SUPER_ORGANISATEUR' || currentUser.role === 'ADMIN' || currentUser.role === 'ORGANISATEUR')
-  {
-  <p-card styleClass="management-section">
-    <ng-template pTemplate="header">
-      <div class="card-header">
-        <i class="pi pi-briefcase header-icon"></i>
-        <span>Gestion des Éditeurs</span>
-      </div>
-    </ng-template>
-    <p>Accédez à la gestion des éditeurs</p>
-    <ng-template pTemplate="footer">
-      <p-button label="Gérer les éditeurs" icon="pi pi-users" severity="help" routerLink="/editeurs"></p-button>
     </ng-template>
   </p-card>
   }

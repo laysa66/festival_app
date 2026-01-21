@@ -12,10 +12,10 @@
   --color-accent-3: #2600B2;
   /* Bleu roi intense */
 
-  /* Gradients */
-  --gradient-main: linear-gradient(135deg, #7500A8 0%, #BD1A95 50%, #2600B2 100%);
-  --gradient-hover: linear-gradient(135deg, #8916BC 0%, #BD1A95 50%, #2600B2 100%);
-  --gradient-dark: linear-gradient(135deg, #2600B2 0%, #7500A8 100%);
+  /* Gradients replaced by Solid Brand Color (Flat Design) */
+  --gradient-main: #7500A8;
+  --gradient-hover: #60008A;
+  --gradient-dark: #3E0059;
 
   /* Light Theme Colors */
   --bg-dark: #f1f5f9;
@@ -46,7 +46,8 @@ body {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg-dark);
+  background: #f8fafc;
+  /* Plain clean light gray */
   color: var(--text-primary);
   overflow-x: hidden;
 }
