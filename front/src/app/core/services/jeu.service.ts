@@ -49,9 +49,14 @@ export class JeuService {
       params = params.set('search', search);
     }
 
-    return this.http.get<{ success: boolean; jeux: Jeu[]; total: number }>(`${this.apiUrl}/jeux`, { params })
+    return this.http.get<Jeu[] | { success: boolean; jeux: Jeu[]; total: number }>(`${this.apiUrl}/jeux`, { params })
       .pipe(
-        map(response => response.jeux || [])
+        map(response => {
+          if (Array.isArray(response)) {
+            return response;
+          }
+          return response.jeux || [];
+        })
       );
   }
 

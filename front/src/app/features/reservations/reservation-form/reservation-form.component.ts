@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, NgZone } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, Observable } from 'rxjs';
 import { ReservationService } from '../../../core/services/reservation.service';
 import { EditeursService, Editeur } from '../../../core/services/editeurs.service';
 import { FestivalService } from '../../../core/services/festival.service';
@@ -38,6 +38,35 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
   private readonly festivalService = inject(FestivalService);
   private readonly jeuService = inject(JeuService);
   private readonly destroy$ = new Subject<void>();
+  
+  // Subject pour la recherche avec debounce
+  private searchTerms = new Subject<string>();
+
+  constructor() {
+    // Configuration de la recherche avec debounce
+    this.searchTerms.pipe(
+      takeUntil(this.destroy$),
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((term: string) => {
+        if (!term || term.length < 2) {
+          return new Observable<Jeu[]>(obs => obs.next([]));
+        }
+        this.searchingGames.set(true);
+        return this.jeuService.searchGames(term, 20);
+      })
+    ).subscribe({
+      next: (jeux) => {
+        this.gameSearchResults.set(jeux);
+        this.searchingGames.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur recherche jeux:', err);
+        this.gameSearchResults.set([]);
+        this.searchingGames.set(false);
+      }
+    });
+  }
 
   // État
   reservationId: number | null = null;
@@ -76,11 +105,11 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
 
   // Onglets
   tabs = [
-    { id: 0, label: 'Informations générales', icon: '📋' },
-    { id: 1, label: 'Espaces', icon: '📐' },
-    { id: 2, label: 'Jeux', icon: '🎲' },
-    { id: 3, label: 'Placement', icon: '🗺️' },
-    { id: 4, label: 'Contacts', icon: '📞' }
+    { id: 0, label: 'Informations générales', icon: 'pi pi-id-card' },
+    { id: 1, label: 'Espaces', icon: 'pi pi-table' },
+    { id: 2, label: 'Jeux', icon: 'pi pi-objects-column' }, // ou pi-th-large
+    { id: 3, label: 'Placement', icon: 'pi pi-map' },
+    { id: 4, label: 'Contacts', icon: 'pi pi-phone' }
   ];
 
   // Enums pour les templates
@@ -427,26 +456,12 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
   /**
    * Rechercher des jeux
    */
+  /**
+   * Rechercher des jeux
+   */
   searchGames(query: string): void {
     this.gameSearchQuery.set(query);
-    
-    if (!query || query.length < 2) {
-      this.gameSearchResults.set([]);
-      return;
-    }
-
-    this.searchingGames.set(true);
-    this.jeuService.searchGames(query, 20).subscribe({
-      next: (jeux) => {
-        this.gameSearchResults.set(jeux);
-        this.searchingGames.set(false);
-      },
-      error: (err) => {
-        console.error('Erreur recherche jeux:', err);
-        this.gameSearchResults.set([]);
-        this.searchingGames.set(false);
-      }
-    });
+    this.searchTerms.next(query);
   }
 
   /**
@@ -483,7 +498,9 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         console.log('Jeu ajouté à la réservation:', reservationJeu);
         // Mettre à jour la réservation locale
         if (currentReservation) {
-          const updatedJeux = [...(currentReservation.reservationJeux || []), reservationJeu];
+          // Manually attach the jeu object because the backend might not return the relation
+          const newReservationJeu: any = { ...reservationJeu, jeu: jeu };
+          const updatedJeux = [...(currentReservation.reservationJeux || []), newReservationJeu];
           this.reservation.set({ ...currentReservation, reservationJeux: updatedJeux });
         }
         // Effacer la recherche

@@ -29,7 +29,7 @@ export class Navbar implements OnInit {
     {
       path: '/dashboard',
       label: 'Tableau de bord',
-      icon: '📊',
+      icon: 'pi pi-chart-bar',
       roles: [
         UserRole.USER,
         UserRole.BENEVOLE,
@@ -41,18 +41,19 @@ export class Navbar implements OnInit {
     {
       path: '/editeurs',
       label: 'Éditeurs',
-      icon: '📚',
+      icon: 'pi pi-book',
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
       path: '/games',
       label: 'Jeux',
+      icon: 'pi pi-objects-column',
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
       path: '/festivals',
       label: 'Festivals',
-      icon: '🎪',
+      icon: 'pi pi-calendar',
       roles: [
         UserRole.SUPER_ORGANISATEUR,
         UserRole.ADMIN,
@@ -62,7 +63,7 @@ export class Navbar implements OnInit {
     {
       path: '/reservations',
       label: 'Réservations',
-      icon: '📝',
+      icon: 'pi pi-file-edit',
       roles: [
         UserRole.ORGANISATEUR,
         UserRole.SUPER_ORGANISATEUR,
@@ -72,7 +73,7 @@ export class Navbar implements OnInit {
     {
       path: '/users',
       label: 'Gestion Utilisateurs',
-      icon: '👥',
+      icon: 'pi pi-users',
       roles: [UserRole.ADMIN]
     }
   ];

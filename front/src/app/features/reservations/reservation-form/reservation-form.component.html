@@ -41,7 +41,7 @@
     <div class="tabs">
       @for (tab of tabs; track tab.id) {
       <button type="button" class="tab" [class.active]="currentTab() === tab.id" (click)="selectTab(tab.id)">
-        <span class="tab-icon">{{ tab.icon }}</span>
+        <span class="tab-icon"><i [class]="tab.icon"></i></span>
         <span class="tab-label">{{ tab.label }}</span>
       </button>
       }

@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTabsModule } from '@angular/material/tabs';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { TabsModule } from 'primeng/tabs';
+import { PanelModule } from 'primeng/panel';
 import { AuthService } from '../../core/services/auth.service';
 import { FestivalSelectionService } from '../../core/services/festival-selection.service';
 import { FestivalService } from '../../core/services/festival.service';
@@ -22,11 +21,11 @@ import { ZonePlanManagementComponent } from '../festival/zone-plan-management/zo
   imports: [
     CommonModule, 
     RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatTabsModule,
+    CardModule,
+    ButtonModule,
+    TagModule,
+    TabsModule,
+    PanelModule,
     DatePipe,
     ZoneTarifaireManagementComponent,
     ZonePlanManagementComponent
