@@ -1,0 +1,43 @@
+<mat-toolbar class="public-navbar">
+  <div class="navbar-container">
+    <!-- Logo / Home -->
+    <div class="navbar-brand">
+      <button mat-button routerLink="/" class="brand-button">
+        <mat-icon>festival</mat-icon>
+        <span class="brand-text">Festival App</span>
+      </button>
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="navbar-menu">
+      <a routerLink="/" mat-button routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <mat-icon>home</mat-icon>
+        Accueil
+      </a>
+      <a routerLink="/public/games" mat-button routerLinkActive="active">
+        <mat-icon>games</mat-icon>
+        Jeux
+      </a>
+      <a routerLink="/public/zones-tarifaires" mat-button routerLinkActive="active">
+        <mat-icon>local_offer</mat-icon>
+        Zones Tarifaires
+      </a>
+      <a routerLink="/public/zones-plan" mat-button routerLinkActive="active">
+        <mat-icon>map</mat-icon>
+        Zones du Plan
+      </a>
+    </div>
+
+    <!-- Auth Links -->
+    <div class="navbar-auth">
+      <a routerLink="/login" mat-button>
+        <mat-icon>login</mat-icon>
+        Connexion
+      </a>
+      <a routerLink="/register" mat-raised-button color="primary">
+        <mat-icon>person_add</mat-icon>
+        Inscription
+      </a>
+    </div>
+  </div>
+</mat-toolbar>
