@@ -464,10 +464,20 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
 
     this.addingGameId.set(jeu.id);
     
+    // Calculer le nombre de tables disponibles
+    const totalTablesReservees = currentReservation?.reservationLines?.reduce((acc, line) => acc + line.nbTables, 0) || 0;
+    const totalTablesAllouees = currentReservation?.reservationJeux?.reduce((acc, j) => acc + j.nbTablesAllouees, 0) || 0;
+    
+    // Si plus de place, erreur bloquante
+    if (totalTablesAllouees >= totalTablesReservees) {
+      this.error.set("Ajout impossible : toutes vos tables réservées sont déjà utilisées par d'autres jeux.");
+      return;
+    }
+
     this.reservationService.addReservationJeu(this.reservationId, {
       jeuId: jeu.id,
-      nbExemplaires: 1,
-      nbTablesAllouees: 1
+      nbExemplaires: 1, // Par défaut 1 exemplaire
+      nbTablesAllouees: 1 // On essaye d'allouer 1 table par défaut
     }).subscribe({
       next: (reservationJeu: ReservationJeu) => {
         console.log('Jeu ajouté à la réservation:', reservationJeu);
@@ -558,7 +568,9 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Erreur création jeu:', err);
-        this.error.set('Erreur lors de la création du jeu');
+        console.error('Détails erreur:', JSON.stringify(err, null, 2));
+        const errorMessage = err?.error?.message || err?.message || 'Erreur lors de la création du jeu';
+        this.error.set(errorMessage);
         this.savingGame.set(false);
       }
     });
