@@ -9,7 +9,11 @@ class FestivalService {
       const festivals = await this.prisma.festival.findMany({
         include: {
           zoneTarifaires: true,
-          zonePlans: true,
+          zonePlans: {
+            include: {
+              zoneTarifaire: true,
+            },
+          },
         },
       });
       return festivals;
@@ -24,7 +28,11 @@ class FestivalService {
         where: { id },
         include: {
           zoneTarifaires: true,
-          zonePlans: true,
+          zonePlans: {
+            include: {
+              zoneTarifaire: true,
+            },
+          },
         },
       });
 

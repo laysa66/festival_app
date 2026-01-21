@@ -21,8 +21,8 @@ import { Editeur } from '../../../core/services/editeurs.service';
     MatButtonModule,
     MatCheckboxModule
   ],
-  template: `./editeur-dialog.component.html`,
-  styles: `./editeur-dialog.component.css`
+  templateUrl: './editeur-dialog.component.html',
+  styleUrl: './editeur-dialog.component.css'
 })
 export class EditeurDialogComponent implements OnInit {
   private fb = inject(FormBuilder);

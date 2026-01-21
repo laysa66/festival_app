@@ -1,0 +1,570 @@
+<div class="form-container">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>{{ isEditMode ? 'Éditer la réservation' : 'Nouvelle réservation' }}</h1>
+      @if (isEditMode && reservation()) {
+      <p class="subtitle">Réservation #{{ reservationId }} - {{ reservation()!.editeur?.libelle || 'Sans nom' }}</p>
+      }
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" (click)="cancel()">Annuler</button>
+      <button type="button" class="btn btn-primary" (click)="save()" [disabled]="saving()">
+        @if (saving()) {
+        <span class="spinner-small"></span>
+        }
+        {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Erreur -->
+  @if (error()) {
+  <div class="error-message">
+    <span class="icon">⚠️</span>
+    {{ error() }}
+  </div>
+  }
+
+  <!-- Chargement -->
+  @if (loading()) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+  }
+
+  <!-- Formulaire -->
+  @if (!loading()) {
+  <form [formGroup]="reservationForm" class="form-content">
+    <!-- Onglets -->
+    <div class="tabs">
+      @for (tab of tabs; track tab.id) {
+      <button type="button" class="tab" [class.active]="currentTab() === tab.id" (click)="selectTab(tab.id)">
+        <span class="tab-icon">{{ tab.icon }}</span>
+        <span class="tab-label">{{ tab.label }}</span>
+      </button>
+      }
+    </div>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content">
+      <!-- Onglet 1: Informations générales -->
+      @if (currentTab() === 0) {
+      <div class="section">
+        <h2 class="section-title">Informations générales</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="editeurId">Éditeur <span class="required">*</span></label>
+            <select id="editeurId" formControlName="editeurId">
+              <option [ngValue]="null" disabled>Sélectionner un éditeur</option>
+              @for (editeur of editeursList(); track editeur.id) {
+              <option [ngValue]="editeur.id">{{ editeur.libelle }}</option>
+              }
+            </select>
+            @if (reservationForm.get('editeurId')?.invalid && reservationForm.get('editeurId')?.touched) {
+            <span class="error-text">L'éditeur est obligatoire</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="festivalId">Festival <span class="required">*</span></label>
+            <select id="festivalId" formControlName="festivalId">
+              <option [ngValue]="null" disabled>Sélectionner un festival</option>
+              @for (festival of festivalsList(); track festival.id) {
+              <option [ngValue]="festival.id">{{ festival.nom }}</option>
+              }
+            </select>
+            @if (reservationForm.get('festivalId')?.invalid && reservationForm.get('festivalId')?.touched) {
+            <span class="error-text">Le festival est obligatoire</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="typeReservant">Type de réservant <span class="required">*</span></label>
+            <select id="typeReservant" formControlName="typeReservant">
+              <option [value]="TypeReservant.EDITEUR">{{ TYPE_RESERVANT_LABELS[TypeReservant.EDITEUR] }}</option>
+              <option [value]="TypeReservant.PRESTATAIRE">{{ TYPE_RESERVANT_LABELS[TypeReservant.PRESTATAIRE] }}
+              </option>
+              <option [value]="TypeReservant.ANIMATION">{{ TYPE_RESERVANT_LABELS[TypeReservant.ANIMATION] }}</option>
+              <option [value]="TypeReservant.ASSO">{{ TYPE_RESERVANT_LABELS[TypeReservant.ASSO] }}</option>
+              <option [value]="TypeReservant.BOUTIQUE">{{ TYPE_RESERVANT_LABELS[TypeReservant.BOUTIQUE] }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="nbPrisesElectriques">Nombre de prises électriques</label>
+            <input id="nbPrisesElectriques" type="number" formControlName="nbPrisesElectriques" min="0"
+              placeholder="0" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="viendraPresenteSesJeux" />
+              Viendra présenter ses jeux
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="nousPresentons" />
+              Nous présentons leurs jeux
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="listeJeuxDemandee" />
+              Liste de jeux demandée
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="listeJeuxObtenue" />
+              Liste de jeux obtenue
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="jeuxRecusPhysiquement" />
+              Jeux reçus physiquement
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="notesClient">Notes client</label>
+          <textarea id="notesClient" formControlName="notesClient" rows="3"
+            placeholder="Notes visibles par le client..."></textarea>
+        </div>
+      </div>
+      }
+
+      <!-- Onglet 2: Espaces -->
+      @if (currentTab() === 1) {
+      <div class="section">
+        <h2 class="section-title">Espaces réservés</h2>
+        <p class="section-description">
+          Gestion des lignes de réservation (tables, m²)
+        </p>
+
+        @if (isEditMode) {
+        <!-- Liste des lignes existantes -->
+        @if (reservation()?.reservationLines && reservation()!.reservationLines!.length > 0) {
+        <div class="lines-table-wrapper">
+          <table class="lines-table">
+            <thead>
+              <tr>
+                <th>Zone Tarifaire</th>
+                <th>Nb Tables</th>
+                <th>M²</th>
+                <th>Grandes Tables</th>
+                <th>Sous-total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of reservation()!.reservationLines!; track line.id) {
+              <tr>
+                <td class="zone-name">{{ line.zoneTarifaire?.nom || 'Zone #' + line.zoneTarifaireId }}</td>
+                <td class="center">{{ line.nbTables }}</td>
+                <td class="center">{{ line.nbM2 }}</td>
+                <td class="center">{{ line.grandesTablesSouhaitees ? '✅' : '❌' }}</td>
+                <td class="right">{{ line.sousTotal | number:'1.2-2' }} €</td>
+                <td class="center">
+                  <button type="button" class="btn btn-sm btn-danger" (click)="removeReservationLine(line.id)"
+                    title="Supprimer cette ligne">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="empty-state">
+          <p>📐 Aucun espace réservé</p>
+          <p class="hint">Utilisez le formulaire ci-dessous pour ajouter des espaces</p>
+        </div>
+        }
+
+        <!-- Formulaire d'ajout de ligne -->
+        <div class="add-line-form">
+          <h3>Ajouter un espace</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Zone Tarifaire *</label>
+              <select class="form-control" [value]="newLineData().zoneTarifaireId || ''"
+                (change)="updateNewLineField('zoneTarifaireId', +$any($event.target).value)">
+                <option value="">-- Sélectionner une zone --</option>
+                @for (zone of zoneTarifairesList(); track zone.id) {
+                <option [value]="zone.id">
+                  {{ zone.nom }} (Table: {{ zone.prixTable }}€ / M²: {{ zone.prixM2 }}€)
+                </option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Nb Tables</label>
+              <input type="number" class="form-control" [value]="newLineData().nbTables || 0"
+                (input)="updateNewLineField('nbTables', +$any($event.target).value)" min="0" />
+            </div>
+            <div class="form-group">
+              <label>M²</label>
+              <input type="number" class="form-control" [value]="newLineData().nbM2 || 0"
+                (input)="updateNewLineField('nbM2', +$any($event.target).value)" min="0" step="0.5" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" [checked]="newLineData().grandesTablesSouhaitees || false"
+                  (change)="updateNewLineField('grandesTablesSouhaitees', $any($event.target).checked)" />
+                Grandes tables souhaitées
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" (click)="addReservationLine()"
+              [disabled]="addingLine() || !newLineData().zoneTarifaireId">
+              @if (addingLine()) {
+              ⏳ Ajout...
+              } @else {
+              ➕ Ajouter l'espace
+              }
+            </button>
+          </div>
+        </div>
+        } @else {
+        <div class="info-box">
+          <p>⚠️ Sauvegardez d'abord la réservation pour ajouter des espaces.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Onglet 3: Jeux -->
+      @if (currentTab() === 2) {
+      <div class="section">
+        <h2 class="section-title">Jeux proposés</h2>
+        <p class="section-description">
+          Liste des jeux apportés par l'exposant
+        </p>
+
+        @if (isEditMode) {
+        <!-- Recherche et ajout de jeux -->
+        <div class="games-search-section">
+          <h3>Ajouter un jeu</h3>
+
+          <div class="search-box">
+            <input type="text" placeholder="Rechercher un jeu par nom ou auteur..." [value]="gameSearchQuery()"
+              (input)="searchGames($any($event.target).value)" class="form-control search-input" />
+            @if (searchingGames()) {
+            <span class="search-loading">🔄 Recherche...</span>
+            }
+          </div>
+
+          <!-- Résultats de recherche -->
+          @if (gameSearchResults().length > 0) {
+          <div class="search-results">
+            @for (jeu of gameSearchResults(); track jeu.id) {
+            <div class="search-result-item">
+              <div class="game-info">
+                <strong>{{ jeu.libelle }}</strong>
+                @if (jeu.auteur) {
+                <span class="game-author">par {{ jeu.auteur }}</span>
+                }
+                <span class="game-details">
+                  @if (jeu.nbMinJoueur && jeu.nbMaxJoueur) {
+                  {{ jeu.nbMinJoueur }}-{{ jeu.nbMaxJoueur }} joueurs
+                  }
+                  @if (jeu.editeur) {
+                  · {{ jeu.editeur.libelle }}
+                  }
+                </span>
+              </div>
+              <button type="button" class="btn btn-sm btn-success" (click)="addGameToReservation(jeu)"
+                [disabled]="addingGameId() === jeu.id">
+                @if (addingGameId() === jeu.id) {
+                ⏳ Ajout...
+                } @else {
+                ➕ Ajouter
+                }
+              </button>
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Bouton pour créer un nouveau jeu -->
+          <div class="create-game-toggle">
+            <button type="button" class="btn btn-secondary" (click)="toggleNewGameForm()">
+              @if (showNewGameForm()) {
+              ❌ Annuler
+              } @else {
+              ➕ Créer un nouveau jeu
+              }
+            </button>
+          </div>
+
+          <!-- Formulaire de création de jeu -->
+          @if (showNewGameForm()) {
+          <div class="new-game-form">
+            <h4>Nouveau jeu</h4>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nom du jeu *</label>
+                <input type="text" class="form-control" [value]="newGameData().libelle || ''"
+                  (input)="updateNewGameField('libelle', $any($event.target).value)" placeholder="Nom du jeu" />
+              </div>
+              <div class="form-group">
+                <label>Auteur</label>
+                <input type="text" class="form-control" [value]="newGameData().auteur || ''"
+                  (input)="updateNewGameField('auteur', $any($event.target).value)" placeholder="Auteur" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nb min joueurs</label>
+                <input type="number" class="form-control" [value]="newGameData().nbMinJoueur || ''"
+                  (input)="updateNewGameField('nbMinJoueur', +$any($event.target).value)" min="1" />
+              </div>
+              <div class="form-group">
+                <label>Nb max joueurs</label>
+                <input type="number" class="form-control" [value]="newGameData().nbMaxJoueur || ''"
+                  (input)="updateNewGameField('nbMaxJoueur', +$any($event.target).value)" min="1" />
+              </div>
+              <div class="form-group">
+                <label>Age minimum</label>
+                <input type="number" class="form-control" [value]="newGameData().ageMin || ''"
+                  (input)="updateNewGameField('ageMin', +$any($event.target).value)" min="1" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" (click)="createAndAddGame()"
+                [disabled]="savingGame() || !newGameData().libelle">
+                @if (savingGame()) {
+                ⏳ Création...
+                } @else {
+                ✅ Créer et ajouter
+                }
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Liste des jeux de la réservation -->
+        <div class="games-list-section">
+          <h3>Jeux dans cette réservation</h3>
+
+          @if (reservation()?.reservationJeux && reservation()!.reservationJeux!.length > 0) {
+          <table class="games-table">
+            <thead>
+              <tr>
+                <th>Jeu</th>
+                <th>Nb Exemplaires</th>
+                <th>Tables Allouées</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rj of reservation()!.reservationJeux!; track rj.id) {
+              <tr>
+                <td class="game-name">
+                  <strong>{{ rj.jeu?.libelle || 'Jeu #' + rj.jeuId }}</strong>
+                  @if (rj.jeu?.auteur) {
+                  <br /><small>par {{ rj.jeu?.auteur }}</small>
+                  }
+                </td>
+                <td class="center">
+                  <input type="number" class="form-control small-input" [value]="rj.nbExemplaires"
+                    (change)="updateGameQuantity(rj.id, +$any($event.target).value)" min="1" />
+                </td>
+                <td class="center">
+                  <input type="number" class="form-control small-input" [value]="rj.nbTablesAllouees"
+                    (change)="updateGameTables(rj.id, +$any($event.target).value)" min="0" />
+                </td>
+                <td class="center">
+                  <button type="button" class="btn btn-sm btn-danger" (click)="removeGameFromReservation(rj.id)"
+                    title="Supprimer ce jeu">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          } @else {
+          <div class="empty-state">
+            <p>🎲 Aucun jeu dans cette réservation</p>
+            <p class="hint">Utilisez la recherche ci-dessus pour ajouter des jeux</p>
+          </div>
+          }
+        </div>
+        } @else {
+        <div class="info-box">
+          <p>⚠️ Sauvegardez d'abord la réservation pour ajouter des jeux.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Onglet 4: Placement -->
+      @if (currentTab() === 3) {
+      <div class="section">
+        <h2 class="section-title">Placement sur plan</h2>
+        <p class="section-description">
+          Affectation des jeux aux zones du plan
+        </p>
+
+        @if (isEditMode) {
+        @if (reservation()?.reservationJeux && reservation()!.reservationJeux!.length > 0) {
+        <div class="placement-table-wrapper">
+          <table class="placement-table">
+            <thead>
+              <tr>
+                <th>Jeu</th>
+                <th>Zone du Plan</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (jeu of reservation()!.reservationJeux!; track jeu.id) {
+              <tr>
+                <td class="game-name">{{ jeu.jeu?.libelle || 'Jeu #' + jeu.jeuId }}</td>
+                <td>
+                  <select [value]="jeu.zonePlanId || ''"
+                    (change)="updateGameZonePlan(jeu.id, $any($event.target).value ? +$any($event.target).value : null)"
+                    class="zone-select">
+                    <option value="">-- Aucune zone --</option>
+                    @for (zone of zonePlansList(); track zone.id) {
+                    <option [value]="zone.id" [selected]="jeu.zonePlanId === zone.id">
+                      {{ zone.nom }} ({{ zone.zoneTarifaire?.nom || 'Zone tarifaire' }})
+                    </option>
+                    }
+                  </select>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="info-box">
+          <p>🎲 Aucun jeu n'a été ajouté à cette réservation.</p>
+          <p>Ajoutez des jeux dans l'onglet "Jeux" avant de pouvoir les placer sur le plan.</p>
+        </div>
+        }
+
+        @if (zonePlansList().length === 0 && reservation()?.reservationJeux?.length) {
+        <div class="info-box warning">
+          <p>⚠️ Aucune zone du plan n'est disponible pour ce festival.</p>
+          <p>Créez des zones du plan dans les paramètres du festival.</p>
+        </div>
+        }
+        } @else {
+        <div class="info-box">
+          <p>⚠️ Sauvegardez d'abord la réservation pour gérer le placement.</p>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Onglet 5: Contacts -->
+      @if (currentTab() === 4) {
+      <div class="section">
+        <h2 class="section-title">Historique des contacts</h2>
+        <p class="section-description">
+          Suivi des échanges avec l'exposant
+        </p>
+
+        @if (isEditMode) {
+        <!-- Liste des contacts existants -->
+        @if (reservation()?.reservationContacts && reservation()!.reservationContacts!.length > 0) {
+        <div class="contacts-table-wrapper">
+          <table class="contacts-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Commentaire</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (contact of reservation()!.reservationContacts!; track contact.id) {
+              <tr>
+                <td class="date-cell">{{ contact.dateContact | date:'dd/MM/yyyy' }}</td>
+                <td class="comment-cell">{{ contact.commentaire || '-' }}</td>
+                <td class="center">
+                  <button type="button" class="btn btn-sm btn-danger" (click)="removeContact(contact.id)"
+                    title="Supprimer ce contact">
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="empty-state">
+          <p>📞 Aucun contact enregistré</p>
+          <p class="hint">Utilisez le formulaire ci-dessous pour ajouter un contact</p>
+        </div>
+        }
+
+        <!-- Formulaire d'ajout de contact -->
+        <div class="add-contact-form">
+          <h3>Ajouter un contact</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date *</label>
+              <input type="date" class="form-control" [value]="newContactData().dateContact || ''"
+                (input)="updateContactField('dateContact', $any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Commentaire</label>
+              <textarea class="form-control" rows="3" [value]="newContactData().commentaire || ''"
+                (input)="updateContactField('commentaire', $any($event.target).value)"
+                placeholder="Détails de l'échange, notes, prochaines étapes..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" (click)="addContact()"
+              [disabled]="addingContact() || !newContactData().dateContact">
+              @if (addingContact()) {
+              ⏳ Ajout...
+              } @else {
+              ➕ Ajouter le contact
+              }
+            </button>
+          </div>
+        </div>
+        } @else {
+        <div class="info-box">
+          <p>⚠️ Sauvegardez d'abord la réservation pour gérer les contacts.</p>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </form>
+  }
+</div>

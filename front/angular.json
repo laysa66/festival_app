@@ -11,8 +11,8 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-        "skipTests": true,
-        "type": "component"
+          "skipTests": true,
+          "type": "component"
         },
         "@schematics/angular:class": {
           "skipTests": true
@@ -74,6 +74,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "front:build:production"

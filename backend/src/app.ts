@@ -9,6 +9,8 @@ import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
 import festivalRoutes from './routes/festival.routes';
 import editeursRoutes from './routes/editeurs.routes';
+import reservationRoutes from './routes/reservation.routes';
+import jeuRoutes from './routes/jeu.routes';
 import { AppError } from './utils/errors/custom-errors';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -59,6 +61,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   server.register(usersRoutes, { prefix: '/api/users' });
   server.register(festivalRoutes, { prefix: '/api' });
   server.register(editeursRoutes, { prefix: '/api' });
+  server.register(reservationRoutes, { prefix: '/api' });
+  server.register(jeuRoutes, { prefix: '/api' });
 
   // Error handler
   server.setErrorHandler((error: FastifyError | AppError, request: FastifyRequest, reply: FastifyReply) => {

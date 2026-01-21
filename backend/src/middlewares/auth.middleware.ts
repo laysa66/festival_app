@@ -17,6 +17,10 @@ export const authMiddleware = async (request: FastifyRequest, reply: FastifyRepl
   try {
     // Récupérer le token depuis le cookie
     const token = request.cookies.auth_token;
+    
+    console.log('🔒 AuthMiddleware - Cookies received:', Object.keys(request.cookies));
+    console.log('🔒 AuthMiddleware - Token present:', !!token);
+
     // il ya pas de token c'est pas normal je te laisse pas passer 
     if (!token) {
       throw new UnauthorizedError('Token manquant');
@@ -25,7 +29,9 @@ export const authMiddleware = async (request: FastifyRequest, reply: FastifyRepl
     // Vérifier le token
     const decoded = await request.server.jwt.verify<JwtPayload>(token);// on va verifier le tokzn et le decoder  
     request.user = decoded; // attacher les infos au request object
+    request.user = decoded; // attacher les infos au request object
   } catch (error) {
+    console.error('🔒 AuthMiddleware - Error confirming token:', error);
     throw new UnauthorizedError('Token invalide ou expiré');
   }
 };

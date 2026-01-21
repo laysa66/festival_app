@@ -1,4 +1,4 @@
-import { Component, input, signal, effect } from '@angular/core';
+import { Component, input, signal, effect, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -35,6 +35,7 @@ export class ZoneManagementComponent {
   isLoading = signal(false);
   newZoneForm!: FormGroup;
   zones = signal<ZoneTarifaire[]>([]);
+  zonesChanged = output<ZoneTarifaire[]>();
 
   displayedColumns: string[] = ['nom', 'prixTable', 'prixM2', 'actions'];
 
@@ -48,8 +49,8 @@ export class ZoneManagementComponent {
     // Watch for festival changes
     effect(() => {
       const festival = this.festival();
-      if (festival?.zonesT) {
-        this.zones.set(festival.zonesT);
+      if (festival?.zoneTarifaires) {
+        this.zones.set(festival.zoneTarifaires);
       }
     });
   }
@@ -86,7 +87,9 @@ export class ZoneManagementComponent {
       this.festivalService.addZoneTarifaire(this.festival()!.id, formValue).subscribe({
         next: (newZone) => {
           // Update zones list
-          this.zones.set([...this.zones(), newZone]);
+          const updatedZones = [...this.zones(), newZone];
+          this.zones.set(updatedZones);
+          this.zonesChanged.emit(updatedZones);
           this.newZoneForm.reset();
           this.isEditing.set(false);
           this.isLoading.set(false);

@@ -35,14 +35,21 @@ export class AuthController {
       // si valide il appel le serive 
       const result = await this.authService.login(data);
       
+      console.log('🔐 Setting auth_token cookie for user:', result.user?.email);
+      console.log('🔐 Token length:', result.token?.length);
+      console.log('🔐 NODE_ENV:', process.env.NODE_ENV);
+      
       // creer le cookie avec le token 
       reply.setCookie('auth_token', result.token!, {
         httpOnly: true,  // Inaccessible depuis JavaScript (plus sécurisé)
-        secure: process.env.NODE_ENV === 'production', // HTTPS en production , donc true en prod et false en dev
+        secure: false, // Toujours false en développement pour éviter les problèmes
         sameSite: 'lax', // Protection CSRF
         maxAge: 7 * 24 * 60 * 60, // le cookie expire dans 7 jours
-        path: '/' // Disponible sur tout le site
+        path: '/', // Disponible sur tout le site
+        // domain: 'localhost' // REMOVED: causing issues with 127.0.0.1 vs localhost
       });
+      
+      console.log('✅ Cookie set successfully');
       
       // Renvoyer la réponse SANS le token (il est dans le cookie)
       const { token, ...responseWithoutToken } = result;

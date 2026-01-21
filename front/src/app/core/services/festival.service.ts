@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Festival } from '../models/festival';
+import { environment } from '../../../environments/environment';
+
 
 export interface ZoneTarifaire {
   id: number;
@@ -22,8 +24,10 @@ export interface ZonePlan {
   providedIn: 'root',
 })
 export class FestivalService {
-  private apiUrl = 'http://localhost:3000/api/festivals';
-  private baseUrl = 'http://localhost:3000/api';
+  //private apiUrl = 'http://localhost:3000/api/festivals';
+  private apiUrl = `${environment.apiBaseUrl}/api/festivals`;
+  //private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = `${environment.apiBaseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

@@ -36,6 +36,13 @@ export class ConflictError extends AppError {
   }
 }
 
+export class BadRequestError extends AppError {
+  constructor(message: string = 'Requête invalide') {
+    super(400, message);
+    this.name = 'BadRequestError';
+  }
+}
+
 export class ValidationError extends AppError {
   constructor(message: string = 'Données invalides') {
     super(400, message);

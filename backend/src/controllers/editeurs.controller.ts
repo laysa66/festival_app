@@ -12,10 +12,11 @@ export const getAllEditeurs = async (req: FastifyRequest, reply: FastifyReply) =
     const result = await service.getAllEditeurs();
     reply.code(200).send(result);
   } catch (error) {
+    req.log.error(error, 'Error in getAllEditeurs');
     if (error instanceof AppError) {
       reply.code(error.statusCode).send({ success: false, message: error.message });
     } else {
-      reply.code(500).send({ success: false, message: 'Internal server error' });
+      reply.code(500).send({ success: false, message: 'Internal server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 };
