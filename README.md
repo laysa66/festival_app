@@ -1,97 +1,85 @@
-#  Festival App
-###  Lancer la base de données
+# Festival App
+
+Une application web moderne et complète pour la gestion de festivals de jeux de société.
+
+---
+
+## Description
+
+Ce projet permet aux organisateurs de gérer tous les aspects d'un festival de jeux :
+*   Planification des événements et gestion des **Festivals**.
+*   Gestion des **Jeux** et des **Éditeurs**.
+*   Suivi des **Réservations** d'espaces et de tables.
+*   Administration des **Zones Tarifaires** et du plan des salles.
+*   Gestion des **Utilisateurs** avec différents rôles (Admin, Organisateur, Bénévole ...).
+
+
+---
+
+## Installation et Démarrage
+
+
+### Base de données (PostgreSQL)
+Démarrez le conteneur Docker pour la base de données :
 
 ```bash
-# Démarrer PostgreSQL et Adminer
 docker-compose up -d
-
-# Vérifier que les conteneurs sont lancés
-docker-compose ps
 ```
-- for PostgreSQL credentials: check the .env file in the backend folder
+*Cela lance PostgreSQL et Adminer.*
 
-- **Adminer** : http://localhost:8080
-
-### Lancer le backend
+### 3. Backend
+Dans un terminal, naviguez vers le dossier backend :
 
 ```bash
 cd backend
+
+# 1. Installer les dépendances
 npm install
-npm run dev
-```
-avec prisma 
-```
+
+# 2. Configurer l'environnement
+# Copiez .env.example vers .env et ajustez si nécessaire
+cp .env.example .env
+
+# 3. Initialiser la base de données (Migrations & Seed)
 npx prisma migrate dev
-npm run import:csv
-npm run prisma:seed
-```
+npm run prisma:seed  # Pour ajouter les données initiales (Admin, Jeux, etc.)
 
-
-** remarque :faut ajouter et modifier le .env en s'inspirant de .env.example **
-Le backend démarre sur http://localhost:3000
-
-###  Lancer le frontend
-
-```bash
-cd front
-npm install
-npm start
-```
-
-Le frontend démarre sur http://localhost:4200
-
-## 🛠️ Commandes utiles
-
-### Docker
-```bash
-# Démarrer les services
-docker-compose up -d
-
-# Arrêter les services
-docker-compose down
-
-# Voir les logs
-docker-compose logs -f
-
-# Redémarrer la base de données
-docker-compose restart db
-
-```
-
-### Backend
-```bash
-cd backend
-npm run dev    # Mode développement
-npm run build  # Build TypeScript
-npm start      # Mode production
-```
-
-### Frontend
-```bash
-cd front
-npm start      # Mode développement
-npm run build  # Build production
-```
-
-## backend : NodeJs + Express + TypeScript + PostgreSQL
-# Installer les dépendances
-npm install
-
-# Mode développement (avec hot reload)
+# 4. Lancer le serveur
 npm run dev
+```
+L'API sera accessible sur : `http://localhost:3000`  
+Documentation Swagger : `http://localhost:3000/documentation`
 
-# Build TypeScript vers JavaScript
-npm run build
+### Frontend (Application)
+Dans un **nouveau** terminal, naviguez vers le dossier front :
 
-# Mode production (après build)
+```bash
+cd front
+
+# 1. Installer les dépendances
+npm install
+
+# 2. Lancer l'application
 npm start
+```
+L'application sera accessible sur : `http://localhost:4200`
 
-# Watch mode (recompilation auto)
-npm run watch
+### Connexion
+Pour se connecter avec le compte administrateur :
 
+- **Nom d'utilisateur :** `admin@festival.com`
+- **Mot de passe :** `Admin123!`
 
-## to check if the server is running 
-Navigate to http://localhost:3000/health 
+## Commandes Utiles
 
-## the url to the SWAGGER API 
-navigate to http://localhost:3000/documentation
+**Docker**
+```bash
+docker-compose down       # Arrêter les services
+docker-compose restart db # Redémarrer la BDD
+```
+
+**Backend**
+```bash
+npm run import:csv        # Importer des données CSV
+npx prisma studio         # Ouvrir l'interface Prisma Studio
+```
