@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -22,7 +24,9 @@ import { AuthService } from '../../../core/services/auth.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatCheckboxModule,
+    MatDividerModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -37,15 +41,17 @@ export class LoginComponent {
   errorMessage = signal('');
   hidePassword = signal(true);
 
-  constructor() {// formulaire de login
+  constructor() {
+    // formulaire de login avec "Se souvenir de moi"
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],// champ obligatoire et format email valide 
-      password: ['', [Validators.required]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      rememberMe: [false]
     });
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) { // bloque si invalide 
+    if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set('');
 
@@ -62,7 +68,7 @@ export class LoginComponent {
         },
         error: (error) => {
           this.isLoading.set(false);
-          const message = error.message || 'Erreur de connexion';
+          const message = error.message || 'Erreur de connexion. Vérifiez vos identifiants.';
           this.errorMessage.set(message);
         }
       });
@@ -79,7 +85,7 @@ export class LoginComponent {
       return 'L\'email est requis';
     }
     if (emailControl?.hasError('email')) {
-      return 'Email invalide';
+      return 'Format d\'email invalide';
     }
     return '';
   }
@@ -89,6 +95,13 @@ export class LoginComponent {
     if (passwordControl?.hasError('required')) {
       return 'Le mot de passe est requis';
     }
+    if (passwordControl?.hasError('minlength')) {
+      return 'Le mot de passe doit contenir au moins 6 caractères';
+    }
     return '';
+  }
+
+  togglePasswordVisibility(): void {
+    this.hidePassword.set(!this.hidePassword());
   }
 }

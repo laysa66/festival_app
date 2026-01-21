@@ -29,6 +29,7 @@ export class Navbar implements OnInit {
     {
       path: '/dashboard',
       label: 'Tableau de bord',
+      icon: '📊',
       roles: [
         UserRole.USER,
         UserRole.BENEVOLE,
@@ -40,6 +41,7 @@ export class Navbar implements OnInit {
     {
       path: '/editeurs',
       label: 'Éditeurs',
+      icon: '📚',
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
@@ -48,18 +50,30 @@ export class Navbar implements OnInit {
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
     },
     {
-      path: '/users',
-      label: 'Gestion Utilisateurs',
-      roles: [UserRole.ADMIN]
-    },
-    {
       path: '/festivals',
       label: 'Festivals',
+      icon: '🎪',
       roles: [
         UserRole.SUPER_ORGANISATEUR,
         UserRole.ADMIN,
         UserRole.ORGANISATEUR
       ]
+    },
+    {
+      path: '/reservations',
+      label: 'Réservations',
+      icon: '📝',
+      roles: [
+        UserRole.ORGANISATEUR,
+        UserRole.SUPER_ORGANISATEUR,
+        UserRole.ADMIN
+      ]
+    },
+    {
+      path: '/users',
+      label: 'Gestion Utilisateurs',
+      icon: '👥',
+      roles: [UserRole.ADMIN]
     }
   ];
 

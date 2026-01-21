@@ -1,0 +1,241 @@
+<div class="reservations-container">
+  <div class="header">
+    <h1>Gestion des Réservations</h1>
+    <button class="btn btn-primary" (click)="createReservation()">
+      <span class="icon">+</span>
+      Nouvelle Réservation
+    </button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="search">Recherche</label>
+        <input id="search" type="text" [(ngModel)]="searchTerm" placeholder="Nom, email, téléphone..."
+          (keyup.enter)="applyFilters()" />
+      </div>
+
+      <div class="filter-group">
+        <label for="status">Statut</label>
+        <select id="status" [(ngModel)]="selectedWorkflowStatus">
+          <option value="">Tous les statuts</option>
+          <option [value]="WorkflowStatus.PAS_DE_CONTACT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.PAS_DE_CONTACT] }}
+          </option>
+          <option [value]="WorkflowStatus.CONTACT_PRIS">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.CONTACT_PRIS] }}
+          </option>
+          <option [value]="WorkflowStatus.DISCUSSION_EN_COURS">{{
+            WORKFLOW_STATUS_LABELS[WorkflowStatus.DISCUSSION_EN_COURS] }}</option>
+          <option [value]="WorkflowStatus.SERA_ABSENT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.SERA_ABSENT] }}</option>
+          <option [value]="WorkflowStatus.CONSIDERE_ABSENT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.CONSIDERE_ABSENT]
+            }}</option>
+          <option [value]="WorkflowStatus.PRESENT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.PRESENT] }}</option>
+          <option [value]="WorkflowStatus.FACTURE">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.FACTURE] }}</option>
+          <option [value]="WorkflowStatus.FACTURE_PAYEE">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.FACTURE_PAYEE] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="type">Type de réservant</label>
+        <select id="type" [(ngModel)]="selectedTypeReservant">
+          <option value="">Tous les types</option>
+          <option [value]="TypeReservant.EDITEUR">{{ TYPE_RESERVANT_LABELS[TypeReservant.EDITEUR] }}</option>
+          <option [value]="TypeReservant.PRESTATAIRE">{{ TYPE_RESERVANT_LABELS[TypeReservant.PRESTATAIRE] }}</option>
+          <option [value]="TypeReservant.ANIMATION">{{ TYPE_RESERVANT_LABELS[TypeReservant.ANIMATION] }}</option>
+          <option [value]="TypeReservant.ASSO">{{ TYPE_RESERVANT_LABELS[TypeReservant.ASSO] }}</option>
+          <option [value]="TypeReservant.BOUTIQUE">{{ TYPE_RESERVANT_LABELS[TypeReservant.BOUTIQUE] }}</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-secondary" (click)="applyFilters()">Filtrer</button>
+        <button class="btn btn-ghost" (click)="resetFilters()">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  @if (loading()) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Chargement des réservations...</p>
+  </div>
+  }
+
+  <!-- Erreur -->
+  @if (error()) {
+  <div class="error-message">
+    <span class="icon">⚠️</span>
+    {{ error() }}
+  </div>
+  }
+
+  <!-- Tableau des réservations -->
+  @if (!loading() && !error()) {
+  <div class="table-container">
+    <table class="reservations-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Éditeur</th>
+          <th>Type</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Statut</th>
+          <th>Festival</th>
+          <th>Créé le</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reservation of reservations(); track reservation.id) {
+        <tr>
+          <td>{{ reservation.id }}</td>
+          <td class="name-cell">{{ reservation.editeur?.libelle || '-' }}</td>
+          <td>
+            <span class="badge badge-type">
+              {{ TYPE_RESERVANT_LABELS[reservation.typeReservant] }}
+            </span>
+          </td>
+          <td>{{ reservation.editeur?.email || '-' }}</td>
+          <td>{{ reservation.editeur?.phone || '-' }}</td>
+          <td class="workflow-cell">
+            <div class="workflow-status" [attr.data-status]="reservation.workflowStatus">
+              <span class="badge" [ngClass]="getStatusClass(reservation.workflowStatus)">
+                {{ WORKFLOW_STATUS_LABELS[reservation.workflowStatus] }}
+              </span>
+              <div class="workflow-progress">
+                <span class="dot" [class.active]="getWorkflowStep(reservation.workflowStatus) >= 1"
+                  [class.negative]="isNegativeStatus(reservation.workflowStatus)"></span>
+                <span class="dot" [class.active]="getWorkflowStep(reservation.workflowStatus) >= 2"
+                  [class.negative]="isNegativeStatus(reservation.workflowStatus)"></span>
+                <span class="dot" [class.active]="getWorkflowStep(reservation.workflowStatus) >= 3"
+                  [class.negative]="isNegativeStatus(reservation.workflowStatus)"></span>
+                <span class="dot" [class.active]="getWorkflowStep(reservation.workflowStatus) >= 4"
+                  [class.negative]="isNegativeStatus(reservation.workflowStatus)"></span>
+              </div>
+              <span class="workflow-hint">{{ getWorkflowDescription(reservation.workflowStatus) }}</span>
+            </div>
+          </td>
+          <td>{{ reservation.festival?.nom || '-' }}</td>
+          <td>{{ reservation.createdAt | date: 'dd/MM/yyyy' }}</td>
+          <td class="actions-cell">
+            <button class="btn-icon" [class.active]="expandedReservationId() === reservation.id"
+              (click)="toggleWorkflowPanel(reservation.id)" title="Gérer le workflow">
+              ⚙️
+            </button>
+            <button class="btn-icon" (click)="viewReservation(reservation.id)" title="Voir les détails">
+              👁️
+            </button>
+            <button class="btn-icon" (click)="editReservation(reservation.id)" title="Éditer">
+              ✏️
+            </button>
+            @if (canDelete) {
+            <button class="btn-icon btn-danger"
+              (click)="deleteReservation(reservation.id, reservation.editeur?.libelle || 'cette réservation')"
+              title="Supprimer">
+              🗑️
+            </button>
+            }
+          </td>
+        </tr>
+        <!-- Workflow Management Panel -->
+        @if (expandedReservationId() === reservation.id) {
+        <tr class="workflow-panel-row">
+          <td colspan="9">
+            <div class="workflow-panel">
+              <h3>⚙️ Gestion du workflow - {{ reservation.editeur?.libelle }}</h3>
+
+              <div class="workflow-form-grid">
+                <div class="form-group">
+                  <label>Statut *</label>
+                  <select class="form-control" [value]="reservation.workflowStatus"
+                    (change)="updateReservationWorkflow(reservation.id, 'workflowStatus', $any($event.target).value)">
+                    <option [value]="WorkflowStatus.PAS_DE_CONTACT">{{
+                      WORKFLOW_STATUS_LABELS[WorkflowStatus.PAS_DE_CONTACT] }}</option>
+                    <option [value]="WorkflowStatus.CONTACT_PRIS">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.CONTACT_PRIS]
+                      }}</option>
+                    <option [value]="WorkflowStatus.DISCUSSION_EN_COURS">{{
+                      WORKFLOW_STATUS_LABELS[WorkflowStatus.DISCUSSION_EN_COURS] }}</option>
+                    <option [value]="WorkflowStatus.SERA_ABSENT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.SERA_ABSENT]
+                      }}</option>
+                    <option [value]="WorkflowStatus.CONSIDERE_ABSENT">{{
+                      WORKFLOW_STATUS_LABELS[WorkflowStatus.CONSIDERE_ABSENT] }}</option>
+                    <option [value]="WorkflowStatus.PRESENT">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.PRESENT] }}
+                    </option>
+                    <option [value]="WorkflowStatus.FACTURE">{{ WORKFLOW_STATUS_LABELS[WorkflowStatus.FACTURE] }}
+                    </option>
+                    <option [value]="WorkflowStatus.FACTURE_PAYEE">{{
+                      WORKFLOW_STATUS_LABELS[WorkflowStatus.FACTURE_PAYEE] }}</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Type de remise</label>
+                  <select class="form-control" [value]="reservation.typeRemise || ''"
+                    (change)="updateReservationWorkflow(reservation.id, 'typeRemise', $any($event.target).value || null)">
+                    <option value="">Aucune remise</option>
+                    <option [value]="TypeRemise.SOMME_ARGENT">{{ TYPE_REMISE_LABELS[TypeRemise.SOMME_ARGENT] }}</option>
+                    <option [value]="TypeRemise.TABLES_OFFERTES">{{ TYPE_REMISE_LABELS[TypeRemise.TABLES_OFFERTES] }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Valeur de remise</label>
+                  <input type="number" class="form-control" [value]="reservation.valeurRemise || 0"
+                    (blur)="updateReservationWorkflow(reservation.id, 'valeurRemise', +$any($event.target).value)"
+                    min="0" />
+                </div>
+              </div>
+
+              <div class="workflow-actions">
+                <span class="workflow-status-indicator" [ngClass]="getStatusClass(reservation.workflowStatus)">
+                  État actuel: {{ WORKFLOW_STATUS_LABELS[reservation.workflowStatus] }}
+                </span>
+                <button class="btn btn-ghost btn-sm" (click)="toggleWorkflowPanel(null)">
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+        }
+        } @empty {
+        <tr>
+          <td colspan="9" class="empty-state">
+            Aucune réservation trouvée
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+  <div class="pagination">
+    <button class="btn-page" (click)="previousPage()" [disabled]="currentPage() === 1">
+      ← Précédent
+    </button>
+
+    <div class="page-numbers">
+      @for (page of getPageNumbers(); track page) {
+      <button class="btn-page-number" [class.active]="page === currentPage()" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      }
+    </div>
+
+    <button class="btn-page" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+      Suivant →
+    </button>
+
+    <div class="pagination-info">
+      Page {{ currentPage() }} sur {{ totalPages() }} ({{ totalItems() }} résultats)
+    </div>
+  </div>
+  }
+  }
+</div>

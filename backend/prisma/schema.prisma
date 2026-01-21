@@ -33,15 +33,17 @@ model User {
 }
 
 model Editeur {
-  id           Int     @id @default(autoincrement())
-  libelle      String
-  exposant     Boolean @default(false)
-  distributeur Boolean @default(false)
-  logo         String?
-  phone        String?
-  email        String?
-  notes        String?
-  jeux         Jeu[]
+  id                     Int              @id @default(autoincrement())
+  libelle                String
+  exposant               Boolean          @default(false)
+  distributeur           Boolean          @default(false)
+  logo                   String?
+  phone                  String?
+  email                  String?
+  notes                  String?
+  jeux                   Jeu[]
+  reservations           Reservation[]
+  reservationJeuxEditeur ReservationJeu[] @relation("EditeurJeu")
   
   @@map("editeurs")
 }
@@ -61,25 +63,28 @@ model Festival {
   mairieChairs    Int             @default(0)
   zoneTarifaires  ZoneTarifaire[]
   zonePlans       ZonePlan[]
+  reservations    Reservation[]
 }
 
 model ZoneTarifaire {
-  id            Int         @id @default(autoincrement())
-  festivalId    Int         @map("festival_id")
-  festival      Festival    @relation(fields: [festivalId], references: [id])
-  nom           String      @db.VarChar(100)
-  prixTable     Float       @db.Real
-  prixM2        Float       @db.Real
-  zonePlans     ZonePlan[]
+  id               Int               @id @default(autoincrement())
+  festivalId       Int               @map("festival_id")
+  festival         Festival          @relation(fields: [festivalId], references: [id])
+  nom              String            @db.VarChar(100)
+  prixTable        Float             @db.Real
+  prixM2           Float             @db.Real
+  zonePlans        ZonePlan[]
+  reservationLines ReservationLine[]
 }
 
 model ZonePlan {
-  id              Int           @id @default(autoincrement())
-  festivalId      Int           @map("festival_id")
-  festival        Festival      @relation(fields: [festivalId], references: [id])
-  nom             String        @db.VarChar(100)
-  zoneTarifaireId Int           @map("zone_tarifaire_id")
-  zoneTarifaire   ZoneTarifaire @relation(fields: [zoneTarifaireId], references: [id], onDelete: Cascade)
+  id              Int             @id @default(autoincrement())
+  festivalId      Int             @map("festival_id")
+  festival        Festival        @relation(fields: [festivalId], references: [id])
+  nom             String          @db.VarChar(100)
+  zoneTarifaireId Int             @map("zone_tarifaire_id")
+  zoneTarifaire   ZoneTarifaire   @relation(fields: [zoneTarifaireId], references: [id], onDelete: Cascade)
+  reservationJeux ReservationJeu[]
 }
 
 
@@ -102,7 +107,7 @@ model Mecanism {
 }
 
 model Jeu {
-  id              Int           @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   libelle         String
   auteur          String?
   nbMinJoueur     Int?
@@ -111,17 +116,18 @@ model Jeu {
   idEditeur       Int?
   idTypeJeu       Int?
   ageMin          Int?
-  prototype       Boolean       @default(false)
+  prototype       Boolean         @default(false)
   duree           Int?
   theme           String?
   description     String?
   image           String?
   videoRegle      String?
-  editeur         Editeur?      @relation(fields: [idEditeur], references: [id])
-  typeJeu         TypeJeu?      @relation(fields: [idTypeJeu], references: [id])
+  editeur         Editeur?        @relation(fields: [idEditeur], references: [id])
+  typeJeu         TypeJeu?        @relation(fields: [idTypeJeu], references: [id])
   mecanismes      JeuMecanism[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  reservationJeux ReservationJeu[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   
   @@map("jeux")
 }
@@ -135,4 +141,130 @@ model JeuMecanism {
   
   @@unique([idJeu, idMecanism])
   @@map("jeux_mecanismes")
+}
+
+// ============================================
+// MODÈLES DE RÉSERVATION
+// ============================================
+
+enum WorkflowStatus {
+  PAS_DE_CONTACT
+  CONTACT_PRIS
+  DISCUSSION_EN_COURS
+  SERA_ABSENT
+  CONSIDERE_ABSENT
+  PRESENT
+  FACTURE
+  FACTURE_PAYEE
+}
+
+enum TypeReservant {
+  EDITEUR
+  PRESTATAIRE
+  ANIMATION
+  ASSO
+  BOUTIQUE
+}
+
+enum TypeRemise {
+  TABLES_OFFERTES
+  SOMME_ARGENT
+}
+
+model Reservation {
+  id                      Int                  @id @default(autoincrement())
+  editeurId               Int                  @map("editeur_id")
+  festivalId              Int                  @map("festival_id")
+  
+  // Workflow et suivi
+  workflowStatus          WorkflowStatus       @default(PAS_DE_CONTACT)
+  typeReservant           TypeReservant        @default(EDITEUR)
+  dateFacturation         DateTime?            @map("date_facturation") @db.Date
+  
+  // Flags workflow
+  viendraPresenteSesJeux  Boolean              @default(true) @map("viendra_presente_ses_jeux")
+  nousPresentons          Boolean              @default(false) @map("nous_presentons")
+  listeJeuxDemandee       Boolean              @default(false) @map("liste_jeux_demandee")
+  listeJeuxObtenue        Boolean              @default(false) @map("liste_jeux_obtenue")
+  jeuxRecusPhysiquement   Boolean              @default(false) @map("jeux_recus_physiquement")
+  
+  // Bloc-notes client
+  notesClient             String?              @map("notes_client") @db.Text
+  
+  // Notes workflow
+  notesWorkflow           String?              @map("notes_workflow") @db.Text
+  
+  // Finances
+  nbPrisesElectriques     Int                  @default(0) @map("nb_prises_electriques")
+  typeRemise              TypeRemise?          @map("type_remise")
+  valeurRemise            Float                @default(0) @map("valeur_remise") @db.Real
+  
+  // Metadata
+  createdAt               DateTime             @default(now()) @map("created_at")
+  updatedAt               DateTime             @updatedAt @map("updated_at")
+  
+  // Relations
+  editeur                 Editeur              @relation(fields: [editeurId], references: [id], onDelete: Cascade)
+  festival                Festival             @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+  reservationLines        ReservationLine[]
+  reservationContacts     ReservationContact[]
+  reservationJeux         ReservationJeu[]
+  
+  @@unique([editeurId, festivalId])
+  @@map("reservations")
+}
+
+model ReservationLine {
+  id                Int           @id @default(autoincrement())
+  reservationId     Int           @map("reservation_id")
+  zoneTarifaireId   Int           @map("zone_tarifaire_id")
+  
+  nbTables          Int           @map("nb_tables")
+  nbM2              Float         @default(0) @map("nb_m2") @db.Real
+  grandesTablesSouhaitees Boolean @default(false) @map("grandes_tables_souhaitees")
+  
+  sousTotal         Float         @map("sous_total") @db.Real
+  
+  createdAt         DateTime      @default(now()) @map("created_at")
+  
+  // Relations
+  reservation       Reservation   @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  zoneTarifaire     ZoneTarifaire @relation(fields: [zoneTarifaireId], references: [id])
+  
+  @@map("reservation_lines")
+}
+
+model ReservationContact {
+  id            Int         @id @default(autoincrement())
+  reservationId Int         @map("reservation_id")
+  dateContact   DateTime    @map("date_contact") @db.Date
+  commentaire   String?     @db.Text
+  
+  createdAt     DateTime    @default(now()) @map("created_at")
+  
+  // Relations
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  
+  @@map("reservation_contacts")
+}
+
+model ReservationJeu {
+  id              Int        @id @default(autoincrement())
+  reservationId   Int        @map("reservation_id")
+  jeuId           Int        @map("jeu_id")
+  editeurJeuId    Int?       @map("editeur_jeu_id")
+  zonePlanId      Int?       @map("zone_plan_id")
+  
+  nbExemplaires   Int        @default(1) @map("nb_exemplaires")
+  nbTablesAllouees Int       @default(0) @map("nb_tables_allouees")
+  
+  createdAt       DateTime   @default(now()) @map("created_at")
+  
+  // Relations
+  reservation     Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  jeu             Jeu         @relation(fields: [jeuId], references: [id])
+  editeurJeu      Editeur?    @relation("EditeurJeu", fields: [editeurJeuId], references: [id])
+  zonePlan        ZonePlan?   @relation(fields: [zonePlanId], references: [id])
+  
+  @@map("reservation_jeux")
 }

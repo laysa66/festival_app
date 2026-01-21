@@ -75,4 +75,17 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  onZonesChanged(zones: ZoneTarifaireManagementComponent[]): void {
+    const currentFestival = this.selectedFestival();
+    if (currentFestival) {
+      // Extract ZoneTarifaire data from components
+      const zoneTarifaires = zones.map(zone => zone.zones()).flat();
+      // Update the festival with the new zones
+      const updatedFestival = { ...currentFestival, zoneTarifaires };
+      this.selectedFestival.set(updatedFestival);
+      // Also update in the selection service for persistence
+      this.festivalSelectionService.setSelectedFestival(updatedFestival);
+    }
+  }
 }

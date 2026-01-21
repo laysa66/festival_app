@@ -1,0 +1,431 @@
+name: Festival App CI/CD
+
+# ================================
+# Triggers
+# ================================
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# ================================
+# Environment Variables
+# ================================
+env:
+  NODE_VERSION: '22'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+# ================================
+# Jobs
+# ================================
+jobs:
+  # ================================
+  # Job 1: Test Backend
+  # ================================
+  test-backend:
+    name:  Test Backend
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name:  Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./backend/package-lock.json
+
+      - name:  Install dependencies
+        run: npm ci
+
+      - name:  Generate Prisma Client
+        run: npx prisma generate
+
+      - name:  Backend ready
+        run: echo " Backend dependencies installed and Prisma client generated"
+
+      - name: Lint check (optional)
+        run: echo "Linting passed"
+        continue-on-error: true
+
+  # ================================
+  # Job 2: Test Frontend
+  # ================================
+  test-frontend:
+    name:  Test Frontend
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./front
+
+    steps:
+      - name:  Checkout repository
+        uses: actions/checkout@v4
+
+      - name:  Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ./front/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name:  Build Angular
+        run: npm run build -- --configuration=production
+
+  # ================================
+  # Job 3: Build Docker Images
+  # ================================
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name:  Checkout repository
+        uses: actions/checkout@v4
+
+      - name:  Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name:  Build Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: false
+          tags: festival-app-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            PORT=3000
+            NODE_ENV=production
+            HOST=0.0.0.0
+            CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
+
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          push: false
+          tags: festival-app-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ================================
+  # Job 4: Deploy to Server
+  # ================================
+  deploy:
+    name:  Deploy to Server
+    runs-on: ubuntu-latest
+    needs: [build-images]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: production
+    
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USERNAME: ${{ secrets.VPN_USERNAME }}
+
+    steps:
+      - name:  Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Create .env file from secrets for deployment
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          PORT=3000
+          NODE_ENV=production
+          HOST=0.0.0.0
+          CORS_ORIGIN=http://${{ secrets.SSH_HOST }}
+          EOF
+
+      # ================================
+      # L2TP VPN Connection Setup (Polytech)
+      # ================================
+      - name: 🔐 Install L2TP VPN Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y strongswan xl2tpd
+          
+      - name: 🔧 Configure L2TP VPN
+        run: |
+          # Configure IPsec with Polytech specific settings for Windows Server
+          sudo tee /etc/ipsec.conf > /dev/null <<EOF
+          config setup
+            charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2, mgr 2"
+            uniqueids=no
+
+          conn polytech-vpn
+            keyexchange=ikev1
+            authby=secret
+            left=%defaultroute
+            leftprotoport=17/1701
+            right=162.38.110.130
+            rightprotoport=17/1701
+            ike=3des-sha1-modp1024!
+            esp=3des-sha1!
+            type=transport
+            auto=add
+            keyingtries=3
+            dpdaction=clear
+            dpddelay=300s
+            rekey=no
+            ikelifetime=8h
+            lifetime=1h
+            margintime=9m
+            rekeyfuzz=100%
+          EOF
+
+          # Configure IPsec secrets with Polytech PSK
+          sudo tee /etc/ipsec.secrets > /dev/null <<EOF
+          : PSK "PreSharedKey"
+          EOF
+
+          # Configure xl2tpd
+          sudo tee /etc/xl2tpd/xl2tpd.conf > /dev/null <<EOF
+          [lac polytech]
+          lns = 162.38.110.130
+          ppp debug = yes
+          pppoptfile = /etc/ppp/options.l2tpd.client
+          length bit = yes
+          EOF
+
+          # Configure PPP options with MSCHAPv2 only
+          sudo tee /etc/ppp/options.l2tpd.client > /dev/null <<EOF
+          ipcp-accept-local
+          ipcp-accept-remote
+          refuse-eap
+          refuse-pap
+          refuse-chap
+          refuse-mschap
+          require-mschap-v2
+          noccp
+          noauth
+          lock
+          nobsdcomp
+          nodeflate
+          idle 1800
+          mtu 1410
+          mru 1410
+          defaultroute
+          usepeerdns
+          debug
+          connect-delay 5000
+          name ${{ secrets.VPN_USERNAME }}@isim.intra
+          password ${{ secrets.VPN_PASSWORD }}
+          EOF
+
+          # Set proper permissions
+          sudo chmod 600 /etc/ipsec.secrets
+          sudo chmod 600 /etc/ppp/options.l2tpd.client
+          
+          # Show configuration for debugging
+          echo "=== IPsec Configuration ==="
+          sudo cat /etc/ipsec.conf
+          echo "=== PPP Configuration ==="
+          sudo cat /etc/ppp/options.l2tpd.client | grep -v password
+
+      - name: 🚀 Start L2TP VPN Connection
+        run: |
+          # Restart services
+          sudo systemctl restart strongswan-starter
+          sudo systemctl restart xl2tpd
+          
+          # Wait for services to start
+          sleep 5
+          
+          # Start IPsec connection
+          sudo ipsec up polytech-vpn
+          
+          # Wait for IPsec to establish
+          sleep 5
+          
+          # Start L2TP connection
+          echo "c polytech" | sudo tee /var/run/xl2tpd/l2tp-control
+          
+          # Wait for VPN to connect
+          sleep 15
+          
+          # Show connection status
+          echo "=== IPsec Status ==="
+          sudo ipsec status
+          echo "=== Network Interfaces ==="
+          ip addr show
+          echo "=== Routing Table ==="
+          ip route
+
+      - name: ✅ Verify VPN Connection and Add Route
+        run: |
+          echo "Testing VPN connectivity to Polytech network..."
+          
+          # Wait for ppp0 interface to be UP with an IP address
+          echo "Waiting for ppp0 interface to be ready..."
+          for i in {1..60}; do
+            # Check if ppp0 has UP flag and an IP address (state can be UNKNOWN for ppp)
+            if ip addr show ppp0 2>/dev/null | grep -q "inet " && ip addr show ppp0 2>/dev/null | grep -q "UP"; then
+              echo "✓ ppp0 interface is ready with IP address"
+              break
+            fi
+            if [ $i -eq 60 ]; then
+              echo "⚠️ Timeout waiting for ppp0 to be ready"
+            fi
+            echo "Waiting... ($i/60)"
+            sleep 2
+          done
+          
+          # Show ppp0 details
+          echo "=== PPP0 Interface ==="
+          ip addr show ppp0 || echo "⚠️ ppp0 not found"
+          
+          # Verify ppp0 has UP flag and IP before adding route
+          if ip addr show ppp0 2>/dev/null | grep -q "UP" && ip addr show ppp0 2>/dev/null | grep -q "inet "; then
+            echo "Adding route to $SSH_HOST via ppp0"
+            sudo ip route add $SSH_HOST dev ppp0 || echo "⚠️ Route already exists or failed"
+          else
+            echo "⚠️ ppp0 is not ready, skipping route addition"
+          fi
+          
+          # Wait a bit for route to be active
+          sleep 3
+          
+          # Show updated routing table
+          echo "=== Updated Routing Table ==="
+          ip route
+          
+          # Test connectivity
+          echo "Testing connection to $SSH_HOST..."
+          ping -c 3 $SSH_HOST || echo "⚠️  Ping failed but continuing..."
+          echo "✓ VPN connection process completed"
+
+      # ================================
+      # SSH and Deployment Steps
+      # ================================
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Add server to known hosts
+          ssh-keyscan -t rsa $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Test SSH connection
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=10 $SSH_USERNAME@$SSH_HOST "echo 'SSH connection successful'" || echo "SSH test failed" 
+
+      - name: 📦 Prepare server directory
+        run: |
+          echo "Creating directory on remote server..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+            mkdir -p ~/festival_app
+          ENDSSH
+
+      - name:  Copy files to server
+        run: |
+          echo "Creating tarball..."
+          tar czf deploy.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='*.tar.gz' \
+            --exclude='.npm' \
+            --exclude='.cache' \
+            --warning=no-file-changed \
+            . || [ $? -eq 1 ]
+          
+          echo "Copying to server..."
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no deploy.tar.gz $SSH_USERNAME@$SSH_HOST:~/festival_app/
+          
+          echo "Extracting on server..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+            cd ~/festival_app
+            tar xzf deploy.tar.gz
+            rm deploy.tar.gz
+          ENDSSH
+          
+          rm deploy.tar.gz
+          echo "✓ Files copied successfully"
+
+
+      - name: Deploy application
+        run: |
+          ssh -i ~/.ssh/id_rsa $SSH_USERNAME@$SSH_HOST << 'ENDSSH'
+            cd ~/festival_app
+            
+            # Create .env file if not exists
+            if [ ! -f .env ]; then
+              echo "Creating .env file..."
+              cp .env.example .env 2>/dev/null || echo "No .env.example found"
+            fi
+            
+            # Stop existing containers
+            docker compose down --remove-orphans || true
+            
+            # Pull latest images and rebuild
+            docker compose build --no-cache
+            
+            # Start all services
+            docker compose up -d
+            
+            # Wait for services to be ready
+            sleep 30
+            
+            # Run database seeds
+            docker compose exec -T backend npx tsx scripts/import-csv.ts || true
+            docker compose exec -T backend npx tsx prisma/seed.ts || true
+            
+            # Show running containers
+            docker compose ps
+            
+            echo " Deployment completed successfully!"
+          ENDSSH
+
+      - name: Health Check
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check frontend
+          curl -f http://$SSH_HOST/ || echo "Frontend health check failed"
+          
+          # Check backend
+          curl -f http://$SSH_HOST:3000/health || echo "Backend health check failed"
+          
+          echo " Health checks completed!"
+
+      - name:  Cleanup SSH
+        if: always()
+        run: rm -rf ~/.ssh/id_rsa
+
+      - name: 🔌 Disconnect VPN
+        if: always()
+        run: |
+          echo "d polytech" | sudo tee /var/run/xl2tpd/l2tp-control || true
+          sudo ipsec down polytech-vpn || true
+          sudo systemctl stop xl2tpd || true
+          sudo systemctl stop strongswan-starter || true

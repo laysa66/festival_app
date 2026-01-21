@@ -17,8 +17,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error) => {
       // Si erreur 401, déconnecter l'utilisateur
+      // MAIS PAS sur les routes d'authentification (login/register)
       if (error.status === 401) {
-        authService.logout();
+        const isAuthRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+        if (!isAuthRoute) {
+          console.log('❌ 401 Unauthorized - Logging out');
+          authService.logout();
+        }
       }
       return throwError(() => error);
     })

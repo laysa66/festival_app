@@ -1,176 +1,178 @@
 <div class="dashboard-container">
   @if (currentUser) {
-    <mat-card class="welcome-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>waving_hand</mat-icon>
-          Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="user-info">
-          <mat-chip-set>
-            <mat-chip highlighted [color]="currentUser.role === 'ADMIN' ? 'warn' : currentUser.role === 'SUPER_ORGANISATEUR' ? 'accent' : 'primary'">
-              <mat-icon matChipAvatar>shield</mat-icon>
-              {{ currentUser.role }}
-            </mat-chip>
-            <mat-chip [highlighted]="currentUser.valide" [color]="currentUser.valide ? 'primary' : 'basic'">
-              <mat-icon matChipAvatar>{{ currentUser.valide ? 'verified' : 'pending' }}</mat-icon>
-              {{ currentUser.valide ? 'Compte validé' : 'En attente de validation' }}
-            </mat-chip>
-          </mat-chip-set>
-          
-          <div class="user-details">
-            <p><mat-icon>email</mat-icon> {{ currentUser.email }}</p>
-            <p><mat-icon>badge</mat-icon> ID: {{ currentUser.id }}</p>
-          </div>
+  <mat-card class="welcome-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>waving_hand</mat-icon>
+        Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="user-info">
+        <mat-chip-set>
+          <mat-chip highlighted
+            [color]="currentUser.role === 'ADMIN' ? 'warn' : currentUser.role === 'SUPER_ORGANISATEUR' ? 'accent' : 'primary'">
+            <mat-icon matChipAvatar>shield</mat-icon>
+            {{ currentUser.role }}
+          </mat-chip>
+          <mat-chip [highlighted]="currentUser.valide" [color]="currentUser.valide ? 'primary' : 'basic'">
+            <mat-icon matChipAvatar>{{ currentUser.valide ? 'verified' : 'pending' }}</mat-icon>
+            {{ currentUser.valide ? 'Compte validé' : 'En attente de validation' }}
+          </mat-chip>
+        </mat-chip-set>
 
-          @if (!currentUser.valide) {
-            <mat-card class="warning-card">
-              <mat-card-content>
-                <mat-icon color="warn">warning</mat-icon>
-                Votre compte est en attente de validation par un administrateur.
-              </mat-card-content>
-            </mat-card>
-          }
+        <div class="user-details">
+          <p><mat-icon>email</mat-icon> {{ currentUser.email }}</p>
+          <p><mat-icon>badge</mat-icon> ID: {{ currentUser.id }}</p>
         </div>
-      </mat-card-content>
-    </mat-card>
 
-    @if (selectedFestival()) {
-      @let fest = selectedFestival()!;
-      <mat-card class="festival-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>event</mat-icon>
-            Festival Sélectionné
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="festival-header">
-            <h2>{{ fest.nom }}</h2>
-            <p class="location">{{ fest.lieu }}</p>
+        @if (!currentUser.valide) {
+        <mat-card class="warning-card">
+          <mat-card-content>
+            <mat-icon color="warn">warning</mat-icon>
+            Votre compte est en attente de validation par un administrateur.
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (selectedFestival()) {
+  @let fest = selectedFestival()!;
+  <mat-card class="festival-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>event</mat-icon>
+        Festival Sélectionné
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="festival-header">
+        <h2>{{ fest.nom }}</h2>
+        <p class="location">{{ fest.lieu }}</p>
+      </div>
+
+      <mat-tab-group>
+        <!-- General Information Tab -->
+        <mat-tab label="Informations Générales">
+          <div class="tab-content">
+            <div class="info-grid">
+              <div class="info-card">
+                <h3>Dates du Festival</h3>
+                <p><strong>Début:</strong> {{ fest.dateDebut | date:'dd/MM/yyyy' }}</p>
+                <p><strong>Fin:</strong> {{ fest.dateFin | date:'dd/MM/yyyy' }}</p>
+              </div>
+
+              <div class="info-card">
+                <h3>Ressources Totales</h3>
+                <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
+                <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
+              </div>
+            </div>
+
+            <div class="distribution-section">
+              <h3>Distribution des Ressources</h3>
+              <table class="distribution-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Grand</th>
+                    <th>Petit</th>
+                    <th>Mairie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Tables</strong></td>
+                    <td>{{ fest.bigTables || 0 }}</td>
+                    <td>{{ fest.smallTables || 0 }}</td>
+                    <td>{{ fest.mairieTables || 0 }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Chaises</strong></td>
+                    <td>{{ fest.bigChairs || 0 }}</td>
+                    <td>Non disponible</td>
+                    <td>{{ fest.mairieChairs || 0 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+        </mat-tab>
 
-          <mat-tab-group>
-            <!-- General Information Tab -->
-            <mat-tab label="Informations Générales">
-              <div class="tab-content">
-                <div class="info-grid">
-                  <div class="info-card">
-                    <h3>Dates du Festival</h3>
-                    <p><strong>Début:</strong> {{ fest.dateDebut | date:'dd/MM/yyyy' }}</p>
-                    <p><strong>Fin:</strong> {{ fest.dateFin | date:'dd/MM/yyyy' }}</p>
-                  </div>
+        <!-- Tariff Zones Tab -->
+        <mat-tab label="Zones Tarifaires">
+          <div class="tab-content">
+            <app-zone-management [festival]="fest" (zonesChanged)="onZonesChanged($event)"></app-zone-management>
+          </div>
+        </mat-tab>
 
-                  <div class="info-card">
-                    <h3>Ressources Totales</h3>
-                    <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
-                    <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
-                  </div>
-                </div>
+        <!-- Zone Plans Tab -->
+        <mat-tab label="Zones du Plan">
+          <div class="tab-content">
+            <app-zone-plan-management [festival]="fest"></app-zone-plan-management>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+  } @else {
+  <mat-card class="info-card-empty">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>info</mat-icon>
+        Aucun Festival Sélectionné
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Allez à <strong>Festivals</strong> et sélectionnez un festival pour voir ses détails ici.</p>
+      <button mat-raised-button color="primary" routerLink="/festivals">
+        <mat-icon>event</mat-icon> Aller aux Festivals
+      </button>
+    </mat-card-content>
+  </mat-card>
+  }
 
-                <div class="distribution-section">
-                  <h3>Distribution des Ressources</h3>
-                  <table class="distribution-table">
-                    <thead>
-                      <tr>
-                        <th>Type</th>
-                        <th>Grand</th>
-                        <th>Petit</th>
-                        <th>Mairie</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>Tables</strong></td>
-                        <td>{{ fest.bigTables || 0 }}</td>
-                        <td>{{ fest.smallTables || 0 }}</td>
-                        <td>{{ fest.mairieTables || 0 }}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Chaises</strong></td>
-                        <td>{{ fest.bigChairs || 0 }}</td>
-                        <td>Non disponible</td>
-                        <td>{{ fest.mairieChairs || 0 }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </mat-tab>
+  @if (currentUser.role === 'ADMIN') {
+  <mat-card class="admin-section">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>admin_panel_settings</mat-icon>
+        Administration
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Vous avez accès aux fonctionnalités d'administration</p>
+    </mat-card-content>>
+    <mat-card-actions>
+      <button mat-raised-button color="warn" routerLink="/users">
+        <mat-icon>people</mat-icon>
+        Gérer les utilisateurs
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  }
 
-            <!-- Tariff Zones Tab -->
-            <mat-tab label="Zones Tarifaires">
-              <div class="tab-content">
-                <app-zone-management [festival]="fest"></app-zone-management>
-              </div>
-            </mat-tab>
-
-            <!-- Zone Plans Tab -->
-            <mat-tab label="Zones du Plan">
-              <div class="tab-content">
-                <app-zone-plan-management [festival]="fest"></app-zone-plan-management>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
-        </mat-card-content>
-      </mat-card>
-    } @else {
-      <mat-card class="info-card-empty">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>info</mat-icon>
-            Aucun Festival Sélectionné
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Allez à <strong>Festivals</strong> et sélectionnez un festival pour voir ses détails ici.</p>
-          <button mat-raised-button color="primary" routerLink="/festivals">
-            <mat-icon>event</mat-icon> Aller aux Festivals
-          </button>
-        </mat-card-content>
-      </mat-card>
-    }
-
-    @if (currentUser.role === 'ADMIN') {
-      <mat-card class="admin-section">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>admin_panel_settings</mat-icon>
-            Administration
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Vous avez accès aux fonctionnalités d'administration</p>
-        </mat-card-content>>
-        <mat-card-actions>
-          <button mat-raised-button color="warn" routerLink="/users">
-            <mat-icon>people</mat-icon>
-            Gérer les utilisateurs
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
-
-    @if (currentUser.role === 'SUPER_ORGANISATEUR' || currentUser.role === 'ADMIN' || currentUser.role === 'ORGANISATEUR') {
-      <mat-card class="management-section">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>business</mat-icon>
-            Gestion des Éditeurs
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Accédez à la gestion des éditeurs</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="accent" routerLink="/editeurs">
-            <mat-icon>groups</mat-icon>
-            Gérer les éditeurs
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
+  @if (currentUser.role === 'SUPER_ORGANISATEUR' || currentUser.role === 'ADMIN' || currentUser.role === 'ORGANISATEUR')
+  {
+  <mat-card class="management-section">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Gestion des Éditeurs
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Accédez à la gestion des éditeurs</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="accent" routerLink="/editeurs">
+        <mat-icon>groups</mat-icon>
+        Gérer les éditeurs
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  }
   }
 </div>
