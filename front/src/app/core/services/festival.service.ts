@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Festival } from '../models/festival';
 import { environment } from '../../../environments/environment';
 
@@ -95,7 +96,8 @@ export class FestivalService {
 
   // Get all games
   getAllGames(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/jeux`);
+    return this.http.get<{ success: boolean; jeux: any[]; total: number }>(`${this.baseUrl}/jeux`)
+      .pipe(map(response => response.jeux || []));
   }
 
   // Get filtered games
@@ -115,17 +117,20 @@ export class FestivalService {
     
     const queryString = params.toString();
     const url = queryString ? `${this.baseUrl}/jeux/filter?${queryString}` : `${this.baseUrl}/jeux/filter`;
-    return this.http.get<any[]>(url);
+    return this.http.get<{ success: boolean; jeux: any[]; total: number }>(url)
+      .pipe(map(response => response.jeux || []));
   }
 
   // Create game
   createGame(gameData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/jeux`, gameData);
+    return this.http.post<{ success: boolean; message: string; jeu: any }>(`${this.baseUrl}/jeux`, gameData)
+      .pipe(map(response => response.jeu));
   }
 
   // Update game
   updateGame(id: number, gameData: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/jeux/${id}`, gameData);
+    return this.http.put<{ success: boolean; jeu: any }>(`${this.baseUrl}/jeux/${id}`, gameData)
+      .pipe(map(response => response.jeu));
   }
 
   // Delete game

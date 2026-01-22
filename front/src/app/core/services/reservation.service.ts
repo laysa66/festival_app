@@ -229,12 +229,11 @@ export class ReservationService {
   /**
    * Ajouter un jeu à une réservation
    */
-  addReservationJeu(
-    reservationId: number,
-    data: CreateReservationJeuRequest
-  ): Observable<ReservationJeu> {
-    return this.http.post<{ success: boolean; jeu: ReservationJeu }>(`${this.apiUrl}/${reservationId}/jeux`, data)
-      .pipe(map(response => response.jeu));
+  addReservationJeu( reservationId: number, data: CreateReservationJeuRequest): Observable<ReservationJeu> {
+    return this.http.post<{ success: boolean; jeu: ReservationJeu }>(`${this.apiUrl}/${reservationId}/jeux`, data).pipe(map(response => response.jeu));
+    
+
+
   }
 
   /**
