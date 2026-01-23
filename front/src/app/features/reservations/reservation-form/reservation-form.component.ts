@@ -14,6 +14,7 @@ import {
   ReservationLine,
   CreateReservationLineRequest,
   CreateReservationContactRequest,
+  PriceCalculationResponse,
   WorkflowStatus,
   TypeReservant,
   TypeRemise,
@@ -95,10 +96,23 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
   zoneTarifairesList = signal<ZoneTarifaire[]>([]);
   newLineData = signal<Partial<CreateReservationLineRequest>>({});
   addingLine = signal(false);
+  // Création rapide de zone tarifaire
+  showNewZoneForm = signal(false);
+  creatingZone = signal(false);
+  newZoneData = signal<{ nom?: string; prixTable?: number; prixM2?: number }>({});
+  newZoneM2Touched = signal(false);
+  // Création rapide de zone du plan
+  showNewZonePlanForm = signal(false);
+  creatingZonePlan = signal(false);
+  newZonePlanData = signal<{ nom?: string; zoneTarifaireId?: number }>({});
   
   // Gestion des contacts
   newContactData = signal<Partial<CreateReservationContactRequest>>({ dateContact: new Date().toISOString().split('T')[0] });
   addingContact = signal(false);
+
+  // Facturation
+  priceSummary = signal<PriceCalculationResponse | null>(null);
+  priceLoading = signal(false);
 
   // Formulaire
   reservationForm!: FormGroup;
@@ -178,6 +192,12 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  onRemiseChange(): void {
+    if (this.reservationId) {
+      this.calculatePrice();
+    }
+  }
+
   /**
    * Charger la liste des éditeurs
    */
@@ -213,6 +233,9 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         if (data.festivalId) {
           this.loadZonePlans(data.festivalId);
           this.loadZoneTarifaires(data.festivalId);
+        }
+        if (this.reservationId) {
+          this.calculatePrice();
         }
         this.loading.set(false);
       },
@@ -410,13 +433,17 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
    */
   calculatePrice(): void {
     if (!this.reservationId) return;
+    this.priceLoading.set(true);
 
     this.reservationService.calculatePrice(this.reservationId).subscribe({
       next: (result) => {
-        console.log('Prix calculé:', result.totalGeneral);
+        this.priceSummary.set(result);
+        this.priceLoading.set(false);
       },
       error: (err) => {
         console.error('Erreur lors du calcul du prix:', err);
+        this.error.set('Impossible de calculer la facture pour le moment');
+        this.priceLoading.set(false);
       }
     });
   }
@@ -662,6 +689,111 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateNewZoneField(field: 'nom' | 'prixTable' | 'prixM2', value: string | number): void {
+    // Mark manual edit on m²
+    if (field === 'prixM2') {
+      this.newZoneM2Touched.set(true);
+    }
+
+    this.newZoneData.update(current => {
+      const updated = { ...current, [field]: value } as any;
+      // Auto-set m² price to table price / 4 when user hasn't edited m²
+      if (field === 'prixTable' && !this.newZoneM2Touched()) {
+        const prixTable = Number(value);
+        updated.prixM2 = isNaN(prixTable) ? current.prixM2 : prixTable / 4;
+      }
+      return updated;
+    });
+  }
+
+  toggleNewZoneForm(): void {
+    const next = !this.showNewZoneForm();
+    this.showNewZoneForm.set(next);
+    if (!next) {
+      this.newZoneM2Touched.set(false);
+    }
+  }
+
+  createZoneTarifaire(): void {
+    const festivalId = this.reservationForm.get('festivalId')?.value;
+    if (!festivalId) {
+      this.error.set('Sélectionnez un festival avant de créer une zone.');
+      return;
+    }
+
+    const data = this.newZoneData();
+    const prixTable = data.prixTable;
+    const prixM2 = data.prixM2 !== undefined ? data.prixM2 : (prixTable !== undefined ? prixTable / 4 : undefined);
+
+    if (!data.nom || prixTable === undefined || prixM2 === undefined) {
+      this.error.set('Nom, prix table et prix m² sont obligatoires pour créer une zone.');
+      return;
+    }
+
+    this.creatingZone.set(true);
+    this.festivalService.addZoneTarifaire(festivalId, {
+      nom: data.nom,
+      prixTable: Number(prixTable),
+      prixM2: Number(prixM2)
+    }).subscribe({
+      next: (zone) => {
+        const zones = [...this.zoneTarifairesList(), zone];
+        this.zoneTarifairesList.set(zones);
+        this.newLineData.update(current => ({ ...current, zoneTarifaireId: zone.id }));
+        this.newZoneData.set({});
+        this.newZoneM2Touched.set(false);
+        this.showNewZoneForm.set(false);
+        this.creatingZone.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur création zone tarifaire:', err);
+        this.error.set('Impossible de créer la zone tarifaire');
+        this.creatingZone.set(false);
+      }
+    });
+  }
+
+  toggleNewZonePlanForm(): void {
+    this.showNewZonePlanForm.update(v => !v);
+  }
+
+  updateNewZonePlanField(field: 'nom' | 'zoneTarifaireId', value: string | number | null): void {
+    this.newZonePlanData.update(current => ({ ...current, [field]: value === '' ? undefined : value as any }));
+  }
+
+  createZonePlan(): void {
+    const festivalId = this.reservationForm.get('festivalId')?.value;
+    if (!festivalId) {
+      this.error.set('Sélectionnez un festival avant de créer une zone du plan.');
+      return;
+    }
+
+    const data = this.newZonePlanData();
+    if (!data.nom) {
+      this.error.set('Le nom de la zone du plan est obligatoire.');
+      return;
+    }
+
+    this.creatingZonePlan.set(true);
+    this.festivalService.addZonePlan(festivalId, {
+      nom: data.nom,
+      zoneTarifaireId: data.zoneTarifaireId || null
+    }).subscribe({
+      next: (zonePlan) => {
+        const plans = [...this.zonePlansList(), zonePlan];
+        this.zonePlansList.set(plans);
+        this.newZonePlanData.set({});
+        this.showNewZonePlanForm.set(false);
+        this.creatingZonePlan.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur création zone du plan:', err);
+        this.error.set('Impossible de créer la zone du plan');
+        this.creatingZonePlan.set(false);
+      }
+    });
+  }
+
   /**
    * Mettre à jour un champ du formulaire d'ajout de ligne
    */
@@ -702,6 +834,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         // Réinitialiser le formulaire
         this.newLineData.set({});
         this.addingLine.set(false);
+        this.calculatePrice();
       },
       error: (err) => {
         console.error('Erreur ajout ligne:', err);
@@ -729,6 +862,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
           const updatedLines = currentReservation.reservationLines.filter(l => l.id !== lineId);
           this.reservation.set({ ...currentReservation, reservationLines: updatedLines });
         }
+        this.calculatePrice();
       },
       error: (err) => {
         console.error('Erreur suppression ligne:', err);

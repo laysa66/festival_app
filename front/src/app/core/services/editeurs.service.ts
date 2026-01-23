@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { WorkflowStatus } from '../models/reservation.interface';
 
 export interface Editeur {
   id: number;
@@ -12,6 +13,8 @@ export interface Editeur {
   phone?: string;
   email?: string;
   notes?: string;
+  workflowStatus?: WorkflowStatus | null;
+  hasReservation?: boolean;
 }
 
 @Injectable({

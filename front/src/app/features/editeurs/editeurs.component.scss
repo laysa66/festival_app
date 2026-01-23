@@ -120,6 +120,10 @@
   }
 }
 
+.workflow-filter {
+  min-width: 220px;
+}
+
 .loading {
   display: flex;
   flex-direction: column;
@@ -219,6 +223,43 @@
   }
 }
 
+/* Workflow row highlighting */
+.wf-none {
+  background-color: #fafafa;
+}
+
+.wf-pas-contact {
+  background-color: #fff3e0;
+}
+
+.wf-contact-pris {
+  background-color: #e3f2fd;
+}
+
+.wf-discussion {
+  background-color: #ede7f6;
+}
+
+.wf-sera-absent {
+  background-color: #ffebee;
+}
+
+.wf-considere-absent {
+  background-color: #ffe0b2;
+}
+
+.wf-present {
+  background-color: #e8f5e9;
+}
+
+.wf-facture {
+  background-color: #fff8e1;
+}
+
+.wf-facture-payee {
+  background-color: #e0f2f1;
+}
+
 .type-badge {
   display: inline-block;
   padding: 6px 12px;
@@ -240,6 +281,21 @@
   &.both {
     background-color: #e8f5e9;
     color: #388e3c;
+  }
+}
+
+.workflow-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #e3f2fd;
+  color: #0d47a1;
+
+  &.no-reservation {
+    background-color: #f5f5f5;
+    color: #757575;
   }
 }
 

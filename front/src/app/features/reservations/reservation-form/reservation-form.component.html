@@ -102,6 +102,31 @@
 
         <div class="form-grid">
           <div class="form-group">
+            <label for="typeRemise">Remise</label>
+            <select id="typeRemise" formControlName="typeRemise" (change)="onRemiseChange()">
+              <option [ngValue]="null">Aucune remise</option>
+              <option [value]="TypeRemise.TABLES_OFFERTES">{{ TYPE_REMISE_LABELS[TypeRemise.TABLES_OFFERTES] }}</option>
+              <option [value]="TypeRemise.SOMME_ARGENT">{{ TYPE_REMISE_LABELS[TypeRemise.SOMME_ARGENT] }}</option>
+            </select>
+          </div>
+
+          @if (reservationForm.get('typeRemise')?.value === TypeRemise.SOMME_ARGENT) {
+          <div class="form-group">
+            <label for="valeurRemise">Montant de la remise (€)</label>
+            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="0.01"
+              placeholder="0" (change)="onRemiseChange()" (input)="onRemiseChange()" />
+          </div>
+          } @else if (reservationForm.get('typeRemise')?.value === TypeRemise.TABLES_OFFERTES) {
+          <div class="form-group">
+            <label for="valeurRemise">Nombre de tables offertes</label>
+            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="1"
+              placeholder="0" (change)="onRemiseChange()" (input)="onRemiseChange()" />
+          </div>
+          }
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
             <label>
               <input type="checkbox" formControlName="viendraPresenteSesJeux" />
               Viendra présenter ses jeux
@@ -141,6 +166,40 @@
           <label for="notesClient">Notes client</label>
           <textarea id="notesClient" formControlName="notesClient" rows="3"
             placeholder="Notes visibles par le client..."></textarea>
+        </div>
+
+        <div class="billing-card">
+          <div class="billing-header">
+            <div>
+              <p class="eyebrow">Facture</p>
+              <p class="muted">Calcul basé sur les espaces réservés et les options.</p>
+            </div>
+            <button type="button" class="btn btn-primary" (click)="calculatePrice()" [disabled]="!reservationId || priceLoading()">
+              @if (priceLoading()) { <span class="spinner-small"></span> }
+              Mettre à jour
+            </button>
+          </div>
+
+          @if (priceLoading()) {
+          <div class="billing-loading">
+            <div class="spinner-small"></div>
+            <span>Calcul en cours...</span>
+          </div>
+          } @else if (priceSummary()) {
+          <div class="billing-grid">
+            <div class="billing-total">
+              <span class="label">Total à facturer</span>
+              <div class="amount">{{ priceSummary()!.totalGeneral | number:'1.2-2' }} €</div>
+            </div>
+            <div class="billing-breakdown">
+              <div class="row"><span>Espaces réservés</span><strong>{{ priceSummary()!.sousTotal | number:'1.2-2' }} €</strong></div>
+              <div class="row"><span>Prises électriques</span><strong>{{ priceSummary()!.coutPrises | number:'1.2-2' }} €</strong></div>
+              <div class="row"><span>Remise</span><strong>- {{ priceSummary()!.remise | number:'1.2-2' }} €</strong></div>
+            </div>
+          </div>
+          } @else {
+          <p class="muted">Ajoutez des espaces puis cliquez sur "Mettre à jour" pour générer la facture.</p>
+          }
         </div>
       </div>
       }
@@ -210,6 +269,41 @@
                 </option>
                 }
               </select>
+              <div class="inline-help">
+                <span>Zone manquante ?</span>
+                <button type="button" class="btn btn-sm btn-secondary" (click)="toggleNewZoneForm()">
+                  @if (showNewZoneForm()) { Annuler } @else { Créer une zone }
+                </button>
+              </div>
+              @if (showNewZoneForm()) {
+              <div class="new-zone-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nom de la zone *</label>
+                    <input type="text" class="form-control" [value]="newZoneData().nom || ''"
+                      (input)="updateNewZoneField('nom', $any($event.target).value)" />
+                  </div>
+                  <div class="form-group">
+                    <label>Prix table (€) *</label>
+                    <input type="number" min="0" step="0.01" class="form-control"
+                      [value]="newZoneData().prixTable || ''"
+                      (input)="updateNewZoneField('prixTable', +$any($event.target).value)" />
+                  </div>
+                  <div class="form-group">
+                    <label>Prix m² (€) *</label>
+                    <input type="number" min="0" step="0.01" class="form-control"
+                      [value]="newZoneData().prixM2 || ''"
+                      (input)="updateNewZoneField('prixM2', +$any($event.target).value)" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" (click)="createZoneTarifaire()"
+                    [disabled]="creatingZone()">
+                    @if (creatingZone()) { ⏳ Création... } @else { Enregistrer la zone }
+                  </button>
+                </div>
+              </div>
+              }
             </div>
             <div class="form-group">
               <label>Nb Tables</label>
@@ -455,6 +549,40 @@
                     </option>
                     }
                   </select>
+                  <div class="inline-help">
+                    <span>Zone du plan manquante ?</span>
+                    <button type="button" class="btn btn-sm btn-secondary" (click)="toggleNewZonePlanForm()">
+                      @if (showNewZonePlanForm()) { Annuler } @else { Créer une zone du plan }
+                    </button>
+                  </div>
+                  @if (showNewZonePlanForm()) {
+                  <div class="new-zone-form">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label>Nom de la zone du plan *</label>
+                        <input type="text" class="form-control" [value]="newZonePlanData().nom || ''"
+                          (input)="updateNewZonePlanField('nom', $any($event.target).value)" />
+                      </div>
+                      <div class="form-group">
+                        <label>Zone tarifaire liée (optionnel)</label>
+                        <select class="form-control"
+                          [value]="newZonePlanData().zoneTarifaireId || ''"
+                          (change)="updateNewZonePlanField('zoneTarifaireId', $any($event.target).value ? +$any($event.target).value : null)">
+                          <option value="">-- Aucune --</option>
+                          @for (zone of zoneTarifairesList(); track zone.id) {
+                          <option [value]="zone.id">{{ zone.nom }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-actions">
+                      <button type="button" class="btn btn-primary" (click)="createZonePlan()"
+                        [disabled]="creatingZonePlan()">
+                        @if (creatingZonePlan()) { ⏳ Création... } @else { Enregistrer la zone du plan }
+                      </button>
+                    </div>
+                  </div>
+                  }
                 </td>
               </tr>
               }

@@ -156,7 +156,7 @@ export class PublicViewComponent implements OnInit {
   }
 
   loadGamesForZones(): void {
-    // For zone tarifaires
+    // For zone tarifaires, only use games that are assigned via reservations
     const zoneTarMap = new Map<number, GameDisplay[]>();
     this.zoneTarifaires().forEach(zone => {
       this.festivalService.getGamesByZoneTarifaire(zone.id).subscribe({
@@ -165,14 +165,13 @@ export class PublicViewComponent implements OnInit {
           this.gamesByZoneTarifaire.set(new Map(zoneTarMap));
         },
         error: () => {
-          // If endpoint doesn't exist, show all games as placeholder
-          zoneTarMap.set(zone.id, this.allGames());
+          zoneTarMap.set(zone.id, []);
           this.gamesByZoneTarifaire.set(new Map(zoneTarMap));
         }
       });
     });
 
-    // For zone plans
+    // For zone plans, only use games that are assigned via reservations
     const zonePlanMap = new Map<number, GameDisplay[]>();
     this.zonePlans().forEach(zone => {
       this.festivalService.getGamesByZonePlan(zone.id).subscribe({
@@ -181,8 +180,7 @@ export class PublicViewComponent implements OnInit {
           this.gamesByZonePlan.set(new Map(zonePlanMap));
         },
         error: () => {
-          // If endpoint doesn't exist, show all games as placeholder
-          zonePlanMap.set(zone.id, this.allGames());
+          zonePlanMap.set(zone.id, []);
           this.gamesByZonePlan.set(new Map(zonePlanMap));
         }
       });

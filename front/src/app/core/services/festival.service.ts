@@ -140,12 +140,16 @@ export class FestivalService {
 
   // Get games by zone tarifaire
   getGamesByZoneTarifaire(zoneTarifaireId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/jeux/zone-tarifaire/${zoneTarifaireId}`);
+    return this.http.get<{ success: boolean; jeux: any[]; total: number }>(
+      `${this.baseUrl}/jeux/zone-tarifaire/${zoneTarifaireId}`
+    ).pipe(map(response => response.jeux || []));
   }
 
   // Get games by zone plan
   getGamesByZonePlan(zonePlanId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/jeux/zone-plan/${zonePlanId}`);
+    return this.http.get<{ success: boolean; jeux: any[]; total: number }>(
+      `${this.baseUrl}/jeux/zone-plan/${zonePlanId}`
+    ).pipe(map(response => response.jeux || []));
   }
 }
 

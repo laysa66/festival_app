@@ -118,20 +118,48 @@ export class PublicViewZonesComponent implements OnInit {
   }
 
   loadGamesForZones(): void {
-    // Show all games for each zone
-    // (Game-to-zone assignment could be implemented later in backend)
     const zoneTarMap = new Map<number, GameDisplay[]>();
-    this.zoneTarifaires().forEach(zone => {
-      zoneTarMap.set(zone.id, this.allGames());
-    });
-    this.gamesByZoneTarifaire.set(zoneTarMap);
-
     const zonePlanMap = new Map<number, GameDisplay[]>();
-    this.zonePlans().forEach(zone => {
-      zonePlanMap.set(zone.id, this.allGames());
+
+    const totalRequests = this.zoneTarifaires().length + this.zonePlans().length;
+    let completed = 0;
+
+    const markDone = () => {
+      completed += 1;
+      if (completed >= totalRequests) {
+        this.isLoading.set(false);
+      }
+    };
+
+    this.zoneTarifaires().forEach(zone => {
+      this.festivalService.getGamesByZoneTarifaire(zone.id).subscribe({
+        next: (games) => {
+          zoneTarMap.set(zone.id, games);
+          this.gamesByZoneTarifaire.set(new Map(zoneTarMap));
+          markDone();
+        },
+        error: () => {
+          zoneTarMap.set(zone.id, []);
+          this.gamesByZoneTarifaire.set(new Map(zoneTarMap));
+          markDone();
+        }
+      });
     });
-    this.gamesByZonePlan.set(zonePlanMap);
-    this.isLoading.set(false);
+
+    this.zonePlans().forEach(zone => {
+      this.festivalService.getGamesByZonePlan(zone.id).subscribe({
+        next: (games) => {
+          zonePlanMap.set(zone.id, games);
+          this.gamesByZonePlan.set(new Map(zonePlanMap));
+          markDone();
+        },
+        error: () => {
+          zonePlanMap.set(zone.id, []);
+          this.gamesByZonePlan.set(new Map(zonePlanMap));
+          markDone();
+        }
+      });
+    });
   }
 
   getGamesForZoneTarifaire(zoneId: number): GameDisplay[] {

@@ -47,6 +47,16 @@ export class Navbar implements OnInit {
       ]
     },
     {
+      path: '/festivals',
+      label: 'Festivals',
+      icon: 'pi pi-calendar',
+      roles: [
+        UserRole.SUPER_ORGANISATEUR,
+        UserRole.ADMIN,
+        UserRole.ORGANISATEUR
+      ]
+    },
+    {
       path: '/editeurs',
       label: 'Éditeurs',
       icon: 'pi pi-book',
@@ -57,16 +67,6 @@ export class Navbar implements OnInit {
       label: 'Jeux',
       icon: 'pi pi-objects-column',
       roles: [UserRole.SUPER_ORGANISATEUR, UserRole.ADMIN, UserRole.ORGANISATEUR]
-    },
-    {
-      path: '/festivals',
-      label: 'Festivals',
-      icon: 'pi pi-calendar',
-      roles: [
-        UserRole.SUPER_ORGANISATEUR,
-        UserRole.ADMIN,
-        UserRole.ORGANISATEUR
-      ]
     },
     {
       path: '/reservations',

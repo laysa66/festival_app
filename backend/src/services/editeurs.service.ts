@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, WorkflowStatus } from '@prisma/client';
 import { NotFoundError } from '../utils/errors/custom-errors';
 
 export interface EditeurListItem {
@@ -10,6 +10,8 @@ export interface EditeurListItem {
   phone: string | null;
   email: string | null;
   notes: string | null;
+  workflowStatus: WorkflowStatus | null;
+  hasReservation: boolean;
 }
 
 export interface EditeurDetail extends EditeurListItem {}
@@ -47,6 +49,14 @@ export class EditeursService {
         phone: true,
         email: true,
         notes: true,
+        reservations: {
+          select: {
+            workflowStatus: true,
+            updatedAt: true,
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        },
       },
       orderBy: {
         libelle: 'asc',
@@ -55,7 +65,11 @@ export class EditeursService {
 
     return {
       success: true,
-      editeurs,
+      editeurs: editeurs.map(e => ({
+        ...e,
+        workflowStatus: e.reservations[0]?.workflowStatus ?? null,
+        hasReservation: e.reservations.length > 0,
+      })),
       total: editeurs.length,
     };
   }
@@ -72,6 +86,14 @@ export class EditeursService {
         phone: true,
         email: true,
         notes: true,
+        reservations: {
+          select: {
+            workflowStatus: true,
+            updatedAt: true,
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -81,7 +103,11 @@ export class EditeursService {
 
     return {
       success: true,
-      editeur,
+      editeur: {
+        ...editeur,
+        workflowStatus: editeur.reservations[0]?.workflowStatus ?? null,
+        hasReservation: editeur.reservations.length > 0,
+      },
     };
   }
 
@@ -115,13 +141,25 @@ export class EditeursService {
         phone: true,
         email: true,
         notes: true,
+          reservations: {
+            select: {
+              workflowStatus: true,
+              updatedAt: true,
+            },
+            orderBy: { updatedAt: 'desc' },
+            take: 1,
+          },
       },
     });
 
     return {
       success: true,
       message: 'Éditeur mis à jour avec succès',
-      editeur: updatedEditeur,
+        editeur: {
+          ...updatedEditeur,
+          workflowStatus: updatedEditeur.reservations[0]?.workflowStatus ?? null,
+          hasReservation: updatedEditeur.reservations.length > 0,
+        },
     };
   }
 
@@ -168,13 +206,25 @@ export class EditeursService {
         phone: true,
         email: true,
         notes: true,
+        reservations: {
+          select: {
+            workflowStatus: true,
+            updatedAt: true,
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
     return {
       success: true,
       message: 'Éditeur créé avec succès',
-      editeur: newEditeur,
+      editeur: {
+        ...newEditeur,
+        workflowStatus: newEditeur.reservations[0]?.workflowStatus ?? null,
+        hasReservation: newEditeur.reservations.length > 0,
+      },
     };
   }
 }

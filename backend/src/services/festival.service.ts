@@ -503,6 +503,57 @@ class FestivalService {
       throw new AppError(500, 'Failed to delete game');
     }
   }
+
+  async getGamesByZonePlan(zonePlanId: number) {
+    try {
+      const games = await this.prisma.reservationJeu.findMany({
+        where: { zonePlanId },
+        include: {
+          jeu: {
+            include: {
+              editeur: true,
+              typeJeu: true,
+            },
+          },
+        },
+      });
+      // Map to return just the game data
+      return games.map(rj => rj.jeu);
+    } catch (error) {
+      throw new AppError(500, 'Failed to fetch games by zone plan');
+    }
+  }
+
+  async getGamesByZoneTarifaire(zoneTarifaireId: number) {
+    try {
+      const games = await this.prisma.reservationJeu.findMany({
+        where: {
+          zonePlan: {
+            zoneTarifaireId,
+          },
+        },
+        include: {
+          jeu: {
+            include: {
+              editeur: true,
+              typeJeu: true,
+            },
+          },
+        },
+      });
+      // Map to return just the game data, remove duplicates
+      const uniqueGames = new Map();
+      games.forEach(rj => {
+        if (rj.jeu && !uniqueGames.has(rj.jeu.id)) {
+          uniqueGames.set(rj.jeu.id, rj.jeu);
+        }
+      });
+      return Array.from(uniqueGames.values());
+    } catch (error) {
+      throw new AppError(500, 'Failed to fetch games by zone tarifaire');
+    }
+  }
 }
 
 export default FestivalService;
+

@@ -42,6 +42,17 @@
               Distributeur
             </mat-checkbox>
           </div>
+
+          <!-- Workflow Filter -->
+          <mat-form-field class="workflow-filter">
+            <mat-label>Workflow</mat-label>
+            <mat-select [value]="filterWorkflow()" (selectionChange)="onWorkflowFilterChange($event.value)">
+              <mat-option value="ALL">Tous</mat-option>
+              @for (opt of workflowOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
       </mat-card-content>
     </mat-card>
@@ -84,6 +95,16 @@
                     'both': element.exposant && element.distributeur
                   }">
                     {{ getEditorType(element) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Workflow Column -->
+              <ng-container matColumnDef="workflow">
+                <th mat-header-cell *matHeaderCellDef>Workflow</th>
+                <td mat-cell *matCellDef="let element">
+                  <span class="workflow-badge" [ngClass]="{ 'no-reservation': !element.hasReservation }">
+                    {{ getWorkflowLabel(element) }}
                   </span>
                 </td>
               </ng-container>
@@ -174,7 +195,7 @@
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="getWorkflowRowClass(row)"></tr>
             </table>
           </div>
         </mat-card-content>

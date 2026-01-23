@@ -13,8 +13,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../core/services/auth.service';
 import { EditeursService, Editeur } from '../../core/services/editeurs.service';
+import { WORKFLOW_STATUS_LABELS, WorkflowStatus } from '../../core/models/reservation.interface';
 import { EditeurDialogComponent } from './editeur-dialog/editeur-dialog.component';
 import { DeleteConfirmDialogComponent } from '../../shared/delete-confirm-dialog';
 
@@ -35,7 +37,8 @@ import { DeleteConfirmDialogComponent } from '../../shared/delete-confirm-dialog
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatSelectModule
   ],
   templateUrl: './editeurs.component.html',
   styleUrls: ['./editeurs.component.scss']
@@ -50,12 +53,17 @@ export class EditeursComponent implements OnInit {
   dataSource = signal<MatTableDataSource<Editeur>>(new MatTableDataSource<Editeur>([]));
   isLoading = signal(false);
   errorMessage = signal('');
-  displayedColumns: string[] = ['libelle', 'type', 'logo', 'contact', 'notes', 'actions'];
+  displayedColumns: string[] = ['libelle', 'type', 'workflow', 'logo', 'contact', 'notes', 'actions'];
 
   // Filter signals
   searchTerm = signal('');
   filterExposant = signal(false);
   filterDistributeur = signal(false);
+  filterWorkflow = signal<WorkflowStatus | 'ALL'>('ALL');
+  workflowOptions = Object.entries(WORKFLOW_STATUS_LABELS).map(([key, label]) => ({
+    value: key as WorkflowStatus,
+    label,
+  }));
 
   ngOnInit() {
     this.loadEditeurs();
@@ -65,6 +73,7 @@ export class EditeursComponent implements OnInit {
     const search = this.searchTerm().toLowerCase();
     const exposantFilter = this.filterExposant();
     const distributeurFilter = this.filterDistributeur();
+    const workflowFilter = this.filterWorkflow();
 
     let filtered = this.editeurs();
 
@@ -90,6 +99,10 @@ export class EditeursComponent implements OnInit {
       });
     }
 
+    if (workflowFilter !== 'ALL') {
+      filtered = filtered.filter(e => e.workflowStatus === workflowFilter);
+    }
+
     this.dataSource.set(new MatTableDataSource<Editeur>(filtered));
   }
 
@@ -100,6 +113,33 @@ export class EditeursComponent implements OnInit {
 
   onFilterChange() {
     this.applyFilters();
+  }
+
+  onWorkflowFilterChange(value: WorkflowStatus | 'ALL') {
+    this.filterWorkflow.set(value);
+    this.applyFilters();
+  }
+
+  getWorkflowLabel(editeur: Editeur): string {
+    if (!editeur.hasReservation || !editeur.workflowStatus) {
+      return 'Aucune réservation';
+    }
+    return WORKFLOW_STATUS_LABELS[editeur.workflowStatus];
+  }
+
+  getWorkflowRowClass(editeur: Editeur): Record<string, boolean> {
+    const status = editeur.workflowStatus;
+    return {
+      'wf-none': !editeur.hasReservation || !status,
+      'wf-pas-contact': status === WorkflowStatus.PAS_DE_CONTACT,
+      'wf-contact-pris': status === WorkflowStatus.CONTACT_PRIS,
+      'wf-discussion': status === WorkflowStatus.DISCUSSION_EN_COURS,
+      'wf-sera-absent': status === WorkflowStatus.SERA_ABSENT,
+      'wf-considere-absent': status === WorkflowStatus.CONSIDERE_ABSENT,
+      'wf-present': status === WorkflowStatus.PRESENT,
+      'wf-facture': status === WorkflowStatus.FACTURE,
+      'wf-facture-payee': status === WorkflowStatus.FACTURE_PAYEE,
+    };
   }
 
   loadEditeurs() {
