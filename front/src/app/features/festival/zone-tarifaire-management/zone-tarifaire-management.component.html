@@ -1,0 +1,97 @@
+<div class="zone-management-container">
+  <div class="zones-section">
+    <div class="zones-header">
+      <h3>Zones Tarifaires</h3>
+      <button mat-raised-button color="primary" (click)="toggleEdit()" [disabled]="isLoading()" class="add-zone-button">
+        <mat-icon>{{ isEditing() ? 'close' : 'add' }}</mat-icon>
+        {{ isEditing() ? 'Annuler' : 'Ajouter une Zone' }}
+      </button>
+    </div>
+
+    <!-- Add New Zone Form -->
+    @if (isEditing()) {
+    <div class="add-zone-form" [class.editing]="isEditingZoneId() !== null">
+      <div class="form-title">
+        <mat-icon>{{ isEditingZoneId() ? 'edit' : 'add_circle' }}</mat-icon>
+        <h4>{{ isEditingZoneId() ? 'Modifier la Zone Tarifaire' : 'Ajouter une nouvelle Zone Tarifaire' }}</h4>
+      </div>
+      <form [formGroup]="newZoneForm" (ngSubmit)="addZone()">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nom de la Zone</mat-label>
+          <input matInput formControlName="nom" placeholder="ex: Zone Standard">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Prix par Table</mat-label>
+          <input matInput type="number" formControlName="prixTable" step="0.01">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Prix par M²</mat-label>
+          <input matInput type="number" formControlName="prixM2" step="0.01">
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!newZoneForm.valid || isLoading()">
+            <mat-icon>{{ isEditingZoneId() ? 'save' : 'add' }}</mat-icon>
+            {{ isEditingZoneId() ? 'Enregistrer' : 'Ajouter' }}
+          </button>
+          @if (isEditingZoneId()) {
+          <button mat-raised-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
+            <mat-icon>cancel</mat-icon>
+            Annuler
+          </button>
+          }
+        </div>
+      </form>
+    </div>
+    }
+
+    <!-- Zones Table -->
+    <div class="zones-table-wrapper">
+      <table mat-table [dataSource]="zones()" class="zones-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="nom">
+          <th mat-header-cell *matHeaderCellDef>Nom</th>
+          <td mat-cell *matCellDef="let zone">{{ zone.nom }}</td>
+        </ng-container>
+
+        <!-- Price per Table Column -->
+        <ng-container matColumnDef="prixTable">
+          <th mat-header-cell *matHeaderCellDef>Prix/Table</th>
+          <td mat-cell *matCellDef="let zone">{{ zone.prixTable | currency:'EUR':'symbol':'1.0-2' }}</td>
+        </ng-container>
+
+        <!-- Price per M² Column -->
+        <ng-container matColumnDef="prixM2">
+          <th mat-header-cell *matHeaderCellDef>Prix/M²</th>
+          <td mat-cell *matCellDef="let zone">{{ zone.prixM2 | currency:'EUR':'symbol':'1.0-2' }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let zone">
+            <button mat-icon-button matTooltip="Modifier" (click)="editZone(zone)" [disabled]="isLoading()">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Supprimer" color="warn" (click)="deleteZone(zone.id)"
+              [disabled]="isLoading()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Empty State -->
+      @if (zones().length === 0) {
+      <div class="empty-state">
+        <p>Aucune zone tarifaire trouvée</p>
+      </div>
+      }
+    </div>
+  </div>
+</div>

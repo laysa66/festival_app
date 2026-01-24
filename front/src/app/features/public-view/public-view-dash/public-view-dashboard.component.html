@@ -1,0 +1,93 @@
+<app-public-navbar></app-public-navbar>
+
+<div class="public-view-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des festivals...</p>
+    </div>
+  } @else {
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <button mat-button (click)="loadPublicData()">Réessayer</button>
+      </div>
+    }
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <h1>Bienvenue</h1>
+        <p>Découvrez nos festivals et les jeux disponibles</p>
+      </div>
+    </div>
+
+    <!-- All Festivals Section -->
+    <section class="festivals-section">
+      <div class="section-title">
+        <h2><mat-icon>event</mat-icon> Tous les Festivals</h2>
+        <p>{{ festivals().length }} festival(s) disponible(s)</p>
+      </div>
+
+      @if (festivals().length === 0) {
+        <div class="empty-state">
+          <mat-icon>event_busy</mat-icon>
+          <p>Aucun festival trouvé pour le moment</p>
+        </div>
+      } @else {
+        <div class="festivals-grid">
+          @for (festival of festivals(); track festival.id) {
+            <mat-card 
+              class="festival-card"
+              [class.selected]="isFestivalSelected(festival)"
+              [class.disabled]="!isLatestFestival(festival)"
+              (click)="selectFestival(festival)">
+              @if (isFestivalSelected(festival)) {
+                <div class="selected-badge">
+                  <mat-icon>check_circle</mat-icon>
+                  Sélectionné
+                </div>
+              }
+              @if (!isLatestFestival(festival)) {
+                <div class="disabled-badge">
+                  <mat-icon>lock</mat-icon>
+                  Archivé
+                </div>
+              }
+              <mat-card-header>
+                <mat-card-title>{{ festival.nom }}</mat-card-title>
+                <mat-card-subtitle>{{ festival.lieu }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-row">
+                  <mat-icon>calendar_today</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Dates</span>
+                    <span class="value">{{ festival.dateDebut | date: 'dd/MM/yyyy' }} - {{ festival.dateFin | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                </div>
+                <div class="info-row">
+                  <mat-icon>location_on</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Lieu</span>
+                    <span class="value">{{ festival.lieu }}</span>
+                  </div>
+                </div>
+                <div class="info-row">
+                  <mat-icon>table_chart</mat-icon>
+                  <div class="info-text">
+                    <span class="label">Ressources</span>
+                    <span class="value">{{ festival.nbTotalTable }} tables • {{ festival.nbTotalChaise }} chaises</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

@@ -1,0 +1,37 @@
+.game-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 400px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+mat-form-field {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .game-form {
+    min-width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}

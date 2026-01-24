@@ -1,80 +1,119 @@
 <div class="dashboard-container">
   @if (currentUser) {
-    <mat-card class="welcome-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>waving_hand</mat-icon>
-          Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="user-info">
-          <mat-chip-set>
-            <mat-chip highlighted [color]="currentUser.role === 'ADMIN' ? 'warn' : currentUser.role === 'SUPER_ORGANISATEUR' ? 'accent' : 'primary'">
-              <mat-icon matChipAvatar>shield</mat-icon>
-              {{ currentUser.role }}
-            </mat-chip>
-            <mat-chip [highlighted]="currentUser.valide" [color]="currentUser.valide ? 'primary' : 'basic'">
-              <mat-icon matChipAvatar>{{ currentUser.valide ? 'verified' : 'pending' }}</mat-icon>
-              {{ currentUser.valide ? 'Compte validé' : 'En attente de validation' }}
-            </mat-chip>
-          </mat-chip-set>
-          
-          <div class="user-details">
-            <p><mat-icon>email</mat-icon> {{ currentUser.email }}</p>
-            <p><mat-icon>badge</mat-icon> ID: {{ currentUser.id }}</p>
+  <p-card styleClass="welcome-card">
+      <div class="card-header">
+        <i class="pi pi-briefcase header-icon"></i>
+        <span>Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}!</span>
+      </div>
+  </p-card>
+
+  @if (selectedFestival()) {
+  @let fest = selectedFestival()!;
+  <p-card styleClass="festival-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <i class="pi pi-calendar header-icon"></i>
+        <span>Festival </span>
+      </div>
+    </ng-template>
+
+    <div class="festival-header">
+      <h2>{{ fest.nom }}</h2>
+      <p class="location"><i class="pi pi-map-marker"></i> {{ fest.lieu }}</p>
+    </div>
+
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0"><i class="pi pi-info-circle"></i> Informations Générales</p-tab>
+        <p-tab value="1"><i class="pi pi-euro"></i> Zones Tarifaires</p-tab>
+        <p-tab value="2"><i class="pi pi-map"></i> Zones du Plan</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <!-- General Information Tab -->
+        <p-tabpanel value="0">
+          <div class="info-grid">
+            <div class="info-card-inner">
+              <h3><i class="pi pi-calendar-clock"></i> Dates du Festival</h3>
+              <p><strong>Début:</strong> {{ fest.dateDebut | date:'dd/MM/yyyy' }}</p>
+              <p><strong>Fin:</strong> {{ fest.dateFin | date:'dd/MM/yyyy' }}</p>
+            </div>
+
+            <div class="info-card-inner">
+              <h3><i class="pi pi-box"></i> Ressources Totales</h3>
+              <p><strong>Total Tables:</strong> {{ fest.nbTotalTable }}</p>
+              <p><strong>Total Chaises:</strong> {{ fest.nbTotalChaise }}</p>
+            </div>
           </div>
 
-          @if (!currentUser.valide) {
-            <mat-card class="warning-card">
-              <mat-card-content>
-                <mat-icon color="warn">warning</mat-icon>
-                Votre compte est en attente de validation par un administrateur.
-              </mat-card-content>
-            </mat-card>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
+          <div class="distribution-section">
+            <h3>Distribution des Ressources</h3>
+            <table class="distribution-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Grand</th>
+                  <th>Petit</th>
+                  <th>Mairie</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Tables</strong></td>
+                  <td>{{ fest.bigTables || 0 }}</td>
+                  <td>{{ fest.smallTables || 0 }}</td>
+                  <td>{{ fest.mairieTables || 0 }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Chaises</strong></td>
+                  <td>{{ fest.bigChairs || 0 }}</td>
+                  <td>Non disponible</td>
+                  <td>{{ fest.mairieChairs || 0 }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </p-tabpanel>
 
-    @if (currentUser.role === 'ADMIN') {
-      <mat-card class="admin-section">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>admin_panel_settings</mat-icon>
-            Administration
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Vous avez accès aux fonctionnalités d'administration</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="warn" routerLink="/users">
-            <mat-icon>people</mat-icon>
-            Gérer les utilisateurs
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
+        <!-- Tariff Zones Tab -->
+        <p-tabpanel value="1">
+          <app-zone-management [festival]="fest" (zonesChanged)="onZonesChanged($event)"></app-zone-management>
+        </p-tabpanel>
 
-    @if (currentUser.role === 'SUPER_ORGANISATEUR') {
-      <mat-card class="management-section">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>business</mat-icon>
-            Gestion des Clients
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Accédez à la gestion complète de vos clients</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="accent" routerLink="/clients">
-            <mat-icon>groups</mat-icon>
-            Gérer les clients
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
+        <!-- Zone Plans Tab -->
+        <p-tabpanel value="2">
+          <app-zone-plan-management [festival]="fest"></app-zone-plan-management>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </p-card>
+  } 
+  @else {
+  <p-card styleClass="info-card-empty">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <i class="pi pi-info-circle header-icon"></i>
+        <span>Aucun Festival Sélectionné</span>
+      </div>
+    </ng-template>
+    <div class="empty-state-content">
+      <p>Allez à <strong>Festivals</strong> et sélectionnez un festival pour voir ses détails ici.</p>
+      <p-button label="Aller aux Festivals" icon="pi pi-calendar" routerLink="/festivals"></p-button>
+    </div>
+  </p-card>
+  }
+
+  @if (currentUser.role === 'ADMIN') {
+  <p-card styleClass="admin-section">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <i class="pi pi-cog header-icon"></i>
+        <span>Administration</span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <p-button label="Gérer les utilisateurs" icon="pi pi-users" severity="danger" routerLink="/users"></p-button>
+    </ng-template>
+  </p-card>
+  }
   }
 </div>

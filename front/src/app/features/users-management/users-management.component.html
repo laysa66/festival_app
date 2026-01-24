@@ -1,69 +1,84 @@
 <div class="container">
   @if (errorMessage()) {
-    <div class="error-message">{{ errorMessage() }}</div>
+  <div class="error-message">{{ errorMessage() }}</div>
   }
 
   @if (successMessage()) {
-    <div class="success-message">{{ successMessage() }}</div>
+  <div class="success-message">{{ successMessage() }}</div>
   }
 
   @if (isLoading()) {
-    <div class="loading">Chargement des utilisateurs...</div>
+  <div class="loading">Chargement des utilisateurs...</div>
   } @else {
-    <div class="users-grid">
-      @for (user of users(); track user.id) {
-        <div class="user-card">
-          <div class="user-header">
-            <h3>{{ user.prenom }} {{ user.nom }}</h3>
-            <span class="badge" [class.validated]="user.valide" [class.pending]="!user.valide">
-              {{ user.valide ? '✅ Validé' : '⏳ En attente' }}
-            </span>
-          </div>
-
-          <div class="user-info">
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Inscrit le:</strong> {{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
-          </div>
-
-          <div class="user-actions">
-            <div class="form-group">
-              <label [for]="'role-' + user.id">Rôle:</label>
-              <select 
-                [id]="'role-' + user.id"
-                [value]="getRoleId(user.role)"
-                #roleSelect
-              >
-                @for (role of roles; track role.id) {
-                  <option [value]="role.id" [selected]="role.type === user.role">
-                    {{ role.type }}
-                  </option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label [for]="'valide-' + user.id">Statut:</label>
-              <select [id]="'valide-' + user.id" #valideSelect [value]="user.valide ? 'true' : 'false'">
-                <option value="false">Non validé</option>
-                <option value="true">Validé</option>
-              </select>
-            </div>
-
-            <button 
-              class="update-btn"
-              (click)="updateUser(user.id, valideSelect.value === 'true', +roleSelect.value)"
-            >
-              💾 Mettre à jour
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-
-    @if (users().length === 0) {
-      <div class="empty-state">
-        <p>Aucun utilisateur trouvé</p>
+  <div class="users-grid">
+    @for (user of users(); track user.id) {
+    <div class="user-card">
+      <div class="user-header">
+        <h3>{{ user.prenom }} {{ user.nom }}</h3>
+        <span class="badge" [class.validated]="user.valide" [class.pending]="!user.valide">
+          @if (user.valide) {
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-mini" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd" />
+          </svg>
+          Validé
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-mini" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+              clip-rule="evenodd" />
+          </svg>
+          En attente
+          }
+        </span>
       </div>
+
+      <div class="user-info">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Inscrit le:</strong> {{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+
+      <div class="user-actions">
+        <div class="form-group">
+          <label [for]="'role-' + user.id">Rôle:</label>
+          <select [id]="'role-' + user.id" [value]="getRoleId(user.role)" #roleSelect>
+            @for (role of roles; track role.id) {
+            <option [value]="role.id" [selected]="role.type === user.role">
+              {{ role.type }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label [for]="'valide-' + user.id">Statut:</label>
+          <select [id]="'valide-' + user.id" #valideSelect [value]="user.valide ? 'true' : 'false'">
+            <option value="false">Non validé</option>
+            <option value="true">Validé</option>
+          </select>
+        </div>
+
+        <button class="update-btn" (click)="updateUser(user.id, valideSelect.value === 'true', +roleSelect.value)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
+          </svg>
+          Mettre à jour
+        </button>
+      </div>
+    </div>
     }
+  </div>
+
+  @if (users().length === 0) {
+  <div class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+    <p>Aucun utilisateur trouvé</p>
+  </div>
+  }
   }
 </div>

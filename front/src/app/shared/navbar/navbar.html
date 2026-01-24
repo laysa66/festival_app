@@ -1,33 +1,40 @@
-<nav class="navbar">
-    @if(currentUser) {
-  <div class="navbar-container">
-    <div class="navbar-brand">
-      <a routerLink="/dashboard">Festival App</a>
-    </div>
-
-    
-    <div class="navbar-links">
-        @for (link of visibleLinks ; track link.path) {
-            <a
-              [routerLink]="link.path"
-              routerLinkActive="active"
-              class="nav-link"
-            >
-              <span class="icon">{{ link.icon }}</span>
-              <span class="label">{{ link.label }}</span>
-            </a>
-        }
-    </div>
-
-    <div class="navbar-user">
-      <div class="user-info">
-        <span class="user-name">{{ currentUser.prenom }} {{ currentUser.nom }}</span>
-        <span class="user-role">{{ userRoleLabel }}</span>
-      </div>
-      <button (click)="logout()" class="btn-logout">
-         Déconnexion
-      </button>
-    </div>
+@if(currentUser) {
+<mat-toolbar class="main-toolbar" [class.transparent-navbar]="isHomePage">
+  <div class="brand-container">
+    <a routerLink="/dashboard" class="brand-link">
+      <i class="pi pi-th-large brand-icon"></i>
+      <span>Festival App</span>
+    </a>
   </div>
+
+  <div class="spacer"></div>
+
+  <div class="nav-links">
+    @for (link of visibleLinks ; track link.path) {
+    <a [routerLink]="link.path" routerLinkActive="active-link" mat-button class="nav-btn">
+      <i [class]="link.icon"></i>
+      <span class="btn-label">{{ link.label }}</span>
+    </a>
+    }
+  </div>
+
+  <div class="user-menu">
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
+      <div class="user-avatar-circle">{{ currentUser.prenom.charAt(0) }}</div>
+      <span class="user-name">{{ currentUser.prenom }}</span>
+      <i class="pi pi-angle-down"></i>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="menu-header">
+        <span class="menu-role">{{ userRoleLabel }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
 }
-</nav>

@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 })
 export class UserManagementService {
   private http = inject(HttpClient);
-  private API_URL = `${environment.apiBaseUrl}/api`;
+  private API_URL = `${environment.apiBaseUrl}`;
 
   getRoles(): Role[] {
     return [

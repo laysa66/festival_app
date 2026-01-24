@@ -1,0 +1,175 @@
+<app-public-navbar></app-public-navbar>
+
+<div class="public-view-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des jeux...</p>
+    </div>
+  } @else {
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <button mat-button (click)="loadGames()">Réessayer</button>
+      </div>
+    }
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <h1>Jeux Disponibles</h1>
+        <p>Découvrez tous les jeux du festival</p>
+      </div>
+    </div>
+
+    <!-- Games Section -->
+    <section class="festivals-section">
+      <div class="games-section">
+        <div class="games-header">
+          <h3>Jeux Disponibles</h3>
+          <p class="games-count">{{ filteredGames().length }} jeu(x) disponible(s)</p>
+        </div>
+
+        <!-- Games Filters -->
+        <div class="games-filters">
+          <mat-form-field class="filter-field">
+            <mat-label>Rechercher</mat-label>
+            <input matInput 
+                   placeholder="Par nom, auteur, thème..."
+                   (input)="onSearchChange($event.target.value)"
+                   [value]="searchTerm()">
+            <mat-icon matPrefix>search</mat-icon>
+            @if (searchTerm()) {
+              <button mat-icon-button matSuffix (click)="resetFilters()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="filter-field">
+            <mat-label>Type de jeu</mat-label>
+            <mat-select [value]="selectedGameType()" (selectionChange)="onTypeChange($event.value)">
+              <mat-option [value]="null">Tous les types</mat-option>
+              @for (type of gameTypes(); track type.id) {
+                <mat-option [value]="type.id">{{ type.libelle }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+          </mat-form-field>
+
+          @if (searchTerm() || selectedGameType()) {
+            <button mat-stroked-button (click)="resetFilters()" class="reset-button">
+              <mat-icon>clear</mat-icon>
+              Réinitialiser filtres
+            </button>
+          }
+        </div>
+
+        @if (allGames().length === 0) {
+          <div class="empty-games">
+            <mat-icon>games</mat-icon>
+            <p>Aucun jeu disponible</p>
+          </div>
+        } @else if (filteredGames().length === 0) {
+          <div class="empty-games">
+            <mat-icon>search_off</mat-icon>
+            <p>Aucun jeu ne correspond à vos critères</p>
+          </div>
+        } @else {
+          <div class="games-grid-enhanced">
+            @for (game of paginatedGames(); track game.id) {
+              <div class="game-card-enhanced">
+                <!-- Game Image -->
+                <div class="game-image-container">
+                  @if (game.image) {
+                    <img [src]="game.image" [alt]="game.libelle" class="game-image">
+                  } @else {
+                    <div class="game-image-placeholder">
+                      <mat-icon>games</mat-icon>
+                    </div>
+                  }
+                  @if (game.ageMin) {
+                    <span class="age-badge">{{ game.ageMin }}+</span>
+                  }
+                </div>
+
+                <!-- Game Info -->
+                <div class="game-info">
+                  <h4 class="game-title">{{ game.libelle }}</h4>
+
+                  @if (game.auteur) {
+                    <div class="game-author">
+                      <mat-icon>person</mat-icon>
+                      <span>{{ game.auteur }}</span>
+                    </div>
+                  }
+
+                  @if (game.typeJeu?.libelle) {
+                    <div class="game-type">
+                      <mat-chip-set>
+                        <mat-chip [highlighted]="true">
+                          <mat-icon matChipAvatar>category</mat-icon>
+                          {{ game.typeJeu?.libelle }}
+                        </mat-chip>
+                      </mat-chip-set>
+                    </div>
+                  }
+
+                  <!-- Game Attributes -->
+                  <div class="game-attributes">
+                    @if (game.nbMinJoueur || game.nbMaxJoueur) {
+                      <div class="attribute">
+                        <mat-icon>people</mat-icon>
+                        <span>
+                          @if (game.nbMinJoueur && game.nbMaxJoueur) {
+                            {{ game.nbMinJoueur }}-{{ game.nbMaxJoueur }} joueurs
+                          } @else if (game.nbMinJoueur) {
+                            À partir de {{ game.nbMinJoueur }} joueur(s)
+                          } @else if (game.nbMaxJoueur) {
+                            Jusqu'à {{ game.nbMaxJoueur }} joueur(s)
+                          }
+                        </span>
+                      </div>
+                    }
+
+                    @if (game.duree) {
+                      <div class="attribute">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ game.duree }} min</span>
+                      </div>
+                    }
+
+                    @if (game.theme) {
+                      <div class="attribute">
+                        <mat-icon>sell</mat-icon>
+                        <span>{{ game.theme }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  @if (game.description) {
+                    <p class="game-description">{{ game.description }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          
+          <!-- Paginator -->
+          <div class="paginator-container">
+            <mat-paginator
+              [length]="filteredGames().length"
+              [pageSize]="pageSize()"
+              [pageSizeOptions]="[12, 24, 48]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons>
+            </mat-paginator>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

@@ -7,6 +7,10 @@ import prismaPlugin from './plugins/prisma.plugin';
 import swaggerPlugin from './plugins/swagger.plugin';
 import authRoutes from './routes/auth.routes';
 import usersRoutes from './routes/users.routes';
+import festivalRoutes from './routes/festival.routes';
+import editeursRoutes from './routes/editeurs.routes';
+import gamesRoutes from './routes/games.routes';
+import reservationRoutes from './routes/reservation.routes';
 import { AppError } from './utils/errors/custom-errors';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -15,12 +19,21 @@ export async function buildApp(): Promise<FastifyInstance> {
     logger: {
       level: env.NODE_ENV === 'development' ? 'info' : 'warn',
     },
-    
+    trustProxy: true,
   });
 
   // Register CORS
   await server.register(cors, {
-    origin: env.CORS_ORIGIN,// pour le moment le frontend est sur localhost:4200, et bien sur elle est dans le .env 
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return cb(null, true);
+      
+      const allowedOrigins = [env.CORS_ORIGIN, 'http://localhost:4200', 'http://localhost:8080', 'https://localhost:8443'];
+      if (env.NODE_ENV === 'development' || allowedOrigins.includes(origin)) {
+        return cb(null, true);
+      }
+      return cb(new Error('Not allowed by CORS'), false);
+    }, 
     credentials: true,
   });
 
@@ -41,22 +54,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await server.register(prismaPlugin);// connexion a la base de donnnes
   await server.register(swaggerPlugin);// documentation API
 
-
-
-  // Health revision route 
-  server.get('/health', async () => {
-    return {
-      status: 'OK',
-      message: 'Festival App API is running',
-      timestamp: new Date().toISOString(),
-    };
-  });
-
-  // enregistrer les routes
-  server.register(authRoutes, { prefix: '/api/auth' });
-  server.register(usersRoutes, { prefix: '/api/users' });
-
-  // Error handler
+  // Error handler - MUST be registered BEFORE routes
   server.setErrorHandler((error: FastifyError | AppError, request: FastifyRequest, reply: FastifyReply) => {
     if (error instanceof AppError) {
       return reply.code(error.statusCode).send({
@@ -85,6 +83,23 @@ export async function buildApp(): Promise<FastifyInstance> {
       path: request.url,
     });
   });
+
+  // Health revision route 
+  server.get('/health', async () => {
+    return {
+      status: 'OK',
+      message: 'Festival App API is running',
+      timestamp: new Date().toISOString(),
+    };
+  });
+
+  // enregistrer les routes
+  await server.register(authRoutes, { prefix: '/api/auth' });
+  await server.register(usersRoutes, { prefix: '/api/users' });
+  await server.register(festivalRoutes, { prefix: '/api' });
+  await server.register(editeursRoutes, { prefix: '/api' });
+  await server.register(gamesRoutes, { prefix: '/api' });
+  await server.register(reservationRoutes, { prefix: '/api' });
 
   return server;
 }

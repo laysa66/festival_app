@@ -1,0 +1,127 @@
+<app-public-navbar></app-public-navbar>
+
+<div class="public-view-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des zones...</p>
+    </div>
+  } @else {
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <a routerLink="/" mat-button>Retour à l'accueil</a>
+      </div>
+    }
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        @switch (viewMode()) {
+          @case ('tarifaire') {
+            <h1>Zones Tarifaires</h1>
+            <p>Découvrez les zones tarifaires du festival</p>
+          }
+          @case ('plan') {
+            <h1>Zones du Plan</h1>
+            <p>Découvrez les zones du plan du festival</p>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Tabs for Zones -->
+    <section class="festivals-section">
+      @switch (viewMode()) {
+        @case ('tarifaire') {
+          <!-- Tariff Zones -->
+          <div class="zones-content">
+            @if (zoneTarifaires().length === 0) {
+              <p class="no-content">Aucune zone tarifaire définie</p>
+            } @else {
+              <div class="zones-container">
+                @for (zone of zoneTarifaires(); track zone.id) {
+                  <mat-card class="zone-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ zone.nom }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="zone-prices">
+                        <div class="price-item">
+                          <span class="price-label">Prix Table:</span>
+                          <span class="price-value">{{ zone.prixTable }} €</span>
+                        </div>
+                        <div class="price-item">
+                          <span class="price-label">Prix m²:</span>
+                          <span class="price-value">{{ zone.prixM2 }} €</span>
+                        </div>
+                      </div>
+
+                      <div class="zone-games">
+                        <h4>Jeux dans cette zone</h4>
+                        @if (getGamesForZoneTarifaire(zone.id).length === 0) {
+                          <p class="no-games">Aucun jeu pour cette zone</p>
+                        } @else {
+                          <div class="game-chips">
+                            @for (game of getGamesForZoneTarifaire(zone.id); track game.id) {
+                              <mat-chip>
+                                <mat-icon matChipAvatar>games</mat-icon>
+                                {{ game.libelle }}
+                              </mat-chip>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @case ('plan') {
+          <!-- Plan Zones -->
+          <div class="zones-content">
+            @if (zonePlans().length === 0) {
+              <p class="no-content">Aucune zone du plan définie</p>
+            } @else {
+              <div class="zones-container">
+                @for (zone of zonePlans(); track zone.id) {
+                  <mat-card class="zone-card">
+                    <mat-card-header>
+                      <mat-card-title>{{ zone.nom }}</mat-card-title>
+                      @if (zone.zoneTarifaire) {
+                        <mat-card-subtitle>Zone Tarifaire: {{ zone.zoneTarifaire.nom }}</mat-card-subtitle>
+                      }
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="zone-games">
+                        <h4>Jeux dans cette zone</h4>
+                        @if (getGamesForZonePlan(zone.id).length === 0) {
+                          <p class="no-games">Aucun jeu pour cette zone</p>
+                        } @else {
+                          <div class="game-chips">
+                            @for (game of getGamesForZonePlan(zone.id); track game.id) {
+                              <mat-chip>
+                                <mat-icon matChipAvatar>games</mat-icon>
+                                {{ game.libelle }}
+                              </mat-chip>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

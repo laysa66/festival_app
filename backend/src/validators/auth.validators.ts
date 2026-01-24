@@ -78,8 +78,6 @@ export const registerSwaggerSchema = {
   body: zodToJsonSchema(registerBodySchema),
   response: {
     201: zodToJsonSchema(registerResponseSchema),
-    400: zodToJsonSchema(errorResponseSchema),
-    409: zodToJsonSchema(errorResponseSchema),
   },
 };
 
@@ -89,8 +87,6 @@ export const loginSwaggerSchema = {
   body: zodToJsonSchema(loginBodySchema),
   response: {
     200: zodToJsonSchema(loginResponseSchema),
-    401: zodToJsonSchema(errorResponseSchema),
-    403: zodToJsonSchema(errorResponseSchema),
   },
 };
 
@@ -100,6 +96,5 @@ export const meSwaggerSchema = {
   security: [{ Bearer: [] }],
   response: {
     200: zodToJsonSchema(meResponseSchema),
-    401: zodToJsonSchema(errorResponseSchema),
   },
 };

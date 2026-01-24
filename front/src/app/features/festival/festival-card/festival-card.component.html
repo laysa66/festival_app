@@ -1,0 +1,51 @@
+@if (festival()) {
+    @let fest = festival()!;
+    <div class="festival-card-container" appearance="raised">
+        <mat-card class="festival-card">
+            <div class="card-header-container">
+                <h2 class="festival-header">{{ fest.nom }}</h2>
+                <p class="festival-location">{{ fest.lieu }}</p>
+            </div>
+            <div class="divider"></div>
+            <div class="card-content-container">
+                <div class="festival-info">
+                    <p><strong>Date:</strong> {{ fest.dateDebut | date:'dd/MM/yyyy' }} - {{ fest.dateFin | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="info-row">
+                    <table class="festival-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Grand</th>
+                                <th>Petit</th>
+                                <th>Mairie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tables</td>
+                                <td>{{ fest.bigTables || 0 }}</td>
+                                <td>{{ fest.smallTables || 0 }}</td>
+                                <td>{{ fest.mairieTables || 0 }}</td>
+                            </tr>
+                            <tr>
+                                <td>Chaises</td>
+                                <td>{{ fest.bigChairs || 0 }}</td>
+                                <td>Non disponible</td>
+                                <td>{{ fest.mairieChairs || 0 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="button-group">
+                    <button class="edit-button" (click)="editFestival(fest); $event.stopPropagation()">
+                        <mat-icon>edit</mat-icon> Modifier
+                    </button>
+                    <button class="dlt-button" (click)="deleteFestival(fest.id); $event.stopPropagation()">
+                        <mat-icon>delete</mat-icon> Supprimer
+                    </button>
+                </div>
+            </div>
+        </mat-card>
+    </div>
+}
