@@ -478,6 +478,24 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
     return WORKFLOW_STATUS_LABELS[status] || status;
   }
 
+  /**
+   * Safe access helpers for template
+   */
+  getReservationLineZoneName(line: any): string {
+    return line?.zoneTarifaire?.nom || 'Zone #' + line?.zoneTarifaireId || '-';
+  }
+
+  getReservationJeuLibelle(rj: any): string {
+    return rj?.jeu?.libelle || 'Jeu #' + rj?.jeuId || '-';
+  }
+
+  /**
+   * Imprimer la réservation
+   */
+  printReservation(): void {
+    window.print();
+  }
+
   // ============ GESTION DES JEUX ============
 
   /**

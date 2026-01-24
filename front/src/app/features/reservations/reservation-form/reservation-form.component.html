@@ -21,7 +21,11 @@
   <!-- Erreur -->
   @if (error()) {
   <div class="error-message">
-    <span class="icon">⚠️</span>
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path fill-rule="evenodd"
+        d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+        clip-rule="evenodd" />
+    </svg>
     {{ error() }}
   </div>
   }
@@ -113,14 +117,14 @@
           @if (reservationForm.get('typeRemise')?.value === TypeRemise.SOMME_ARGENT) {
           <div class="form-group">
             <label for="valeurRemise">Montant de la remise (€)</label>
-            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="0.01"
-              placeholder="0" (change)="onRemiseChange()" (input)="onRemiseChange()" />
+            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="0.01" placeholder="0"
+              (change)="onRemiseChange()" (input)="onRemiseChange()" />
           </div>
           } @else if (reservationForm.get('typeRemise')?.value === TypeRemise.TABLES_OFFERTES) {
           <div class="form-group">
             <label for="valeurRemise">Nombre de tables offertes</label>
-            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="1"
-              placeholder="0" (change)="onRemiseChange()" (input)="onRemiseChange()" />
+            <input id="valeurRemise" type="number" formControlName="valeurRemise" min="0" step="1" placeholder="0"
+              (change)="onRemiseChange()" (input)="onRemiseChange()" />
           </div>
           }
         </div>
@@ -174,10 +178,21 @@
               <p class="eyebrow">Facture</p>
               <p class="muted">Calcul basé sur les espaces réservés et les options.</p>
             </div>
-            <button type="button" class="btn btn-primary" (click)="calculatePrice()" [disabled]="!reservationId || priceLoading()">
-              @if (priceLoading()) { <span class="spinner-small"></span> }
-              Mettre à jour
-            </button>
+            <div class="header-actions">
+              <button type="button" class="btn btn-secondary" (click)="printReservation()" [disabled]="!reservationId">
+                <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon-left" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
+                    clip-rule="evenodd" />
+                </svg>
+                Imprimer
+              </button>
+              <button type="button" class="btn btn-primary" (click)="calculatePrice()"
+                [disabled]="!reservationId || priceLoading()">
+                @if (priceLoading()) { <span class="spinner-small"></span> }
+                Mettre à jour
+              </button>
+            </div>
           </div>
 
           @if (priceLoading()) {
@@ -192,9 +207,12 @@
               <div class="amount">{{ priceSummary()!.totalGeneral | number:'1.2-2' }} €</div>
             </div>
             <div class="billing-breakdown">
-              <div class="row"><span>Espaces réservés</span><strong>{{ priceSummary()!.sousTotal | number:'1.2-2' }} €</strong></div>
-              <div class="row"><span>Prises électriques</span><strong>{{ priceSummary()!.coutPrises | number:'1.2-2' }} €</strong></div>
-              <div class="row"><span>Remise</span><strong>- {{ priceSummary()!.remise | number:'1.2-2' }} €</strong></div>
+              <div class="row"><span>Espaces réservés</span><strong>{{ priceSummary()!.sousTotal | number:'1.2-2' }}
+                  €</strong></div>
+              <div class="row"><span>Prises électriques</span><strong>{{ priceSummary()!.coutPrises | number:'1.2-2' }}
+                  €</strong></div>
+              <div class="row"><span>Remise</span><strong>- {{ priceSummary()!.remise | number:'1.2-2' }} €</strong>
+              </div>
             </div>
           </div>
           } @else {
@@ -233,12 +251,21 @@
                 <td class="zone-name">{{ line.zoneTarifaire?.nom || 'Zone #' + line.zoneTarifaireId }}</td>
                 <td class="center">{{ line.nbTables }}</td>
                 <td class="center">{{ line.nbM2 }}</td>
-                <td class="center">{{ line.grandesTablesSouhaitees ? '✅' : '❌' }}</td>
+                <td class="center">
+                  <span class="badge" [class.badge-success]="line.grandesTablesSouhaitees"
+                    [class.badge-default]="!line.grandesTablesSouhaitees">
+                    {{ line.grandesTablesSouhaitees ? 'Oui' : 'Non' }}
+                  </span>
+                </td>
                 <td class="right">{{ line.sousTotal | number:'1.2-2' }} €</td>
                 <td class="center">
                   <button type="button" class="btn btn-sm btn-danger" (click)="removeReservationLine(line.id)"
                     title="Supprimer cette ligne">
-                    🗑️
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                      <path fill-rule="evenodd"
+                        d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                        clip-rule="evenodd" />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -248,7 +275,12 @@
         </div>
         } @else {
         <div class="empty-state">
-          <p>📐 Aucun espace réservé</p>
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+          </svg>
+          <p>Aucun espace réservé</p>
           <p class="hint">Utilisez le formulaire ci-dessous pour ajouter des espaces</p>
         </div>
         }
@@ -291,15 +323,14 @@
                   </div>
                   <div class="form-group">
                     <label>Prix m² (€) *</label>
-                    <input type="number" min="0" step="0.01" class="form-control"
-                      [value]="newZoneData().prixM2 || ''"
+                    <input type="number" min="0" step="0.01" class="form-control" [value]="newZoneData().prixM2 || ''"
                       (input)="updateNewZoneField('prixM2', +$any($event.target).value)" />
                   </div>
                 </div>
                 <div class="form-actions">
                   <button type="button" class="btn btn-primary" (click)="createZoneTarifaire()"
                     [disabled]="creatingZone()">
-                    @if (creatingZone()) { ⏳ Création... } @else { Enregistrer la zone }
+                    @if (creatingZone()) { Création... } @else { Enregistrer la zone }
                   </button>
                 </div>
               </div>
@@ -331,16 +362,21 @@
             <button type="button" class="btn btn-primary" (click)="addReservationLine()"
               [disabled]="addingLine() || !newLineData().zoneTarifaireId">
               @if (addingLine()) {
-              ⏳ Ajout...
+              Ajout...
               } @else {
-              ➕ Ajouter l'espace
+              Ajouter l'espace
               }
             </button>
           </div>
         </div>
         } @else {
         <div class="info-box">
-          <p>⚠️ Sauvegardez d'abord la réservation pour ajouter des espaces.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Sauvegardez d'abord la réservation pour ajouter des espaces.</p>
         </div>
         }
       </div>
@@ -363,7 +399,15 @@
             <input type="text" placeholder="Rechercher un jeu par nom ou auteur..." [value]="gameSearchQuery()"
               (input)="searchGames($any($event.target).value)" class="form-control search-input" />
             @if (searchingGames()) {
-            <span class="search-loading">🔄 Recherche...</span>
+            <span class="search-loading">
+              <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              Recherche...
+            </span>
             }
           </div>
 
@@ -389,9 +433,9 @@
               <button type="button" class="btn btn-sm btn-success" (click)="addGameToReservation(jeu)"
                 [disabled]="addingGameId() === jeu.id">
                 @if (addingGameId() === jeu.id) {
-                ⏳ Ajout...
+                Ajout...
                 } @else {
-                ➕ Ajouter
+                Ajouter
                 }
               </button>
             </div>
@@ -403,9 +447,9 @@
           <div class="create-game-toggle">
             <button type="button" class="btn btn-secondary" (click)="toggleNewGameForm()">
               @if (showNewGameForm()) {
-              ❌ Annuler
+              Annuler
               } @else {
-              ➕ Créer un nouveau jeu
+              Créer un nouveau jeu
               }
             </button>
           </div>
@@ -450,9 +494,9 @@
               <button type="button" class="btn btn-primary" (click)="createAndAddGame()"
                 [disabled]="savingGame() || !newGameData().libelle">
                 @if (savingGame()) {
-                ⏳ Création...
+                Création...
                 } @else {
-                ✅ Créer et ajouter
+                Créer et ajouter
                 }
               </button>
             </div>
@@ -494,7 +538,11 @@
                 <td class="center">
                   <button type="button" class="btn btn-sm btn-danger" (click)="removeGameFromReservation(rj.id)"
                     title="Supprimer ce jeu">
-                    🗑️
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                      <path fill-rule="evenodd"
+                        d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                        clip-rule="evenodd" />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -503,14 +551,24 @@
           </table>
           } @else {
           <div class="empty-state">
-            <p>🎲 Aucun jeu dans cette réservation</p>
+            <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>Aucun jeu dans cette réservation</p>
             <p class="hint">Utilisez la recherche ci-dessus pour ajouter des jeux</p>
           </div>
           }
         </div>
         } @else {
         <div class="info-box">
-          <p>⚠️ Sauvegardez d'abord la réservation pour ajouter des jeux.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Sauvegardez d'abord la réservation pour ajouter des jeux.</p>
         </div>
         }
       </div>
@@ -565,8 +623,7 @@
                       </div>
                       <div class="form-group">
                         <label>Zone tarifaire liée (optionnel)</label>
-                        <select class="form-control"
-                          [value]="newZonePlanData().zoneTarifaireId || ''"
+                        <select class="form-control" [value]="newZonePlanData().zoneTarifaireId || ''"
                           (change)="updateNewZonePlanField('zoneTarifaireId', $any($event.target).value ? +$any($event.target).value : null)">
                           <option value="">-- Aucune --</option>
                           @for (zone of zoneTarifairesList(); track zone.id) {
@@ -578,7 +635,7 @@
                     <div class="form-actions">
                       <button type="button" class="btn btn-primary" (click)="createZonePlan()"
                         [disabled]="creatingZonePlan()">
-                        @if (creatingZonePlan()) { ⏳ Création... } @else { Enregistrer la zone du plan }
+                        @if (creatingZonePlan()) { Création... } @else { Enregistrer la zone du plan }
                       </button>
                     </div>
                   </div>
@@ -591,20 +648,35 @@
         </div>
         } @else {
         <div class="info-box">
-          <p>🎲 Aucun jeu n'a été ajouté à cette réservation.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Aucun jeu n'a été ajouté à cette réservation.</p>
           <p>Ajoutez des jeux dans l'onglet "Jeux" avant de pouvoir les placer sur le plan.</p>
         </div>
         }
 
         @if (zonePlansList().length === 0 && reservation()?.reservationJeux?.length) {
         <div class="info-box warning">
-          <p>⚠️ Aucune zone du plan n'est disponible pour ce festival.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Aucune zone du plan n'est disponible pour ce festival.</p>
           <p>Créez des zones du plan dans les paramètres du festival.</p>
         </div>
         }
         } @else {
         <div class="info-box">
-          <p>⚠️ Sauvegardez d'abord la réservation pour gérer le placement.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Sauvegardez d'abord la réservation pour gérer le placement.</p>
         </div>
         }
       </div>
@@ -638,7 +710,11 @@
                 <td class="center">
                   <button type="button" class="btn btn-sm btn-danger" (click)="removeContact(contact.id)"
                     title="Supprimer ce contact">
-                    🗑️
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="btn-icon">
+                      <path fill-rule="evenodd"
+                        d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                        clip-rule="evenodd" />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -648,7 +724,12 @@
         </div>
         } @else {
         <div class="empty-state">
-          <p>📞 Aucun contact enregistré</p>
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <p>Aucun contact enregistré</p>
           <p class="hint">Utilisez le formulaire ci-dessous pour ajouter un contact</p>
         </div>
         }
@@ -678,21 +759,157 @@
             <button type="button" class="btn btn-primary" (click)="addContact()"
               [disabled]="addingContact() || !newContactData().dateContact">
               @if (addingContact()) {
-              ⏳ Ajout...
+              Ajout...
               } @else {
-              ➕ Ajouter le contact
+              Ajouter le contact
               }
             </button>
           </div>
         </div>
         } @else {
         <div class="info-box">
-          <p>⚠️ Sauvegardez d'abord la réservation pour gérer les contacts.</p>
+          <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+              clip-rule="evenodd" />
+          </svg>
+          <p>Sauvegardez d'abord la réservation pour gérer les contacts.</p>
         </div>
         }
       </div>
       }
     </div>
   </form>
+  }
+
+  <!-- Section visible uniquement à l'impression -->
+  @if (reservation()) {
+  <div class="print-only">
+    <div class="print-header">
+      <h1>Détail de la Réservation #{{ reservation()!.id }}</h1>
+      <p class="print-date">Imprimé le {{ 0 | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+
+    <div class="print-section">
+      <h2>Informations Générales</h2>
+      <div class="print-grid">
+        <div class="print-row">
+          <span class="label">Éditeur :</span>
+          <span class="value">{{ reservation()!.editeur?.libelle || '-' }}</span>
+        </div>
+        <div class="print-row">
+          <span class="label">Festival :</span>
+          <span class="value">{{ reservation()!.festival?.nom || '-' }}</span>
+        </div>
+        <div class="print-row">
+          <span class="label">Type de réservant :</span>
+          <span class="value">{{ getTypeReservantLabel(reservation()!.typeReservant) }}</span>
+        </div>
+        <div class="print-row">
+          <span class="label">Statut :</span>
+          <span class="value">{{ getWorkflowStatusLabel(reservation()!.workflowStatus) }}</span>
+        </div>
+        @if (reservation()!.editeur?.email) {
+        <div class="print-row">
+          <span class="label">Email :</span>
+          <span class="value">{{ reservation()!.editeur?.email }}</span>
+        </div>
+        }
+        @if (reservation()!.editeur?.phone) {
+        <div class="print-row">
+          <span class="label">Téléphone :</span>
+          <span class="value">{{ reservation()!.editeur?.phone }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    @if (reservation()!.reservationLines && reservation()!.reservationLines!.length > 0) {
+    <div class="print-section">
+      <h2>Espaces Réservés</h2>
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th class="center">Tables</th>
+            <th class="center">M²</th>
+            <th class="right">Prix</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of reservation()!.reservationLines!; track line.id) {
+          <tr>
+            <td>{{ getReservationLineZoneName(line) }}</td>
+            <td class="center">{{ line.nbTables }}</td>
+            <td class="center">{{ line.nbM2 }}</td>
+            <td class="right">{{ line.sousTotal | number:'1.2-2' }} €</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    @if (reservation()!.reservationJeux && reservation()!.reservationJeux!.length > 0) {
+    <div class="print-section">
+      <h2>Jeux Présentés</h2>
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>Jeu</th>
+            <th>Auteur</th>
+            <th class="center">Qté</th>
+            <th class="center">Tables</th>
+            <th>Zone Plan</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rj of reservation()!.reservationJeux!; track rj.id) {
+          <tr>
+            <td>{{ getReservationJeuLibelle(rj) }}</td>
+            <td>{{ rj.jeu?.auteur || '-' }}</td>
+            <td class="center">{{ rj.nbExemplaires }}</td>
+            <td class="center">{{ rj.nbTablesAllouees }}</td>
+            <td>{{ rj.zonePlan?.nom || '-' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    @if (priceSummary()) {
+    <div class="print-section no-break">
+      <h2>Facturation</h2>
+      <div class="print-billing">
+        <div class="print-row">
+          <span>Sous-total espaces :</span>
+          <strong>{{ priceSummary()!.sousTotal | number:'1.2-2' }} €</strong>
+        </div>
+        <div class="print-row">
+          <span>Prises électriques ({{ reservation()!.nbPrisesElectriques }}) :</span>
+          <strong>{{ priceSummary()!.coutPrises | number:'1.2-2' }} €</strong>
+        </div>
+        @if (priceSummary()!.remise > 0) {
+        <div class="print-row">
+          <span>Remise :</span>
+          <strong>- {{ priceSummary()!.remise | number:'1.2-2' }} €</strong>
+        </div>
+        }
+        <div class="print-total">
+          <span>TOTAL À PAYER</span>
+          <span>{{ priceSummary()!.totalGeneral | number:'1.2-2' }} €</span>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (reservation()!.notesClient) {
+    <div class="print-section">
+      <h2>Notes</h2>
+      <p class="print-notes">{{ reservation()!.notesClient }}</p>
+    </div>
+    }
+  </div>
   }
 </div>

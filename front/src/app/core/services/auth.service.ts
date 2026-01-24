@@ -13,7 +13,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   
-  private readonly API_URL = `${environment.apiBaseUrl}/api/auth`;
+  private readonly API_URL = `${environment.apiBaseUrl}/auth`;
 
   // Utilisateur connecté (stocké uniquement en mémoire)
   private currentUserSubject = new BehaviorSubject<User | null>(null);

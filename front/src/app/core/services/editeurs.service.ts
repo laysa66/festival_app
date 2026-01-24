@@ -23,7 +23,7 @@ export interface Editeur {
 export class EditeursService {
   private http = inject(HttpClient);
   //private apiUrl = 'http://localhost:3000/api';
-  private apiUrl = `${environment.apiBaseUrl}/api`;
+  private apiUrl = `${environment.apiBaseUrl}`;
 
   getEditeurs(): Observable<Editeur[]> {
     return this.http.get<{ success: boolean; editeurs: Editeur[]; total: number }>(`${this.apiUrl}/editeurs`)

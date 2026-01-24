@@ -40,8 +40,6 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       CORS_ORIGIN: ${CORS_ORIGIN:-http://162.38.111.33}
-    ports:
-      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -63,7 +61,8 @@ services:
     container_name: festival_app_frontend
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8081:80"
+      - "8443:443"
     depends_on:
       - backend
     healthcheck:

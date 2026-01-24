@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Festival } from '../../../core/models/festival';
 import { FestivalService, ZoneTarifaire } from '../../../core/services/festival.service';
 
@@ -25,6 +26,7 @@ import { FestivalService, ZoneTarifaire } from '../../../core/services/festival.
     MatInputModule,
     MatTableModule,
     MatTooltipModule,
+    MatSnackBarModule,
   ],
   templateUrl: './zone-tarifaire-management.component.html',
   styleUrl: './zone-tarifaire-management.component.css',
@@ -43,7 +45,8 @@ export class ZoneTarifaireManagementComponent {
   constructor(
     private fb: FormBuilder,
     private festivalService: FestivalService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.initializeForm();
 
@@ -102,7 +105,9 @@ export class ZoneTarifaireManagementComponent {
     this.festivalService.addZoneTarifaire(this.festival()!.id, formValue).subscribe({
       next: (newZone) => {
         // Update zones list
-        this.zones.set([...this.zones(), newZone]);
+        const updatedZones = [...this.zones(), newZone];
+        this.zones.set(updatedZones);
+        this.zonesChanged.emit(updatedZones);
         this.newZoneForm.reset();
         this.isEditing.set(false);
         this.isLoading.set(false);
@@ -126,6 +131,7 @@ export class ZoneTarifaireManagementComponent {
         // Update zones list
         const updatedZones = this.zones().map(z => z.id === zoneId ? updatedZone : z);
         this.zones.set(updatedZones);
+        this.zonesChanged.emit(updatedZones);
         this.newZoneForm.reset();
         this.isEditing.set(false);
         this.isEditingZoneId.set(null);
@@ -155,18 +161,42 @@ export class ZoneTarifaireManagementComponent {
   }
 
   deleteZone(zoneId: number): void {
-    if (confirm('Are you sure you want to delete this zone?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette zone tarifaire ?')) {
       this.isLoading.set(true);
       
       this.festivalService.deleteZoneTarifaire(zoneId).subscribe({
         next: () => {
           // Remove from local list
-          this.zones.set(this.zones().filter(z => z.id !== zoneId));
+          const updatedZones = this.zones().filter(z => z.id !== zoneId);
+          this.zones.set(updatedZones);
+          this.zonesChanged.emit(updatedZones);
           this.isLoading.set(false);
+          this.snackBar.open('Zone tarifaire supprimée avec succès', 'Fermer', {
+            duration: 3000,
+          });
         },
         error: (err) => {
           console.error('Error deleting zone:', err);
           this.isLoading.set(false);
+          
+          // Check for specific error messages
+          let errorMessage = 'Erreur lors de la suppression de la zone tarifaire';
+          if (err?.error?.message) {
+            if (err.error.message.includes('used in existing reservations')) {
+              errorMessage = 'Impossible de supprimer cette zone : elle est utilisée dans des réservations existantes';
+            } else if (err.error.message.includes('linked to') && err.error.message.includes('zone plan')) {
+              errorMessage = 'Impossible de supprimer cette zone : elle est liée à des zones du plan. Veuillez d\'abord supprimer les zones du plan.';
+            } else if (err.error.message.includes('referenced by other records')) {
+              errorMessage = 'Impossible de supprimer cette zone : elle est liée à d\'autres enregistrements';
+            } else {
+              errorMessage = err.error.message;
+            }
+          }
+          
+          this.snackBar.open(errorMessage, 'Fermer', {
+            duration: 5000,
+            panelClass: ['error-snackbar'],
+          });
         },
       });
     }

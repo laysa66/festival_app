@@ -26,9 +26,9 @@ export interface ZonePlan {
 })
 export class FestivalService {
   //private apiUrl = 'http://localhost:3000/api/festivals';
-  private apiUrl = `${environment.apiBaseUrl}/api/festivals`;
+  private apiUrl = `${environment.apiBaseUrl}/festivals`;
   //private baseUrl = 'http://localhost:3000/api';
-  private baseUrl = `${environment.apiBaseUrl}/api`;
+  private baseUrl = `${environment.apiBaseUrl}`;
 
   constructor(private http: HttpClient) {}
 

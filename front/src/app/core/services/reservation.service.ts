@@ -30,7 +30,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ReservationService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiBaseUrl}/api/reservations`;
+  private readonly apiUrl = `${environment.apiBaseUrl}/reservations`;
 
   /**
    * Récupérer toutes les réservations avec filtres et pagination

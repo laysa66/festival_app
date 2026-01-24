@@ -156,10 +156,18 @@ class FestivalService {
     try {
       const festival = await this.prisma.festival.findUnique({
         where: { id },
+        include: {
+          reservations: true,
+        },
       });
 
       if (!festival) {
         throw new AppError(404, 'Festival not found');
+      }
+
+      // Check if festival has reservations
+      if (festival.reservations && festival.reservations.length > 0) {
+        throw new AppError(409, `Cannot delete festival: it has ${festival.reservations.length} reservation(s). Please delete the reservations first.`);
       }
 
       const deletedFestival = await this.prisma.festival.delete({
@@ -169,6 +177,10 @@ class FestivalService {
       return deletedFestival;
     } catch (error) {
       if (error instanceof AppError) throw error;
+      // Check for foreign key constraint error
+      if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+        throw new AppError(409, 'Cannot delete festival: it is still referenced by other records (zones, reservations, etc.)');
+      }
       throw new AppError(500, 'Failed to delete festival');
     }
   }
@@ -232,21 +244,50 @@ class FestivalService {
 
   async deleteZoneTarifaire(zoneId: number) {
     try {
+      console.log('🗑️ Attempting to delete zone tarifaire:', zoneId);
+      
       const zone = await this.prisma.zoneTarifaire.findUnique({
         where: { id: zoneId },
+        include: {
+          reservationLines: true,
+          zonePlans: true,
+        },
       });
+
+      console.log('🔍 Zone found:', zone ? 'Yes' : 'No');
+      if (zone) {
+        console.log('📊 Reservation lines:', zone.reservationLines?.length || 0);
+        console.log('📍 Zone plans:', zone.zonePlans?.length || 0);
+      }
 
       if (!zone) {
         throw new AppError(404, 'Zone tarifaire not found');
       }
 
+      // Check if zone is used in reservations
+      if (zone.reservationLines && zone.reservationLines.length > 0) {
+        throw new AppError(409, 'Cannot delete zone tarifaire: it is used in existing reservations');
+      }
+
+      // Check if zone is used in zone plans
+      if (zone.zonePlans && zone.zonePlans.length > 0) {
+        throw new AppError(409, `Cannot delete zone tarifaire: it is linked to ${zone.zonePlans.length} zone plan(s). Please delete the zone plans first.`);
+      }
+
+      console.log('✅ All checks passed, attempting deletion...');
       const deletedZone = await this.prisma.zoneTarifaire.delete({
         where: { id: zoneId },
       });
 
+      console.log('✅ Zone deleted successfully');
       return deletedZone;
     } catch (error) {
+      console.error('❌ Error in deleteZoneTarifaire:', error);
       if (error instanceof AppError) throw error;
+      // Check for foreign key constraint error
+      if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+        throw new AppError(409, 'Cannot delete zone tarifaire: it is still referenced by other records');
+      }
       throw new AppError(500, 'Failed to delete zone tarifaire');
     }
   }

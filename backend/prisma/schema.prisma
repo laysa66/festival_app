@@ -69,7 +69,7 @@ model Festival {
 model ZoneTarifaire {
   id               Int               @id @default(autoincrement())
   festivalId       Int               @map("festival_id")
-  festival         Festival          @relation(fields: [festivalId], references: [id])
+  festival         Festival          @relation(fields: [festivalId], references: [id], onDelete: Cascade)
   nom              String            @db.VarChar(100)
   prixTable        Float             @db.Real
   prixM2           Float             @db.Real
@@ -80,7 +80,7 @@ model ZoneTarifaire {
 model ZonePlan {
   id              Int             @id @default(autoincrement())
   festivalId      Int             @map("festival_id")
-  festival        Festival        @relation(fields: [festivalId], references: [id])
+  festival        Festival        @relation(fields: [festivalId], references: [id], onDelete: Cascade)
   nom             String          @db.VarChar(100)
   zoneTarifaireId Int             @map("zone_tarifaire_id")
   zoneTarifaire   ZoneTarifaire   @relation(fields: [zoneTarifaireId], references: [id], onDelete: Cascade)

@@ -35,7 +35,7 @@ export interface JeuCreateRequest {
 })
 export class JeuService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiBaseUrl}/api`;
+  private apiUrl = `${environment.apiBaseUrl}`;
 
   /**
    * Search games by name or author

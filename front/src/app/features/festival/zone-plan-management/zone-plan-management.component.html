@@ -121,10 +121,11 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <!-- Empty State -->
-      <div *ngIf="zonePlans().length === 0" class="empty-state">
-        <p>Aucune zone du plan trouvée</p>
-      </div>
+      @if(zonePlans().length === 0) {
+        <div class="empty-state">
+          <p>Aucune zone du plan trouvée</p>
+        </div>
+      }
     </div>
   </div>
 </div>
