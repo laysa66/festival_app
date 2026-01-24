@@ -23,6 +23,10 @@ FROM nginx:alpine AS production
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
 
+
+# Install openssl for cert generation
+RUN apk add --no-cache openssl
+
 # Generate self-signed SSL certs if not present
 RUN mkdir -p /etc/nginx/certs && \
     if [ ! -f /etc/nginx/certs/local.crt ] || [ ! -f /etc/nginx/certs/local.key ]; then \
