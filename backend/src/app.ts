@@ -25,7 +25,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   // Register CORS
   await server.register(cors, {
     origin: (origin, cb) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin 
       if (!origin) return cb(null, true);
       
       const allowedOrigins = [env.CORS_ORIGIN, 'http://localhost:4200', 'http://localhost:8080', 'https://localhost:8443', 'https://162.38.111.33', 'http://162.38.111.33'];

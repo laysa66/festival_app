@@ -100,7 +100,7 @@ export class RegisterComponent {
   }
 
   calculatePasswordStrength(password: string): { strength: number; color: string; label: string } {
-    if (!password) return { strength: 0, color: 'primary', label: '' };
+    if (!password) return { strength: 0, color: 'weak', label: '' };
 
     let strength = 0;
     if (password.length >= 8) strength += 20;
@@ -109,14 +109,14 @@ export class RegisterComponent {
     if (/[0-9]/.test(password)) strength += 20;
     if (/[^A-Za-z0-9]/.test(password)) strength += 20;
 
-    let color = 'warn';
+    let color = 'weak';
     let label = 'Faible';
 
     if (strength >= 80) {
-      color = 'primary';
+      color = 'strong';
       label = 'Fort';
     } else if (strength >= 60) {
-      color = 'accent';
+      color = 'medium';
       label = 'Moyen';
     }
 
