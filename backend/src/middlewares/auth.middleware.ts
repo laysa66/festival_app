@@ -18,8 +18,8 @@ export const authMiddleware = async (request: FastifyRequest, reply: FastifyRepl
     // Récupérer le token depuis le cookie
     const token = request.cookies.auth_token;
     
-    console.log('🔒 AuthMiddleware - Cookies received:', Object.keys(request.cookies));
-    console.log('🔒 AuthMiddleware - Token present:', !!token);
+    //console.log('🔒 AuthMiddleware - Cookies received:', Object.keys(request.cookies));
+    //console.log('🔒 AuthMiddleware - Token present:', !!token);
 
     // il ya pas de token c'est pas normal je te laisse pas passer 
     if (!token) {
@@ -31,7 +31,7 @@ export const authMiddleware = async (request: FastifyRequest, reply: FastifyRepl
     request.user = decoded; // attacher les infos au request object
     request.user = decoded; // attacher les infos au request object
   } catch (error) {
-    console.error('🔒 AuthMiddleware - Error confirming token:', error);
+    //console.error('🔒 AuthMiddleware - Error confirming token:', error);
     throw new UnauthorizedError('Token invalide ou expiré');
   }
 };

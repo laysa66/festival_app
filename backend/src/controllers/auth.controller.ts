@@ -35,9 +35,9 @@ export class AuthController {
       // si valide il appel le serive 
       const result = await this.authService.login(data);
       
-      console.log('🔐 Setting auth_token cookie for user:', result.user?.email);
-      console.log('🔐 Token length:', result.token?.length);
-      console.log('🔐 NODE_ENV:', process.env.NODE_ENV);
+      //console.log('🔐 Setting auth_token cookie for user:', result.user?.email);
+      //console.log('🔐 Token length:', result.token?.length);
+      //console.log('🔐 NODE_ENV:', process.env.NODE_ENV);
       
       // creer le cookie avec le token 
       reply.setCookie('auth_token', result.token!, {
@@ -49,7 +49,7 @@ export class AuthController {
         // domain: 'localhost' // REMOVED: causing issues with 127.0.0.1 vs localhost
       });
       
-      console.log('✅ Cookie set successfully');
+      //console.log('✅ Cookie set successfully');
       
       // Renvoyer la réponse SANS le token (il est dans le cookie)
       const { token, ...responseWithoutToken } = result;

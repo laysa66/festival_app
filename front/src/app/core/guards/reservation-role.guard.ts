@@ -13,12 +13,12 @@ export const reservationRoleGuard: CanActivateFn = (route, state) => {
 
   const currentUser = authService.getCurrentUser();
   
-  console.log('🔒 ReservationRoleGuard - Current user:', currentUser);
-  console.log('🔒 ReservationRoleGuard - User role:', currentUser?.role);
+  //console.log('🔒 ReservationRoleGuard - Current user:', currentUser);
+  //console.log('🔒 ReservationRoleGuard - User role:', currentUser?.role);
 
   // Vérifier si l'utilisateur est connecté
   if (!currentUser) {
-    console.log('❌ ReservationRoleGuard - No user, redirecting to login');
+    //console.log('❌ ReservationRoleGuard - No user, redirecting to login');
     router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
@@ -31,12 +31,12 @@ export const reservationRoleGuard: CanActivateFn = (route, state) => {
   ];
 
   if (allowedRoles.includes(currentUser.role)) {
-    console.log('✅ ReservationRoleGuard - Access granted');
+    //console.log('✅ ReservationRoleGuard - Access granted');
     return true;
   }
 
   // Rediriger vers le dashboard si l'utilisateur n'a pas les permissions
-  console.log('❌ ReservationRoleGuard - Insufficient permissions, redirecting to dashboard');
+  //console.log('❌ ReservationRoleGuard - Insufficient permissions, redirecting to dashboard');
   router.navigate(['/dashboard']);
   return false;
 };

@@ -65,10 +65,10 @@ export class ReservationsListComponent implements OnInit {
       this.currentUser = user;
       this.canDelete = user?.role === UserRole.SUPER_ORGANISATEUR || 
                        user?.role === UserRole.ADMIN;
-      console.log('👤 User in ReservationsList:', user);
-      console.log('🔑 Can delete:', this.canDelete);
+      //console.log('👤 User in ReservationsList:', user);
+      //console.log('🔑 Can delete:', this.canDelete);
     });
-    console.log('📋 Loading reservations...');
+    //console.log('📋 Loading reservations...');
     this.loadReservations();
   }
 
@@ -100,7 +100,7 @@ export class ReservationsListComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des réservations:', err);
+        //console.error('Erreur lors du chargement des réservations:', err);
         this.error.set('Erreur lors du chargement des réservations');
         this.loading.set(false);
       }
@@ -191,7 +191,7 @@ export class ReservationsListComponent implements OnInit {
           this.loadReservations();
         },
         error: (err) => {
-          console.error('Erreur lors de la suppression:', err);
+          //console.error('Erreur lors de la suppression:', err);
           alert('Erreur lors de la suppression de la réservation');
         }
       });
@@ -298,10 +298,10 @@ export class ReservationsListComponent implements OnInit {
           r.id === reservationId ? { ...r, ...updateData } : r
         );
         this.reservations.set(updated);
-        console.log('Workflow mis à jour:', field, value);
+        //console.log('Workflow mis à jour:', field, value);
       },
       error: (err) => {
-        console.error('Erreur mise à jour workflow:', err);
+        //e.error('Erreur mise à jour workflow:', err);
         this.error.set('Erreur lors de la mise à jour du workflow');
       }
     });

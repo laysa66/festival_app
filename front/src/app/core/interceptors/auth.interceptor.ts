@@ -21,7 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         const isAuthRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
         if (!isAuthRoute) {
-          console.log('❌ 401 Unauthorized - Logging out');
+          //console.log('❌ 401 Unauthorized - Logging out');
           authService.logout();
         }
       }

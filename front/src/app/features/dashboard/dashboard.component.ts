@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error loading festivals:', err);
+        //console.error('Error loading festivals:', err);
       }
     });
   }

@@ -56,8 +56,8 @@ export class ReservationService {
       ];
     }
 
-    console.log('🔍 getAllReservations Filters:', filters);
-    console.log('🔍 getAllReservations Where:', JSON.stringify(where, null, 2));
+    //console.log('🔍 getAllReservations Filters:', filters);
+    //console.log('🔍 getAllReservations Where:', JSON.stringify(where, null, 2));
 
     const [reservations, total] = await Promise.all([
       this.prisma.reservation.findMany({
@@ -74,7 +74,7 @@ export class ReservationService {
       this.prisma.reservation.count({ where }),
     ]);
 
-    console.log(`✅ Found ${reservations.length} reservations (Total: ${total})`);
+    //console.log(`✅ Found ${reservations.length} reservations (Total: ${total})`);
 
     // Calculer le total des tables et prix pour chaque réservation
     const reservationsWithTotals: ReservationListItem[] = await Promise.all(

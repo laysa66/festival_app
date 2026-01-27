@@ -33,23 +33,23 @@ export class AuthService {
    * Aucune donnée n'est stockée en localStorage - tout passe par le cookie sécurisé
    */
   private initializeSession(): void {
-    console.log('🔐 Vérification de la session via cookie...');
+    //console.log('🔐 Vérification de la session via cookie...');
     
     this.http.get<{ success: boolean; user: User }>(`${this.API_URL}/me`, {
       withCredentials: true
     }).subscribe({
       next: (response) => {
         if (response.success && response.user) {
-          console.log('✅ Session valide:', response.user.email);
+          //console.log('✅ Session valide:', response.user.email);
           this.currentUserSubject.next(response.user);
         } else {
-          console.log('❌ Pas de session active');
+          //console.log('❌ Pas de session active');
           this.currentUserSubject.next(null);
         }
         this.isInitializedSubject.next(true);
       },
       error: (err) => {
-        console.log('❌ Pas de session ou erreur:', err.status);
+        //console.log('❌ Pas de session ou erreur:', err.status);
         this.currentUserSubject.next(null);
         this.isInitializedSubject.next(true);
       }
@@ -78,7 +78,7 @@ export class AuthService {
         if (response.success && response.user) {
           // Le token est automatiquement stocké dans un cookie HttpOnly par le backend
           // On stocke l'utilisateur uniquement en mémoire
-          console.log('✅ Login réussi:', response.user.email);
+          //console.log('✅ Login réussi:', response.user.email);
           this.currentUserSubject.next(response.user);
         }
       }),
@@ -90,7 +90,7 @@ export class AuthService {
    * Déconnexion - Supprime le cookie côté serveur
    */
   logout(): void {
-    console.log('🚪 Logout - Suppression du cookie...');
+    //console.log('🚪 Logout - Suppression du cookie...');
     
     this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true }).subscribe({
       next: () => {

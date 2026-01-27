@@ -244,7 +244,7 @@ class FestivalService {
 
   async deleteZoneTarifaire(zoneId: number) {
     try {
-      console.log('🗑️ Attempting to delete zone tarifaire:', zoneId);
+      //console.log('🗑️ Attempting to delete zone tarifaire:', zoneId);
       
       const zone = await this.prisma.zoneTarifaire.findUnique({
         where: { id: zoneId },
@@ -254,10 +254,10 @@ class FestivalService {
         },
       });
 
-      console.log('🔍 Zone found:', zone ? 'Yes' : 'No');
+      //console.log('🔍 Zone found:', zone ? 'Yes' : 'No');
       if (zone) {
-        console.log('📊 Reservation lines:', zone.reservationLines?.length || 0);
-        console.log('📍 Zone plans:', zone.zonePlans?.length || 0);
+        //console.log('📊 Reservation lines:', zone.reservationLines?.length || 0);
+        //console.log('📍 Zone plans:', zone.zonePlans?.length || 0);
       }
 
       if (!zone) {
@@ -274,15 +274,15 @@ class FestivalService {
         throw new AppError(409, `Cannot delete zone tarifaire: it is linked to ${zone.zonePlans.length} zone plan(s). Please delete the zone plans first.`);
       }
 
-      console.log('✅ All checks passed, attempting deletion...');
+      //console.log('✅ All checks passed, attempting deletion...');
       const deletedZone = await this.prisma.zoneTarifaire.delete({
         where: { id: zoneId },
       });
 
-      console.log('✅ Zone deleted successfully');
+      //console.log('✅ Zone deleted successfully');
       return deletedZone;
     } catch (error) {
-      console.error('❌ Error in deleteZoneTarifaire:', error);
+      //console.error('❌ Error in deleteZoneTarifaire:', error);
       if (error instanceof AppError) throw error;
       // Check for foreign key constraint error
       if (error instanceof Error && error.message.includes('Foreign key constraint')) {

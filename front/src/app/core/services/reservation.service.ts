@@ -132,7 +132,7 @@ export class ReservationService {
    */
   updateReservation(id: number, data: UpdateReservationRequest): Observable<Reservation> {
     const sanitizedData = this.sanitizeData(data);
-    console.log('🔄 updateReservation - Sending to backend:', JSON.stringify(sanitizedData, null, 2));
+    //console.log('🔄 updateReservation - Sending to backend:', JSON.stringify(sanitizedData, null, 2));
     return this.http.put<{ success: boolean; reservation: Reservation }>(`${this.apiUrl}/${id}`, sanitizedData)
       .pipe(map(response => response.reservation));
   }

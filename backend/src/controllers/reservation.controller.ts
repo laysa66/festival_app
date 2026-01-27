@@ -199,7 +199,7 @@ export const addReservationContact = async (req: FastifyRequest, reply: FastifyR
     const result = await service.addReservationContact(parseInt(id, 10), body);
     reply.code(201).send(result);
   } catch (error) {
-    console.error('ERREUR AJOUT CONTACT:', error);
+    //console.error('ERREUR AJOUT CONTACT:', error);
     req.log.error(error, 'Error in addReservationContact');
     if (error instanceof AppError) {
       reply.code(error.statusCode).send({ success: false, message: error.message });

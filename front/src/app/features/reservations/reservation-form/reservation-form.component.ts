@@ -62,7 +62,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         this.searchingGames.set(false);
       },
       error: (err) => {
-        console.error('Erreur recherche jeux:', err);
+        //console.error('Erreur recherche jeux:', err);
         this.gameSearchResults.set([]);
         this.searchingGames.set(false);
       }
@@ -240,7 +240,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Erreur lors du chargement de la réservation:', err);
+        //console.error('Erreur lors du chargement de la réservation:', err);
         this.error.set('Erreur lors du chargement de la réservation');
         this.loading.set(false);
       }
@@ -299,7 +299,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
     
     this.reservationService.updateReservationJeu(this.reservationId, reservationJeuId, updateData).subscribe({
       next: (updatedJeu) => {
-        console.log('Zone du plan mise à jour pour le jeu:', updatedJeu);
+        //console.log('Zone du plan mise à jour pour le jeu:', updatedJeu);
         // Mettre à jour le jeu dans la réservation locale
         const currentReservation = this.reservation();
         if (currentReservation?.reservationJeux) {
@@ -310,7 +310,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Erreur mise à jour zone du jeu:', err);
+        //console.error('Erreur mise à jour zone du jeu:', err);
         this.error.set('Erreur lors de la mise à jour de la zone');
       }
     });
@@ -344,11 +344,11 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
 
     this.reservationService.autoSaveReservation(this.reservationId, autoSaveData).subscribe({
       next: (updated) => {
-        console.log('Auto-save réussi');
+        //console.log('Auto-save réussi');
         this.reservation.set({ ...this.reservation()!, ...updated });
       },
       error: (err) => {
-        console.error('Erreur auto-save:', err);
+        //console.error('Erreur auto-save:', err);
       }
     });
   }
@@ -381,19 +381,19 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
       
       this.reservationService.updateReservation(this.reservationId, updateData).subscribe({
         next: (res) => {
-          console.log('✅ Update successful, redirecting to /reservations', res);
+          //console.log('✅ Update successful, redirecting to /reservations', res);
           this.saving.set(false);
           this.ngZone.run(() => {
             this.router.navigate(['/reservations']).then(success => {
-              console.log('Navigation result:', success);
+              //console.log('Navigation result:', success);
               if (!success) {
-                 console.error('Navigation to /reservations failed!');
+                 //console.error('Navigation to /reservations failed!');
               }
             });
           });
         },
         error: (err) => {
-          console.error('❌ Error during update:', err);
+          //console.error('❌ Error during update:', err);
           const errorMessage = err.error?.message || err.message || 'Erreur inconnue';
           this.error.set(`Erreur lors de la mise à jour: ${err.status} - ${errorMessage}`);
           this.saving.set(false);
@@ -407,7 +407,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
           this.router.navigate(['/reservations']);
         },
         error: (err) => {
-          console.error('Erreur lors de la création:', err);
+          //console.error('Erreur lors de la création:', err);
           if (err.status === 409) {
             this.error.set('Une réservation existe déjà pour cet éditeur et ce festival.');
           } else {
@@ -958,7 +958,7 @@ export class ReservationFormComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Erreur suppression contact:', err);
+        //console.error('Erreur suppression contact:', err);
         this.error.set('Erreur lors de la suppression du contact');
       }
     });
